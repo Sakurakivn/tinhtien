@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Tính Tiền Photo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Ứng Dụng Tính Tiền Photo</h1>
+
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="customerName">Tên khách hàng:</label>
+                <input type="text" id="customerName" name="customerName" placeholder="Nhập tên khách hàng" required>
+            </div>
+
+            <div class="form-group">
+                <label for="customerClass">Tên lớp:</label>
+                <input type="text" id="customerClass" name="customerClass" placeholder="Nhập tên lớp">
+            </div>
+
+            <div class="form-group">
+                <label for="fileName">Tên file:</label>
+                <input type="text" id="fileName" name="fileName" placeholder="Nhập tên file">
+            </div>
+
+            <div class="form-group">
+                <label for="pages">Số trang:</label>
+                <input type="number" id="pages" name="pages" placeholder="Nhập số trang" required>
+            </div>
+
+            <div class="form-group">
+                <label for="printType">Cách In:</label>
+                <select id="printType" name="printType">
+                    <option value="portrait">In Dọc (2 trang A4)</option>
+                    <option value="landscape">In Ngang (4 trang A4)</option>
+                </select>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="friendDiscount" name="friendDiscount">
+                <label for="friendDiscount">Khách hàng thân thiết?</label>
+            </div>
+
+            <div class="form-group">
+                <label for="discount">Giảm Giá:</label>
+                <select id="discount" name="discount">
+                    <option value="0">Không giảm</option>
+                    <option value="5">Giảm 5%</option>
+                    <option value="10">Giảm 10%</option>
+                    <option value="15">Giảm 15%</option>
+                    <option value="20">Giảm 20%</option>
+                    <option value="25">Giảm 25%</option>
+                    <option value="30">Giảm 30%</option>
+                </select>
+            </div>
+
+            <button type="submit">Tính Tiền</button>
+        </form>
+
+        <div id="result">
+            <h3>Chi Tiết Tính Tiền:</h3>
+            <div id="priceDetails"></div>
+        </div>
+    </div>
+
+    <!-- Thông báo -->
+    <div class="notification">
+        <p>Thông báo: Hãy gửi file để in trước 16:30 hàng ngày để nhận tài liệu trong ngày mai. (Nếu gửi sau thì tài liệu in ra có thể lâu hơn dự tính). Không làm việc vào Chủ Nhật. Xin cảm ơn!</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

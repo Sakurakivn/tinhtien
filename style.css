@@ -1,0 +1,231 @@
+/* Cấu trúc chung */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(45deg, #ff6f61, #ff9c00, #ffcc00, #ff6f61);
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+  overflow: hidden; /* Giúp ngăn chặn cuộn trang khi có particles */
+}
+
+/* Hiệu ứng gradient động */
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Tạo hiệu ứng sao lấp lánh */
+@keyframes starsAnimation {
+  0% { opacity: 0.8; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0.8; }
+}
+
+/* Hiệu ứng ngôi sao lấp lánh */
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/black-linen-5.png') repeat;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Tạo các hạt phát sáng với hiệu ứng particles */
+.particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background-color: #fff;
+  border-radius: 50%;
+  animation: particleMove 2s infinite ease-in-out;
+}
+
+/* Hiệu ứng di chuyển các particles */
+@keyframes particleMove {
+  0% { transform: translate(0, 0); opacity: 0.7; }
+  25% { transform: translate(100px, -100px); opacity: 1; }
+  50% { transform: translate(-100px, -150px); opacity: 0.8; }
+  75% { transform: translate(150px, 200px); opacity: 0.9; }
+  100% { transform: translate(-200px, 100px); opacity: 0.6; }
+}
+
+/* Container chính */
+.container {
+  background-color: rgba(255, 255, 255, 0.9); /* Thêm độ trong suốt để thấy nền lung linh */
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  backdrop-filter: blur(10px); /* Hiệu ứng mờ nền */
+}
+
+/* Tiêu đề */
+h1 {
+  color: #4CAF50;
+  margin-bottom: 20px;
+  font-size: 32px;
+}
+
+/* Nhãn và input */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+input[type="number"], input[type="text"], select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+/* Style cho button */
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Kết quả hiển thị */
+#result {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Hiển thị chi tiết giá tiền */
+#priceDetails {
+  text-align: left;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+/* Chữ in nghiêng cho phần giảm giá */
+em {
+  font-style: italic;
+}
+
+/* Tô đậm và màu đỏ cho tổng số tiền */
+.totalAmount {
+  font-weight: bold;
+  color: red;
+  font-size: 28px;
+  margin-top: 10px;
+}
+
+/* Cải thiện giao diện checkbox */
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"] + label {
+  position: relative;
+  padding-left: 40px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+}
+
+input[type="checkbox"] + label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #4CAF50;
+  border-radius: 5px;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+input[type="checkbox"]:checked + label::before {
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+}
+
+input[type="checkbox"]:checked + label::after {
+  content: "\f00c";
+  font-family: "Font Awesome 5 Free";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  font-size: 16px;
+  color: white;
+}
+
+.checkbox-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Thông báo nhỏ dưới tổng số tiền */
+.notification {
+  background-color: #ff9800; /* Màu nền cam sáng */
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px; /* Giảm kích thước font */
+  text-align: center;
+  margin-top: 15px;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Cải thiện khoảng cách khi thông báo xuất hiện trên điện thoại */
+@media (max-width: 768px) {
+  .container {
+      padding: 20px;
+  }
+
+  h1 {
+      font-size: 26px;
+  }
+
+  input[type="number"], input[type="text"], select, button {
+      font-size: 14px;
+  }
+
+  .totalAmount {
+      font-size: 22px;
+  }
+
+  /* Đảm bảo không che phần nội dung và thông báo nhỏ hơn */
+  .notification {
+      font-size: 12px; /* Giảm thêm kích thước chữ cho điện thoại */
+      padding: 8px; /* Giảm padding để tiết kiệm không gian */
+  }
+}
