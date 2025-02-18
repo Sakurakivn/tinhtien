@@ -28,14 +28,17 @@
         const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
         if (invoiceData) {
             document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('vi-VN');
-            document.getElementById('customerName').textContent = invoiceData.customerName;
-            document.getElementById('customerClass').textContent = invoiceData.customerClass;
+            document.getElementById('customerName').textContent = invoiceData.customerName || 'Không có';
+            document.getElementById('customerClass').textContent = invoiceData.customerClass || 'Không có';
             document.getElementById('fileName').textContent = invoiceData.fileName || 'Không có';
-            document.getElementById('pages').textContent = invoiceData.pages;
+            document.getElementById('pages').textContent = invoiceData.pages || '0';
             document.getElementById('printType').textContent = invoiceData.printType === 'portrait' ? 'Dọc' : 'Ngang';
-            document.getElementById('totalPriceBeforeDiscount').textContent = invoiceData.totalPriceBeforeDiscount.toLocaleString('vi-VN');
+            document.getElementById('totalPriceBeforeDiscount').textContent = invoiceData.totalPriceBeforeDiscount ? invoiceData.totalPriceBeforeDiscount.toLocaleString('vi-VN') : '0';
             document.getElementById('discountAmount').textContent = (invoiceData.friendDiscountAmount + invoiceData.programDiscountAmount).toLocaleString('vi-VN');
             document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN');
+        } else {
+            // Nếu không có dữ liệu, hiển thị thông báo lỗi
+            document.body.innerHTML = '<h2>Không có dữ liệu hóa đơn!</h2>';
         }
     </script>
 </body>
