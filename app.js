@@ -67,7 +67,8 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
       totalPrice: roundedTotalPrice,
       friendDiscountAmount: roundedFriendDiscount,
       programDiscountAmount: roundedProgramDiscount,
-      finalTotalPrice: roundedTotalPrice
+      finalTotalPrice: roundedTotalPrice,
+      totalPriceBeforeDiscount: roundedTotalPriceBefore // Lưu số tiền gốc
   }));
 
   // Thêm sự kiện cho nút "Xuất hóa đơn"
