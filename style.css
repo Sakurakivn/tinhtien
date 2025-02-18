@@ -68,6 +68,7 @@ body {
   max-width: 600px;
   text-align: center;
   backdrop-filter: blur(10px); /* Hiệu ứng mờ nền */
+  overflow: auto; /* Cho phép cuộn nếu nội dung vượt quá chiều cao */
 }
 
 /* Tiêu đề */
@@ -202,6 +203,7 @@ input[type="checkbox"]:checked + label::after {
     text-align: left;
     border: 1px solid #4CAF50; /* Đường viền xanh */
     position: relative; /* Để có thể thêm các yếu tố khác */
+    overflow: auto; /* Cho phép cuộn nếu nội dung vượt quá chiều cao */
 }
 
 /* Tiêu đề hóa đơn */
@@ -255,4 +257,41 @@ input[type="checkbox"]:checked + label::after {
     border: 5px dashed #4CAF50; /* Đường viền kiểu gạch cho hóa đơn */
     border-radius: 5px; /* Đường viền bo góc */
     pointer-events: none; /* Không cho phép tương tác với đường viền */
+}
+
+/* Tối ưu hóa cho thiết bị di động */
+@media (max-width: 768px) {
+    body {
+        height: auto; /* Cho phép chiều cao tự động trên thiết bị di động */
+    }
+
+    .container, .invoice-container {
+        padding: 15px; /* Giảm padding cho thiết bị di động */
+        margin: 10px; /* Giảm margin cho thiết bị di động */
+        max-width: 100%; /* Đảm bảo hóa đơn không vượt quá chiều rộng màn hình */
+    }
+
+    h1 {
+        font-size: 26px; /* Giảm kích thước chữ tiêu đề */
+    }
+
+    input[type="number"], input[type="text"], select {
+        font-size: 14px; /* Giảm kích thước chữ cho input và select */
+    }
+
+    button {
+        font-size: 16px; /* Giảm kích thước chữ cho button */
+    }
+
+    .totalAmount {
+        font-size: 22px; /* Giảm kích thước chữ cho tổng số tiền */
+    }
+
+    .note, .invoice-date {
+        font-size: 10px; /* Giảm kích thước chữ cho ghi chú và ngày */
+    }
+
+    .thank-you {
+        font-size: 18px; /* Giảm kích thước chữ cảm ơn */
+    }
 }
