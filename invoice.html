@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa Đơn Photo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="invoice-container">
+        <h1>Hóa Đơn Photo</h1>
+        <p>Ngày tạo hóa đơn: <span id="invoiceDate"></span></p>
+        <p>Tên khách hàng: <span id="customerName"></span></p>
+        <p>Địa chỉ khách hàng: <span id="customerClass"></span></p>
+        <p>Tên file: <span id="fileName"></span></p>
+        <p>Số trang: <span id="pages"></span></p>
+        <p>Kiểu in: <span id="printType"></span></p>
+        <hr>
+        <p>Số tiền gốc: <span id="totalPrice"></span> VND</p>
+        <p>Giảm giá: <span id="discountAmount"></span> VND</p>
+        <p><strong>Tổng số tiền: <span id="finalTotalPrice"></span> VND</strong></p>
+        <p class="note"><em>Hãy gửi file để in trước 16:30 hàng ngày để nhận tài liệu trong ngày mai. (Nếu gửi sau thì tài liệu in ra có thể lâu hơn dự tính). Không làm việc vào Chủ Nhật. Xin cảm ơn!</em></p>
+        <p class="thank-you">Xin cảm ơn quý khách!</p>
+    </div>
+
+    <script>
+        // Lấy dữ liệu từ localStorage
+        const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
+        if (invoiceData) {
+            document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('vi-VN');
+            document.getElementById('customerName').textContent = invoiceData.customerName;
+            document.getElementById('customerClass').textContent = invoiceData.customerClass;
+            document.getElementById('fileName').textContent = invoiceData.fileName || 'Không có';
+            document.getElementById('pages').textContent = invoiceData.pages;
+            document.getElementById('printType').textContent = invoiceData.printType === 'portrait' ? 'Dọc' : 'Ngang';
+            document.getElementById('totalPrice').textContent = invoiceData.totalPrice.toLocaleString('vi-VN');
+            document.getElementById('discountAmount').textContent = (invoiceData.friendDiscountAmount + invoiceData.programDiscountAmount).toLocaleString('vi-VN');
+            document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN');
+        }
+    </script>
+</body>
+</html>
