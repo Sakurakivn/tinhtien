@@ -16,7 +16,7 @@
         <p>Số trang: <span id="pages"></span></p>
         <p>Kiểu in: <span id="printType"></span></p>
         <hr>
-        <p>Số tiền gốc: <span id="totalPrice"></span> VND</p>
+        <p>Số tiền gốc: <span id="totalPriceBeforeDiscount"></span> VND</p>
         <p>Giảm giá: <span id="discountAmount"></span> VND</p>
         <p><strong>Tổng số tiền: <span id="finalTotalPrice"></span> VND</strong></p>
         <p class="note"><em>Hãy gửi file để in trước 16:30 hàng ngày để nhận tài liệu trong ngày mai. (Nếu gửi sau thì tài liệu in ra có thể lâu hơn dự tính). Không làm việc vào Chủ Nhật. Xin cảm ơn!</em></p>
@@ -33,7 +33,7 @@
             document.getElementById('fileName').textContent = invoiceData.fileName || 'Không có';
             document.getElementById('pages').textContent = invoiceData.pages;
             document.getElementById('printType').textContent = invoiceData.printType === 'portrait' ? 'Dọc' : 'Ngang';
-            document.getElementById('totalPrice').textContent = invoiceData.totalPrice.toLocaleString('vi-VN');
+            document.getElementById('totalPriceBeforeDiscount').textContent = invoiceData.totalPriceBeforeDiscount.toLocaleString('vi-VN');
             document.getElementById('discountAmount').textContent = (invoiceData.friendDiscountAmount + invoiceData.programDiscountAmount).toLocaleString('vi-VN');
             document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN');
         }
