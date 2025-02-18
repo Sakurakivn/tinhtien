@@ -200,11 +200,25 @@ input[type="checkbox"]:checked + label::after {
     max-width: 600px;
     margin: 20px auto;
     text-align: left;
+    border: 2px solid #4CAF50; /* Đường viền xanh */
 }
 
 .invoice-container h1 {
     text-align: center;
     color: #4CAF50;
+    font-size: 36px; /* Kích thước chữ lớn hơn */
+    margin-bottom: 20px;
+}
+
+.invoice-date {
+    text-align: center;
+    font-size: 12px; /* Kích thước chữ nhỏ */
+    font-style: italic; /* Chữ nghiêng */
+    margin-bottom: 20px;
+}
+
+.invoice-container p {
+    margin: 10px 0;
 }
 
 .note {
@@ -216,5 +230,7 @@ input[type="checkbox"]:checked + label::after {
 .thank-you {
     text-align: center;
     font-weight: bold;
+    font-size: 24px; /* Kích thước chữ lớn hơn */
+    color: #4CAF50; /* Màu chữ nổi bật */
     margin-top: 20px;
 }
