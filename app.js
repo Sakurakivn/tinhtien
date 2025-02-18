@@ -8,7 +8,7 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   const pages = parseInt(document.getElementById('pages').value);
   const printType = document.getElementById('printType').value;
   const friendDiscount = document.getElementById('friendDiscount').checked;
-  const discountPercentage = parseInt(document.getElementById('discount').value) || 0;  // Kiểm tra phần giảm giá
+  const discountPercentage = parseInt(document.getElementById('discount').value) || 0;
 
   // Kiểm tra thông tin nhập vào
   if (isNaN(pages) || pages <= 0 || !customerName) {
@@ -17,7 +17,6 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   }
 
   let pricePerPage;
-  // Tính giá per page
   if (pages <= 250) {
       pricePerPage = friendDiscount ? 483 : 543;
   } else if (pages <= 500) {
@@ -28,32 +27,22 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
       pricePerPage = friendDiscount ? 400 : 450;
   }
 
-  // Tính tổng số tờ in
   let totalPages = printType === 'portrait' ? pages / 2 : pages / 4;
-
-  // Tính tổng giá trước giảm
   let totalPrice = totalPages * pricePerPage;
-
-  // Tính giảm giá (nếu có)
   const friendDiscountAmount = friendDiscount ? totalPrice * 0.1 : 0;
   const programDiscountAmount = totalPrice * (discountPercentage / 100);
-
-  // Tính tổng số tiền cuối cùng
   const finalTotalPrice = totalPrice - friendDiscountAmount - programDiscountAmount;
 
-  // Làm tròn số tiền trước khi định dạng
   const roundedTotalPrice = Math.round(finalTotalPrice);
   const roundedTotalPriceBefore = Math.round(totalPrice);
   const roundedFriendDiscount = Math.round(friendDiscountAmount);
   const roundedProgramDiscount = Math.round(programDiscountAmount);
 
-  // Định dạng số với dấu chấm phân cách hàng nghìn
   const formattedTotalPrice = roundedTotalPrice.toLocaleString('vi-VN');
   const formattedTotalPriceBefore = roundedTotalPriceBefore.toLocaleString('vi-VN');
   const formattedFriendDiscount = roundedFriendDiscount.toLocaleString('vi-VN');
   const formattedProgramDiscount = roundedProgramDiscount.toLocaleString('vi-VN');
 
-  // Hiển thị chi tiết
   let priceDetails = `<p><strong>Số tiền gốc:</strong> ${formattedTotalPriceBefore} VND</p>`;
 
   if (friendDiscountAmount > 0) {
@@ -64,7 +53,25 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   }
 
   priceDetails += `<p><strong class="totalAmount">Tổng số tiền: </strong>${formattedTotalPrice} VND</p>`;
+  priceDetails += `<button id="generateInvoice">Xuất hóa đơn</button>`;
 
-  // Hiển thị lên giao diện
   document.getElementById('priceDetails').innerHTML = priceDetails;
+
+  // Lưu thông tin vào localStorage để sử dụng cho hóa đơn
+  localStorage.setItem('invoiceData', JSON.stringify({
+      customerName,
+      customerClass,
+      fileName,
+      pages,
+      printType,
+      totalPrice: roundedTotalPrice,
+      friendDiscountAmount: roundedFriendDiscount,
+      programDiscountAmount: roundedProgramDiscount,
+      finalTotalPrice: roundedTotalPrice
+  }));
+
+  // Thêm sự kiện cho nút "Xuất hóa đơn"
+  document.getElementById('generateInvoice').addEventListener('click', function() {
+      window.location.href = 'invoice.html';
+  });
 });
