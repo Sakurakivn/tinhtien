@@ -53,8 +53,36 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   }
 
   priceDetails += `<p><strong class="totalAmount">Tổng số tiền: </strong>${formattedTotalPrice} VND</p>`;
-  priceDetails += `<button id="generateInvoice">Xuất hóa đơn</button>`;
 
+  // Tính toán ngày nhận hàng
+  const orderTime = new Date(); // Thời gian hiện tại khi tạo đơn
+  let estimatedDeliveryDateStart = new Date(orderTime);
+  let estimatedDeliveryDateEnd = new Date(orderTime);
+
+  // Nếu đơn hàng được tạo sau 16:00, lùi thời gian nhận hàng
+  if (orderTime.getHours() >= 16) {
+    estimatedDeliveryDateStart.setDate(estimatedDeliveryDateStart.getDate() + 1); // Lùi 1 ngày
+    estimatedDeliveryDateEnd.setDate(estimatedDeliveryDateEnd.getDate() + 2); // Lùi 2 ngày
+  } else {
+    estimatedDeliveryDateStart.setDate(estimatedDeliveryDateStart.getDate() + 1); // Ngày nhận hàng là ngày hôm sau
+    estimatedDeliveryDateEnd.setDate(estimatedDeliveryDateEnd.getDate() + 1); // Ngày nhận hàng là ngày hôm sau
+  }
+
+  // Kiểm tra nếu ngày nhận hàng rơi vào Chủ Nhật thì chuyển sang Thứ Ba tuần sau
+  if (estimatedDeliveryDateStart.getDay() === 0) { // Chủ Nhật là ngày 0
+    estimatedDeliveryDateStart.setDate(estimatedDeliveryDateStart.getDate() + 2); // Chuyển sang Thứ Ba
+    estimatedDeliveryDateEnd.setDate(estimatedDeliveryDateEnd.getDate() + 2); // Chuyển sang Thứ Ba
+  }
+
+  // Định dạng ngày nhận hàng
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  const formattedStartDate = estimatedDeliveryDateStart.toLocaleDateString('vi-VN', options);
+  const formattedEndDate = estimatedDeliveryDateEnd.toLocaleDateString('vi-VN', options);
+
+  // Hiển thị chi tiết
+  priceDetails += `<p><strong>Dự kiến ngày nhận hàng:</strong> ${formattedStartDate} - ${formattedEndDate}</p>`;
+
+  // Hiển thị lên giao diện
   document.getElementById('priceDetails').innerHTML = priceDetails;
 
   // Lưu thông tin vào localStorage để sử dụng cho hóa đơn
@@ -68,7 +96,9 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
       friendDiscountAmount: roundedFriendDiscount,
       programDiscountAmount: roundedProgramDiscount,
       finalTotalPrice: roundedTotalPrice,
-      totalPriceBeforeDiscount: roundedTotalPriceBefore // Lưu số tiền gốc
+      totalPriceBeforeDiscount: roundedTotalPriceBefore,
+      estimatedStartDate: formattedStartDate,
+      estimatedEndDate: formattedEndDate // Lưu ngày nhận hàng
   }));
 
   // Thêm sự kiện cho nút "Xuất hóa đơn"
