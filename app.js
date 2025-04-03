@@ -106,4 +106,13 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   document.getElementById('generateInvoice').addEventListener('click', function() {
       window.location.href = 'invoice.html';
   });
+  document.getElementById('invoiceDate').textContent = new Date().toLocaleString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false // Để hiển thị theo định dạng 24 giờ
+  });
 });
