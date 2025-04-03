@@ -260,26 +260,41 @@ input[type="checkbox"]:checked + label::after {
 }
 
 /* Cải thiện hiển thị mã QR */
-.qr-container {
-    text-align: center;
+.qr-and-info {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
     margin-top: 20px;
-    padding: 10px;
-    background-color: #f4f4f4;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.qr-container p {
-    font-size: 16px;
-    color: #333;
+.qr-container {
+    text-align: center;
+    margin-right: 20px;
 }
 
 .qr-code {
-    margin-top: 10px;
-    width: 100px; /* Giảm kích thước mã QR xuống còn 100px */
-    height: 100px; /* Giảm kích thước mã QR xuống còn 100px */
-    border: 2px solid #4CAF50; /* Viền xung quanh mã QR */
+    width: 100px; /* Giảm kích thước mã QR */
+    height: 100px;
+    border: 2px solid #4CAF50;
     border-radius: 8px;
+}
+
+.info-container {
+    max-width: 300px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.info-container p {
+    margin-bottom: 10px;
+}
+
+.info-container i {
+    color: #4CAF50; /* Màu cho các biểu tượng */
+}
+
+.info-container strong {
+    color: #333;
 }
 
 
