@@ -87,7 +87,7 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   document.getElementById('priceDetails').innerHTML = priceDetails;
 
   // Lưu thông tin vào localStorage để sử dụng cho hóa đơn
-  localStorage.setItem('invoiceData', JSON.stringify({
+  const invoiceData = {
       customerName,
       customerClass,
       fileName,
@@ -99,20 +99,40 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
       finalTotalPrice: roundedTotalPrice,
       totalPriceBeforeDiscount: roundedTotalPriceBefore,
       estimatedStartDate: formattedStartDate,
-      estimatedEndDate: formattedEndDate // Lưu ngày nhận hàng
-  }));
+      estimatedEndDate: formattedEndDate, // Lưu ngày nhận hàng
+      createdAt: new Date().toLocaleString('vi-VN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false // Để hiển thị theo định dạng 24 giờ
+      })
+  };
+
+  localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
+
+  // Gửi dữ liệu đến Google Sheets
+  fetch('https://script.google.com/macros/s/AKfycbxyXYMP81iUGrx05CWVEeXU0NyyhiWIrmz1xO3IoYw-KP5LEh6ePVbc8KPjx0GYemqo6w/exec', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(invoiceData)
+  })
+  .then(response => response.json())
+  .then(data => {
+      if (data.result === "Success") {
+          alert("Hóa đơn đã được lưu thành công!");
+      }
+  })
+  .catch(error => {
+      console.error('Lỗi:', error);
+  });
 
   // Thêm sự kiện cho nút "Xuất hóa đơn"
   document.getElementById('generateInvoice').addEventListener('click', function() {
       window.location.href = 'invoice.html';
-  });
-  document.getElementById('invoiceDate').textContent = new Date().toLocaleString('vi-VN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false // Để hiển thị theo định dạng 24 giờ
   });
 });
