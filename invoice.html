@@ -10,55 +10,21 @@
 </head>
 <body>
     <div class="invoice-container">
-        <!-- Tiêu đề hóa đơn -->
         <h1>Hóa Đơn Photo</h1>
         <p class="invoice-date"><em>Ngày tạo hóa đơn: <span id="invoiceDate"></span></em></p>
-
-        <!-- Thông tin khách hàng -->
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-user"></i> Tên khách hàng:</span><span class="info-value" id="customerName">An</span></p>
-        </div>
-
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-building"></i> Địa chỉ khách hàng:</span><span class="info-value" id="customerClass">c7</span></p>
-        </div>
-
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-file-alt"></i> Tên file:</span><span class="info-value" id="fileName">50 đề toán</span></p>
-        </div>
-
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-file-pdf"></i> Số trang:</span><span class="info-value" id="pages">276</span></p>
-        </div>
-
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-print"></i> Kiểu in:</span><span class="info-value" id="printType">Dọc</span></p>
-        </div>
-
+        <p><i class="fas fa-user"></i> Tên khách hàng: <span id="customerName"></span></p>
+        <p><i class="fas fa-building"></i> Địa chỉ khách hàng: <span id="customerClass"></span></p>
+        <p><i class="fas fa-file-alt"></i> Tên file: <span id="fileName"></span></p>
+        <p><i class="fas fa-file-pdf"></i> Số trang: <span id="pages"></span></p>
+        <p><i class="fas fa-print"></i> Kiểu in: <span id="printType"></span></p>
         <hr>
-
-        <!-- Thông tin tài chính -->
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-dollar-sign"></i> Số tiền gốc:</span><span class="info-value" id="totalPriceBeforeDiscount">71.760 VND</span></p>
-        </div>
-
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-percent"></i> Giảm giá:</span><span class="info-value" id="discountAmount">0 VND</span></p>
-        </div>
-
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-tag"></i> <strong>Tổng số tiền:</strong></span><span class="info-value totalAmount" id="finalTotalPrice">71.760 VND</span></p>
-        </div>
-
-        <!-- Thông tin ngày nhận hàng -->
-        <div class="info-group">
-            <p><span class="info-title"><i class="fas fa-calendar-check"></i> Dự kiến ngày nhận hàng:</span><span class="info-value" id="estimatedDeliveryDate">04/04/2025 - 05/04/2025</span></p>
-        </div>
-
-        <!-- Ghi chú -->
+        <p><i class="fas fa-dollar-sign"></i> Số tiền gốc: <span id="totalPriceBeforeDiscount"></span> VND</p>
+        <p><i class="fas fa-percent"></i> Giảm giá: <span id="discountAmount"></span> VND</p>
+        <p><i class="fas fa-tag"></i> <strong>Tổng số tiền: <span id="finalTotalPrice"></span> VND</strong></p>
+        <p><i class="fas fa-calendar-check"></i> <strong>Dự kiến ngày nhận hàng:</strong> <span id="estimatedDeliveryDate"></span></p>
         <p class="note"><em>Hãy gửi file để in trước 16:30 hàng ngày để nhận tài liệu trong ngày mai. (Nếu gửi sau thì tài liệu in ra có thể lâu hơn dự tính). Không làm việc vào Chủ Nhật. Xin cảm ơn!</em></p>
 
-        <!-- Mã QR và thông tin thanh toán -->
+        <!-- Thêm mã QR và thông tin bên cạnh -->
         <div class="qr-and-info">
             <div class="qr-container">
                 <p><strong>Thanh toán qua mã QR:</strong></p>
@@ -89,9 +55,9 @@
             document.getElementById('totalPriceBeforeDiscount').textContent = invoiceData.totalPriceBeforeDiscount ? invoiceData.totalPriceBeforeDiscount.toLocaleString('vi-VN') : '0';
             document.getElementById('discountAmount').textContent = (invoiceData.friendDiscountAmount + invoiceData.programDiscountAmount).toLocaleString('vi-VN');
             document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN');
-            document.getElementById('estimatedDeliveryDate').textContent = `${invoiceData.estimatedStartDate} - ${invoiceData.estimatedEndDate}`; // Hiển thị ngày nhận hàng
+            document.getElementById('estimatedDeliveryDate').textContent = ${invoiceData.estimatedStartDate} - ${invoiceData.estimatedEndDate}; // Hiển thị ngày nhận hàng
             document.getElementById('finalAmount').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN'); // Số tiền
-            document.getElementById('paymentContent').textContent = `${invoiceData.customerName} thanh toan hoa don photo`; // Nội dung thanh toán
+            document.getElementById('paymentContent').textContent = ${invoiceData.customerName} thanh toan hoa don photo; // Nội dung thanh toán
         } else {
             // Nếu không có dữ liệu, hiển thị thông báo lỗi
             document.body.innerHTML = '<h2>Không có dữ liệu hóa đơn!</h2>';
