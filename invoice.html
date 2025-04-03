@@ -28,7 +28,7 @@
         <div class="qr-and-info">
             <div class="qr-container">
                 <p><strong>Thanh toán qua mã QR:</strong></p>
-                <img src="qr-banking.png" alt="QR Code" class="qr-code">
+                <img src="image.png" alt="QR Code" class="qr-code">
             </div>
             <div class="info-container">
                 <p><strong><i class="fas fa-user-circle"></i> Chủ tài khoản:</strong> DO MANH HUNG</p>
@@ -55,9 +55,9 @@
             document.getElementById('totalPriceBeforeDiscount').textContent = invoiceData.totalPriceBeforeDiscount ? invoiceData.totalPriceBeforeDiscount.toLocaleString('vi-VN') : '0';
             document.getElementById('discountAmount').textContent = (invoiceData.friendDiscountAmount + invoiceData.programDiscountAmount).toLocaleString('vi-VN');
             document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN');
-            document.getElementById('estimatedDeliveryDate').textContent = ${invoiceData.estimatedStartDate} - ${invoiceData.estimatedEndDate}; // Hiển thị ngày nhận hàng
+            document.getElementById('estimatedDeliveryDate').textContent = `${invoiceData.estimatedStartDate} - ${invoiceData.estimatedEndDate}`; // Hiển thị ngày nhận hàng
             document.getElementById('finalAmount').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN'); // Số tiền
-            document.getElementById('paymentContent').textContent = ${invoiceData.customerName} thanh toan hoa don photo; // Nội dung thanh toán
+            document.getElementById('paymentContent').textContent = `${invoiceData.customerName} thanh toan hoa don photo`; // Nội dung thanh toán
         } else {
             // Nếu không có dữ liệu, hiển thị thông báo lỗi
             document.body.innerHTML = '<h2>Không có dữ liệu hóa đơn!</h2>';
