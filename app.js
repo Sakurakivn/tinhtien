@@ -124,6 +124,7 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   .then(response => response.json())
   .then(data => {
       if (data.result === "Success") {
+          // Hiển thị thông báo thành công
           alert("Hóa đơn đã được lưu thành công!");
       }
   })
@@ -133,6 +134,7 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
 
   // Thêm sự kiện cho nút "Xuất hóa đơn"
   document.getElementById('generateInvoice').addEventListener('click', function() {
+      // Chuyển hướng đến trang hóa đơn
       window.location.href = 'invoice.html';
   });
 });
