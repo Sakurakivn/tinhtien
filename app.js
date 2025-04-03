@@ -114,7 +114,7 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
   localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
 
   // Gửi dữ liệu đến Google Sheets
-  fetch('https://script.google.com/macros/s/AKfycbxyXYMP81iUGrx05CWVEeXU0NyyhiWIrmz1xO3IoYw-KP5LEh6ePVbc8KPjx0GYemqo6w/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbxiJXoMIf4fffa9YOQYTVs-lVNTiQXLCww4eW744isDTsYK-wK2UFVCAUBQ61wcty4hUQ/exec', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
