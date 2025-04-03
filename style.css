@@ -276,11 +276,12 @@ input[type="checkbox"]:checked + label::after {
 
 .qr-code {
     margin-top: 10px;
-    width: 150px; /* Độ rộng của mã QR */
-    height: 150px; /* Độ cao của mã QR */
+    width: 100px; /* Giảm kích thước mã QR xuống còn 100px */
+    height: 100px; /* Giảm kích thước mã QR xuống còn 100px */
     border: 2px solid #4CAF50; /* Viền xung quanh mã QR */
     border-radius: 8px;
 }
+
 
 /* Tối ưu hóa cho thiết bị di động */
 @media (max-width: 768px) {
