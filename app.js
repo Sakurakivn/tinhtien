@@ -81,6 +81,7 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
 
   // Hiển thị chi tiết
   priceDetails += `<p><strong>Dự kiến ngày nhận hàng:</strong> ${formattedStartDate} - ${formattedEndDate}</p>`;
+  priceDetails += `<button id="generateInvoice">Xuất hóa đơn</button>`; // Nút xuất hóa đơn
 
   // Hiển thị lên giao diện
   document.getElementById('priceDetails').innerHTML = priceDetails;
