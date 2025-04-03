@@ -259,6 +259,29 @@ input[type="checkbox"]:checked + label::after {
     pointer-events: none; /* Không cho phép tương tác với đường viền */
 }
 
+/* Cải thiện hiển thị mã QR */
+.qr-container {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qr-container p {
+    font-size: 16px;
+    color: #333;
+}
+
+.qr-code {
+    margin-top: 10px;
+    width: 150px; /* Độ rộng của mã QR */
+    height: 150px; /* Độ cao của mã QR */
+    border: 2px solid #4CAF50; /* Viền xung quanh mã QR */
+    border-radius: 8px;
+}
+
 /* Tối ưu hóa cho thiết bị di động */
 @media (max-width: 768px) {
     body {
