@@ -19,6 +19,7 @@
         <p>Số tiền gốc: <span id="totalPriceBeforeDiscount"></span> VND</p>
         <p>Giảm giá: <span id="discountAmount"></span> VND</p>
         <p><strong>Tổng số tiền: <span id="finalTotalPrice"></span> VND</strong></p>
+        <p><strong>Dự kiến ngày nhận hàng:</strong> <span id="estimatedDeliveryDate"></span></p>
         <p class="note"><em>Hãy gửi file để in trước 16:30 hàng ngày để nhận tài liệu trong ngày mai. (Nếu gửi sau thì tài liệu in ra có thể lâu hơn dự tính). Không làm việc vào Chủ Nhật. Xin cảm ơn!</em></p>
         <p class="thank-you">Xin cảm ơn quý khách!</p>
     </div>
@@ -36,6 +37,7 @@
             document.getElementById('totalPriceBeforeDiscount').textContent = invoiceData.totalPriceBeforeDiscount ? invoiceData.totalPriceBeforeDiscount.toLocaleString('vi-VN') : '0';
             document.getElementById('discountAmount').textContent = (invoiceData.friendDiscountAmount + invoiceData.programDiscountAmount).toLocaleString('vi-VN');
             document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN');
+            document.getElementById('estimatedDeliveryDate').textContent = `${invoiceData.estimatedStartDate} - ${invoiceData.estimatedEndDate}`; // Hiển thị ngày nhận hàng
         } else {
             // Nếu không có dữ liệu, hiển thị thông báo lỗi
             document.body.innerHTML = '<h2>Không có dữ liệu hóa đơn!</h2>';
