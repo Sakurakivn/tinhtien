@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Lỗi: Không tìm thấy đơn hàng để xóa.");
             return;
         }
+        console.log("Đang xóa đơn hàng với Customer ID:", customerId, "VÀ Order ID:", orderId);
         
         if (confirm(`Bạn có chắc chắn muốn xóa đơn hàng này không?\nFile: ${orderToDelete.fileName || 'Không tên'}\nNgày: ${orderToDelete.createdAt ? new Date(orderToDelete.createdAt).toLocaleDateString('vi-VN') : 'N/A'}`)) {
             try {
