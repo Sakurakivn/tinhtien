@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Khách Hàng - Photo App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="customer-list-page-container">
+        <h1><i class="fas fa-users"></i> Danh Sách Khách Hàng</h1>
+        <div class="search-customer-container">
+            <input type="text" id="customerSearchInput" placeholder="Tìm kiếm khách hàng theo tên...">
+        </div>
+        <ul id="customerList" class="customer-list">
+            <li>Đang tải danh sách khách hàng...</li>
+        </ul>
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="index.html" class="button-link">
+                <i class="fas fa-arrow-left"></i> Quay lại trang tính tiền
+            </a>
+        </p>
+    </div>
+
+    <div id="customerModal" class="modal">
+        <div class="modal-content large">
+            <span class="close-button">&times;</span>
+            <div id="modalHeader">
+                <h3 id="modalCustomerName"></h3>
+                <p><strong><i class="fas fa-chalkboard-teacher"></i> Lớp:</strong> <span id="modalCustomerClass"></span></p>
+                <p><strong><i class="fas fa-shopping-cart"></i> Tổng số lần mua:</strong> <span id="modalPurchaseCount"></span></p>
+            </div>
+            
+            <h4><i class="fas fa-history"></i> Lịch sử mua hàng:</h4>
+            <div class="table-responsive-container">
+                <table id="customerOrdersTable">
+                    <thead>
+                        <tr>
+                            <th>Ngày mua</th>
+                            <th>Tên file</th>
+                            <th>Số trang</th>
+                            <th>Cách In</th>
+                            <th>Giảm Giá (CT)</th>
+                            <th>KHTT?</th>
+                            <th>Số tiền gốc</th>
+                            <th>Tổng số tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerOrdersTbody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="customers_app.js"></script>
+</body>
+</html>
