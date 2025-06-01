@@ -1,4 +1,4 @@
-// File: api/customers/[id]/orders.jsAdd commentMore actions
+// File: api/customers/[id]/orders.js
 import { MongoClient, ObjectId } from 'mongodb';
 
 let cachedDb = null;
@@ -24,11 +24,10 @@ async function connectToDatabase() {
 }
 
 // Hàm phụ trợ để parse chuỗi ngày tháng từ client (ví dụ: "dd/mm/yyyy, HH:MM:SS")
-// thành đối tượng Date mà MongoDB có thể hiểu đúng (thường là đối tượng Date UTC).
 function parseClientDateTimeToUTCDate(clientDateTimeString) {
     if (!clientDateTimeString) {
         console.warn("[API Add Order] clientDateTimeString is undefined or null, defaulting to current date.");
-        return new Date(); // Mặc định là thời gian hiện tại nếu không có
+        return new Date(); 
     }
     
     console.log(`[API Add Order] Parsing client date string: ${clientDateTimeString}`);
@@ -45,25 +44,18 @@ function parseClientDateTimeToUTCDate(clientDateTimeString) {
 
     if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
         console.error("[API Add Order] Invalid date/time components after parsing:", {year, month, day, hours, minutes, seconds});
-        // Trả về một ngày không hợp lệ hoặc throw error tùy theo cách bạn muốn xử lý
-        // Tạm thời trả về ngày hiện tại để tránh crash, nhưng cần kiểm tra input từ client
-        return new Date(); 
+        return new Date(); // Trả về ngày hiện tại nếu parse lỗi
     }
-    // Tạo đối tượng Date. MongoDB sẽ lưu trữ nó dưới dạng UTC.
     const parsedDate = new Date(year, month, day, hours, minutes, seconds);
     console.log(`[API Add Order] Parsed date object: ${parsedDate.toISOString()}`);
     return parsedDate;
 }
 
-
 export default async function handler(req, res) {
-    // customerId lấy từ path segment '[id]'
-    // Vercel sẽ đặt tên tham số query theo tên thư mục động
-    const customerIdParam = req.query.id; 
+    const customerIdParam = req.query.id; // Lấy customerId từ path segment '[id]'
 
     console.log(`[API Add Order] Received request: Method=${req.method}, CustomerID Param=${customerIdParam}`);
     console.log(`[API Add Order] Request body:`, req.body);
-
 
     if (req.method !== 'POST') {
         console.log(`[API Add Order] Method Not Allowed: ${req.method}`);
@@ -98,12 +90,11 @@ export default async function handler(req, res) {
 
         const newOrder = {
             ...orderDataFromClient, 
-            orderId: new ObjectId(), 
+            orderId: new ObjectId(), // Tạo ID duy nhất cho đơn hàng này
             createdAt: parseClientDateTimeToUTCDate(orderDataFromClient.createdAt), 
         };
-        // Xóa createdAtDate nếu client có gửi lên, vì chúng ta dùng createdAt chuẩn từ server
+        // Xóa createdAtDate nếu client có gửi lên, vì chúng ta dùng createdAt chuẩn từ server đã được parse
         delete newOrder.createdAtDate; 
-
 
         console.log("[API Add Order] New order object to be pushed:", newOrder);
 
@@ -119,20 +110,18 @@ export default async function handler(req, res) {
         console.log(`[API Add Order] MongoDB updateOne result: matchedCount=${result.matchedCount}, modifiedCount=${result.modifiedCount}, upsertedId=${result.upsertedId}`);
 
         if (result.matchedCount === 0) {
-            // Điều này không nên xảy ra nếu customerExists đã được kiểm tra
             console.error("[API Add Order] Customer was found but updateOne matched 0 documents. This is unexpected.");
             return res.status(404).json({ message: 'Không tìm thấy khách hàng để thêm đơn hàng (lỗi logic không mong muốn).' });
         }
-        if (result.modifiedCount === 0 && result.upsertedCount === 0) {
-            console.warn("[API Add Order] Order might not have been added or purchaseCount not incremented (modifiedCount is 0).");
-            // Có thể không phải lỗi nghiêm trọng nếu $push thành công nhưng không có trường nào khác thay đổi.
-            // Tuy nhiên, $inc purchaseCount lẽ ra phải làm modifiedCount > 0.
-            // Kiểm tra lại xem có lỗi gì không.
+        if (result.modifiedCount === 0 && result.upsertedCount === 0) { // Sửa lại điều kiện này
+            console.warn("[API Add Order] Order might not have been added or purchaseCount not incremented (modifiedCount is 0 and no upsert). This can happen if the document was matched but the update operation resulted in no change.");
+            // Tuy nhiên, với $push và $inc, modifiedCount phải > 0 nếu matchedCount > 0.
+            // Trừ khi có vấn đề với kiểu dữ liệu của purchaseCount hoặc mảng orders.
         }
 
         const updatedCustomer = await customersCollection.findOne({ _id: customerObjectId });
         if (!updatedCustomer) {
-            console.error("[API Add Order] Cannot retrieve updated customer information after adding order.");Add commentMore actions
+            console.error("[API Add Order] Cannot retrieve updated customer information after adding order.");
             return res.status(500).json({ message: 'Không thể lấy thông tin khách hàng sau khi thêm đơn hàng.'})
         }
         console.log(`[API Add Order] Order added successfully for customer ${updatedCustomer.name}. New purchaseCount: ${updatedCustomer.purchaseCount}`);
