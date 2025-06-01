@@ -137,4 +137,8 @@ document.getElementById('orderForm').addEventListener('submit', function(event) 
       // Chuyển hướng đến trang hóa đơn
       window.location.href = 'invoice.html';
   });
+  // Thêm sự kiện reset cho form để xóa kết quả cũ
+  document.getElementById('orderForm').addEventListener('reset', function() {
+    document.getElementById('priceDetails').innerHTML = '';
+  });
 });
