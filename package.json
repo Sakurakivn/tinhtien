@@ -2,6 +2,6 @@
   "name": "PHOTO",
   "version": "1.0.0",
   "dependencies": {
-    "mongodb": "8.0.9" 
+    "mongodb": "^6.0.0" 
   }
 }
