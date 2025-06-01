@@ -21,6 +21,7 @@ async function connectToDatabase() {
 
 export default async function handler(req, res) {
     const { id: customerIdParam, orderId: orderIdParam } = req.query;
+    console.log(`API DELETE Order: Received customerIdParam: ${customerIdParam}, orderIdParam: ${orderIdParam}`);
 
     // 1. Kiểm tra tính hợp lệ của customerId và orderId
     if (!ObjectId.isValid(customerIdParam)) {
@@ -40,6 +41,7 @@ export default async function handler(req, res) {
 
             // 2. Kiểm tra xem khách hàng có tồn tại không
             const customerExists = await customersCollection.findOne({ _id: customerObjectId });
+            console.log("Customer exists check:", customerExists ? customerExists._id.toString() : "Not found");
             if (!customerExists) {
                 return res.status(404).json({ message: `Không tìm thấy khách hàng với ID: ${customerIdParam}` });
             }
@@ -56,6 +58,7 @@ export default async function handler(req, res) {
                     $set: { updatedAt: new Date() }
                 }
             );
+            console.log("MongoDB updateOne result:", JSON.stringify(result));
 
             // 4. Kiểm tra kết quả của thao tác updateOne
             if (result.matchedCount === 0) {
@@ -83,7 +86,9 @@ export default async function handler(req, res) {
             res.status(200).json({ message: 'Đã xóa đơn hàng thành công', customer: updatedCustomer });
 
         } catch (error) {
+            
             console.error(`Lỗi API xóa đơn hàng ${orderIdParam} cho KH ${customerIdParam}:`, error);
+            console.error(`SERVER ERROR in API DELETE Order:`, error);
             res.status(500).json({ message: 'Lỗi máy chủ nội bộ khi xóa đơn hàng', error: error.message });
         }
     } else {
