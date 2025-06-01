@@ -667,3 +667,49 @@ body.modal-open {
 .button-link-navigation i {
     margin-right: 8px;
 }
+/* === CSS CHO CÁC NÚT ICON Ở ĐẦU TRANG INDEX.HTML === */
+.top-nav-buttons {
+    display: flex; /* Sắp xếp các nút trên một hàng */
+    justify-content: space-between; /* Đẩy các nút về hai phía */
+    align-items: center; /* Căn giữa các nút theo chiều dọc */
+    margin-bottom: 20px; /* Khoảng cách với tiêu đề H1 bên dưới */
+    padding: 0 10px; /* Chút padding nếu container không có */
+}
+
+.icon-nav-button {
+    background-color: #fff; /* Nền trắng cho nút */
+    border: 1px solid #ddd; /* Viền xám nhạt */
+    color: #555; /* Màu icon mặc định */
+    padding: 0; /* Bỏ padding mặc định của button/a */
+    font-size: 1.1em; /* Kích thước icon (có thể điều chỉnh) */
+    border-radius: 50%; /* Bo tròn thành hình tròn */
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+    text-decoration: none; /* Cho thẻ <a> */
+    display: inline-flex; /* Giúp căn giữa icon bên trong */
+    align-items: center;
+    justify-content: center;
+    width: 42px;  /* Kích thước cố định cho nút tròn */
+    height: 42px; /* Kích thước cố định cho nút tròn */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.icon-nav-button:hover {
+    background-color: #f0f0f0; /* Màu nền khi hover */
+    color: #4CAF50; /* Màu icon khi hover (màu xanh lá cây chủ đạo) */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transform: translateY(-1px); /* Hiệu ứng nhấc lên một chút */
+}
+
+.icon-nav-button i {
+    line-height: 1; /* Đảm bảo icon căn giữa tốt trong nút tròn */
+}
+
+/* Nếu cần điều chỉnh vị trí cụ thể, nhưng space-between thường là đủ */
+/* .left-nav-button {
+    margin-right: auto; // Đẩy nút này sang tráiสุด
+}
+.right-nav-button {
+    margin-left: auto; // Đẩy nút này sang phảiสุด
+} 
+*/
