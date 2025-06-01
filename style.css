@@ -853,3 +853,25 @@ body.modal-open {
 .button-link-back i {
     margin-right: 8px;
 }
+
+/* CSS cho các thông báo trên trang tra cứu my_orders.html */
+.lookup-message.error-message {
+    color: #721c24; /* Màu đỏ đậm cho lỗi */
+    background-color: #f8d7da; /* Nền hồng nhạt */
+    border-color: #f5c6cb;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    text-align: center;
+}
+
+.lookup-message.loading-message {
+    color: #004085; /* Màu xanh dương cho thông tin */
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    text-align: center;
+}
+/* Class chung lookup-message đã được định nghĩa trong CSS cho my_orders.html trước đó */
