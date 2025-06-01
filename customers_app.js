@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const CUSTOMERS_STORAGE_KEY_UNUSED = 'photoAppCustomers'; // Không dùng nữa, nhưng để biết key cũ
-    let allCustomersData = {}; // Cache dữ liệu khách hàng từ API { 'customerId': { ...customerData } }
-    let currentOpenCustomerOriginalName = null; // Lưu tên gốc của KH đang xem/sửa trong modal
-    let currentOpenCustomerId = null; // Lưu ID của KH đang xem/sửa trong modal
+    // Không còn dùng CUSTOMERS_STORAGE_KEY nữa vì đã chuyển sang API
+    let allCustomersData = {}; // Cache dữ liệu khách hàng từ API: { 'mongodb_customer_id': { ...customerData } }
+    let currentOpenCustomerOriginalName = null; 
+    let currentOpenCustomerId = null; 
 
     // DOM Elements
     const customerListUl = document.getElementById('customerList');
@@ -28,38 +28,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveNewOrderBtn = document.getElementById('saveNewOrderBtn');
     const cancelNewOrderBtn = document.getElementById('cancelNewOrderBtn');
 
-    // Hàm phụ trợ để parse chuỗi ngày tháng từ client
-    function parseClientDateTimeToUTCDate(clientDateTimeString) {
-        if (!clientDateTimeString) return new Date();
-        const parts = clientDateTimeString.split(', ');
-        const dateParts = parts[0].split('/');
-        const timeParts = parts[1] ? parts[1].split(':') : ['00', '00', '00'];
-        return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || '0'));
-    }
-    
-    // Hàm phụ trợ để parse ngày từ server (nếu là string) hoặc giữ nguyên nếu là Date object
+    // Hàm phụ trợ để đảm bảo giá trị ngày là một đối tượng Date hợp lệ
+    // Đầu vào có thể là chuỗi ISO date (từ MongoDB), timestamp, hoặc đối tượng Date đã có.
     function ensureDateObject(dateValue) {
         if (!dateValue) return null;
-        if (dateValue instanceof Date) return dateValue;
-        return new Date(dateValue); // Thử parse string ISO date từ server
-    }
+        if (dateValue instanceof Date && !isNaN(dateValue.getTime())) return dateValue;
+        
+        const parsedDate = new Date(dateValue); // Thử parse trực tiếp
+        if (!isNaN(parsedDate.getTime())) return parsedDate;
 
+        // Fallback cho định dạng "dd/mm/yyyy, HH:MM:SS" nếu server không trả về ISO date
+        if (typeof dateValue === 'string' && dateValue.includes('/') && dateValue.includes(':')) {
+            try {
+                const parts = String(dateValue).split(', '); 
+                const dateParts = parts[0].split('/'); 
+                const timeParts = parts[1] ? parts[1].split(':') : ['00', '00', '00'];
+                const isoAttempt = new Date(
+                    parseInt(dateParts[2]), 
+                    parseInt(dateParts[1]) - 1, 
+                    parseInt(dateParts[0]),
+                    parseInt(timeParts[0] || '0'), 
+                    parseInt(timeParts[1] || '0'), 
+                    parseInt(timeParts[2] || '0')
+                );
+                if (!isNaN(isoAttempt.getTime())) return isoAttempt;
+            } catch (e) {
+                // Bỏ qua lỗi parse này
+            }
+        }
+        console.warn("Không thể chuyển đổi thành Date hợp lệ:", dateValue);
+        return null; 
+    }
 
     async function loadInitialCustomers() {
         console.log("Đang tải danh sách khách hàng từ API...");
+        customerListUl.innerHTML = '<li><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</li>';
         try {
             const response = await fetch('/api/customers');
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: response.statusText }));
-                throw new Error(`Lỗi HTTP ${response.status}: ${errorData.message}`);
+                throw new Error(`Lỗi HTTP ${response.status}: ${errorData.message || 'Không thể tải danh sách khách hàng'}`);
             }
             const customersArray = await response.json();
-            allCustomersData = {}; // Reset cache
+            allCustomersData = {}; 
             customersArray.forEach(customer => {
-                allCustomersData[customer._id] = customer; // Dùng _id làm key cho cache
+                allCustomersData[customer._id] = customer; 
                 if (customer.orders && Array.isArray(customer.orders)) {
-                    customer.orders.forEach(order => { // Chuyển đổi createdAt thành Date object để sort
-                        order.createdAtDate = ensureDateObject(order.createdAt);
+                    customer.orders.forEach(order => { 
+                        order.createdAtDate = ensureDateObject(order.createdAt); // Xử lý sẵn createdAtDate
                     });
                 }
             });
@@ -86,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (customersToDisplay.length === 0) {
             const li = document.createElement('li');
-            li.textContent = searchTerm ? 'Không tìm thấy khách hàng.' : 'Chưa có dữ liệu khách hàng.';
+            li.textContent = searchTerm ? 'Không tìm thấy khách hàng.' : 'Chưa có dữ liệu khách hàng hoặc không khớp tìm kiếm.';
             li.style.textAlign = 'center';
             customerListUl.appendChild(li);
             return;
@@ -97,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customersToDisplay.forEach(customer => {
             const listItem = document.createElement('li');
             listItem.innerHTML = `<i class="fas fa-user-circle"></i> ${customer.name} <span class="customer-meta">(${(customer.class || '').trim() || 'Chưa có lớp'}) - ${customer.purchaseCount || 0} lần mua</span>`;
-            listItem.dataset.customerId = customer._id; // Lưu ID khách hàng
+            listItem.dataset.customerId = customer._id; 
             listItem.addEventListener('click', () => openModalForCustomer(customer._id));
             customerListUl.appendChild(listItem);
         });
@@ -111,20 +127,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const customer = allCustomersData[customerId];
         customerOrdersTbody.innerHTML = '';
         if (customer && customer.orders && Array.isArray(customer.orders) && customer.orders.length > 0) {
-            // Sắp xếp đơn hàng: mới nhất lên đầu (dựa vào createdAtDate đã được parse)
-            const sortedOrders = [...customer.orders].sort((a, b) => (b.createdAtDate || 0) - (a.createdAtDate || 0));
+            const sortedOrders = [...customer.orders].sort((a, b) => (ensureDateObject(b.createdAt) || 0) - (ensureDateObject(a.createdAt) || 0));
             
             sortedOrders.forEach(order => {
                 const row = customerOrdersTbody.insertRow();
                 let displayDate = 'N/A';
-                if (order.createdAt) { // order.createdAt giờ là Date object từ server hoặc được parse
-                    const dateObj = ensureDateObject(order.createdAt);
-                    if(dateObj && !isNaN(dateObj)) {
-                        displayDate = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
-                    } else {
-                        displayDate = order.createdAt; // Nếu vẫn là string thì hiển thị string
-                    }
+                const orderDate = ensureDateObject(order.createdAt);
+                if (orderDate && !isNaN(orderDate.getTime())) {
+                    displayDate = `${String(orderDate.getDate()).padStart(2, '0')}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}`;
+                } else if (typeof order.createdAt === 'string') {
+                     // Fallback nếu createdAt là string không parse được, hiển thị phần ngày nếu có
+                    displayDate = order.createdAt.split(',')[0] || order.createdAt;
                 }
+
                 row.insertCell().textContent = displayDate;
                 row.insertCell().textContent = order.fileName || '-';
                 row.insertCell().textContent = order.pages || '0';
@@ -139,7 +154,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
                 deleteBtn.classList.add('delete-order-btn');
                 deleteBtn.title = "Xóa đơn hàng này";
-                deleteBtn.onclick = () => handleDeleteOrder(customerId, order.orderId); // Dùng order.orderId
+                // Đảm bảo order.orderId tồn tại và là string trước khi truyền
+                const orderIdString = order.orderId ? (typeof order.orderId === 'string' ? order.orderId : order.orderId.toString()) : null;
+                if (orderIdString) {
+                    deleteBtn.onclick = () => handleDeleteOrder(customerId, orderIdString);
+                } else {
+                    deleteBtn.disabled = true;
+                    deleteBtn.title = "Không thể xóa: thiếu ID đơn hàng";
+                }
                 deleteCell.appendChild(deleteBtn);
             });
         } else {
@@ -159,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Lỗi: Không tìm thấy dữ liệu khách hàng.");
             return;
         }
-        currentOpenCustomerOriginalName = customer.name; // Lưu tên gốc để xử lý đổi tên
+        currentOpenCustomerOriginalName = customer.name; 
 
         modalCustomerNameDisplay.innerHTML = `<i class="fas fa-user-edit"></i> ${customer.name}`;
         modalCustomerClassDisplay.textContent = (customer.class || '').trim() || 'Chưa cung cấp';
@@ -176,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('modal-open');
     }
 
-    // --- Chức năng Sửa thông tin khách hàng ---
     if(editCustomerInfoBtn) {
         editCustomerInfoBtn.onclick = () => {
             const customer = allCustomersData[currentOpenCustomerId];
@@ -205,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Kiểm tra nếu tên mới trùng với khách hàng khác (không phải chính nó)
             if (newName !== currentOpenCustomerOriginalName) {
                 const nameExists = Object.values(allCustomersData).some(cust => cust.name === newName && cust._id !== currentOpenCustomerId);
                 if (nameExists) {
@@ -226,16 +246,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const updatedCustomer = await response.json();
 
-                // Cập nhật cache cục bộ
-                delete allCustomersData[currentOpenCustomerOriginalName]; // Xóa key cũ nếu tên thay đổi
-                allCustomersData[updatedCustomer._id] = updatedCustomer; // Thêm/Cập nhật với key là _id
-                currentOpenCustomerOriginalName = updatedCustomer.name; // Cập nhật tên gốc
-                currentOpenCustomerId = updatedCustomer._id; // Đảm bảo ID đúng
+                // Cập nhật cache cục bộ: Xóa key cũ nếu tên thay đổi, dùng _id làm key chính
+                if (allCustomersData[currentOpenCustomerOriginalName] && currentOpenCustomerOriginalName !== updatedCustomer.name) {
+                     // Nếu tên gốc (dùng làm key trong dropdown hoặc tìm kiếm cũ) khác tên mới, 
+                     // và ID vẫn là currentOpenCustomerId (tức là không phải tạo KH mới do đổi tên)
+                     // thì cần cập nhật lại allCustomersData nếu key của nó là tên.
+                     // Nhưng vì allCustomersData giờ dùng _id làm key, chỉ cần cập nhật object tại _id đó.
+                }
+                allCustomersData[updatedCustomer._id] = updatedCustomer; 
+                // Nếu tên gốc đã từng được dùng làm key đâu đó mà không phải _id, cần cẩn thận
+                // Tuy nhiên, renderCustomerList giờ dựa trên Object.values(allCustomersData) nên sẽ lấy tên mới.
 
-                renderCustomerList(); // Cập nhật danh sách chính
+                currentOpenCustomerOriginalName = updatedCustomer.name; // Cập nhật tên gốc cho lần sửa tiếp theo
+                // currentOpenCustomerId không đổi vì chúng ta PUT dựa trên ID
+
+                renderCustomerList(); 
                 
                 modalCustomerNameDisplay.innerHTML = `<i class="fas fa-user-edit"></i> ${updatedCustomer.name}`;
                 modalCustomerClassDisplay.textContent = (updatedCustomer.class || '').trim() || 'Chưa cung cấp';
+                // Purchase count không thay đổi khi chỉ sửa tên/lớp
                 
                 editCustomerForm.style.display = 'none';
                 modalCustomerNameDisplay.style.display = 'inline-block';
@@ -247,57 +276,73 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // --- Chức năng Xóa đơn hàng ---
-    async function handleDeleteOrder(customerId, orderId) {
+    async function handleDeleteOrder(customerId, orderIdStr) {
+        console.log(`[Frontend] Bắt đầu handleDeleteOrder. CustomerID: ${customerId}, OrderID chuỗi: ${orderIdStr}`);
+        
         const customer = allCustomersData[customerId];
-        if (!customer || !customer.orders) return;
-
-        const orderToDelete = customer.orders.find(o => o.orderId === orderId || o.orderId.toString() === orderId);
-        if (!orderToDelete) {
-            alert("Lỗi: Không tìm thấy đơn hàng để xóa.");
+        if (!customer || !customer.orders) {
+            console.error("[Frontend] Không tìm thấy khách hàng hoặc đơn hàng của khách hàng trong cache cục bộ.");
+            alert("Lỗi: Không tìm thấy dữ liệu khách hàng cục bộ.");
             return;
         }
+
+        const orderObjectForConfirm = customer.orders.find(o => {
+            const currentOrderProcessedId = o.orderId ? (typeof o.orderId === 'string' ? o.orderId : o.orderId.toString()) : null;
+            return currentOrderProcessedId === orderIdStr;
+        });
         
-        console.log("Đang xóa đơn hàng với Customer ID:", customerId, "VÀ Order ID:", orderId);
+        let confirmMessage = `Bạn có chắc chắn muốn xóa đơn hàng có ID: ${orderIdStr} không?`;
+        if (orderObjectForConfirm) {
+            const orderDate = ensureDateObject(orderObjectForConfirm.createdAt);
+            const formattedDate = orderDate && !isNaN(orderDate.getTime()) ? `${String(orderDate.getDate()).padStart(2, '0')}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}` : 'N/A';
+            confirmMessage = `Bạn có chắc chắn muốn xóa đơn hàng?\nFile: ${orderObjectForConfirm.fileName || 'Không tên'}\nNgày: ${formattedDate}`;
+        } else {
+            console.warn(`[Frontend] Không tìm thấy chi tiết đơn hàng với ID ${orderIdStr} trong cache để hiển thị confirm.`);
+        }
         
-        if (confirm(`Bạn có chắc chắn muốn xóa đơn hàng này không?\nFile: ${orderToDelete.fileName || 'Không tên'}\nNgày: ${orderToDelete.createdAt ? new Date(orderToDelete.createdAt).toLocaleDateString('vi-VN') : 'N/A'}`)) {
+        if (confirm(confirmMessage)) {
             try {
-                const response = await fetch(`/api/customers/${customerId}/orders/${orderId}`, {
-                    method: 'DELETE'
-                });
+                const apiUrl = `/api/customers/${customerId}/orders/${orderIdStr}`;
+                console.log("[Frontend] CHUẨN BỊ GỬI YÊU CẦU DELETE đến:", apiUrl);
+
+                const response = await fetch(apiUrl, { method: 'DELETE' });
+
+                console.log("[Frontend] ĐÃ GỬI YÊU CẦU DELETE, response status:", response.status);
+                const responseText = await response.text(); 
+                console.log("[Frontend] Response text:", responseText);
+
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ message: response.statusText }));
-                    throw new Error(`Không thể xóa đơn hàng: ${errorData.message}`);
+                    let errorData = { message: `Lỗi HTTP ${response.status}` };
+                    try { if (responseText) { errorData = JSON.parse(responseText); } } 
+                    catch (e) { errorData.message = responseText || errorData.message; }
+                    throw new Error(`Không thể xóa đơn hàng: ${errorData.message || response.statusText}`);
                 }
-                const result = await response.json();
+                
+                const result = JSON.parse(responseText); 
+                console.log("[Frontend] Phản hồi từ API xóa thành công:", result);
                 const updatedCustomerFromServer = result.customer;
 
-                // Cập nhật cache cục bộ
                 allCustomersData[customerId] = updatedCustomerFromServer;
-                // Cần parse lại date cho các order của updatedCustomerFromServer
                 if (allCustomersData[customerId].orders && Array.isArray(allCustomersData[customerId].orders)) {
                     allCustomersData[customerId].orders.forEach(order => {
                         order.createdAtDate = ensureDateObject(order.createdAt);
                     });
                 }
 
-
                 populateOrdersTable(customerId); 
-                modalPurchaseCountSpan.textContent = updatedCustomerFromServer.purchaseCount; 
+                if(modalPurchaseCountSpan) modalPurchaseCountSpan.textContent = updatedCustomerFromServer.purchaseCount; 
                 renderCustomerList(); 
-                alert('Đã xóa đơn hàng.');
+                alert(result.message || 'Đã xóa đơn hàng thành công.');
+
             } catch (error) {
-                console.error("Lỗi xóa đơn hàng:", error);
-                alert("Lỗi: " + error.message);
+                console.error("[Frontend] Lỗi trong handleDeleteOrder:", error);
+                alert("Lỗi khi xóa đơn hàng: " + error.message + "\nHãy kiểm tra Console (F12) để biết thêm chi tiết."); 
             }
+        } else {
+            console.log("[Frontend] Người dùng đã hủy thao tác xóa đơn hàng.");
         }
     };
-    // Gán hàm vào global scope để HTML có thể gọi (nếu nút được tạo động với onclick="...")
-    // Hoặc tốt hơn là addEventListener khi tạo nút
-    // Vì nút xóa được tạo động, cần gán sự kiện khi tạo nút, như đã làm trong populateOrdersTable
-
     
-    // --- Chức năng Thêm đơn hàng thủ công ---
     if(showAddOrderFormBtn){
         showAddOrderFormBtn.onclick = () => {
             addOrderForm.style.display = 'block';
@@ -305,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addOrderForm.querySelector('#newOrderPrintType').value = 'portrait';
             addOrderForm.querySelector('#newOrderProgramDiscount').value = '0';
             addOrderForm.querySelector('#newOrderFriendDiscount').checked = false;
-             // Đặt ngày mặc định là hôm nay cho dễ nhập
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -326,12 +370,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if(saveNewOrderBtn){
         saveNewOrderBtn.onclick = async () => {
             if (!currentOpenCustomerId) {
-                alert("Lỗi: Không xác định được khách hàng. Vui lòng thử lại.");
+                alert("Lỗi: Không xác định được khách hàng. Vui lòng đóng modal và thử lại.");
                 return;
             }
 
             const newOrderClientData = {
-                createdAt: document.getElementById('newOrderDate').value.trim(),
+                createdAt: document.getElementById('newOrderDate').value.trim(), // Sẽ được parse ở backend
                 fileName: document.getElementById('newOrderFileName').value.trim(),
                 pages: parseInt(document.getElementById('newOrderPages').value) || 0,
                 printType: document.getElementById('newOrderPrintType').value,
@@ -360,15 +404,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 const updatedCustomerFromServer = result.customer;
 
-                // Cập nhật cache cục bộ
                 allCustomersData[currentOpenCustomerId] = updatedCustomerFromServer;
-                // Parse date cho orders của customer mới cập nhật
-                 if (allCustomersData[currentOpenCustomerId].orders && Array.isArray(allCustomersData[currentOpenCustomerId].orders)) {
+                if (allCustomersData[currentOpenCustomerId].orders && Array.isArray(allCustomersData[currentOpenCustomerId].orders)) {
                     allCustomersData[currentOpenCustomerId].orders.forEach(order => {
                         order.createdAtDate = ensureDateObject(order.createdAt);
                     });
                 }
-
 
                 populateOrdersTable(currentOpenCustomerId);
                 modalPurchaseCountSpan.textContent = updatedCustomerFromServer.purchaseCount;
@@ -378,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error("Lỗi thêm đơn hàng thủ công:", error);
-                alert("Lỗi: " + error.message);
+                alert("Lỗi: " + error.message + "\nHãy kiểm tra Console (F12) để biết thêm chi tiết.");
             }
         };
     }
