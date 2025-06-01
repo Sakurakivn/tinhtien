@@ -646,3 +646,24 @@ body.modal-open {
 .fas { 
     /* Có thể bạn đã có định nghĩa chung cho Font Awesome */
 }
+
+/* CSS cho nút chuyển trang trên index.html */
+.button-link-navigation {
+    display: inline-block;
+    background-color: #007bff; /* Một màu khác để phân biệt */
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+.button-link-navigation:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+.button-link-navigation i {
+    margin-right: 8px;
+}
