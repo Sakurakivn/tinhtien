@@ -261,3 +261,34 @@ document.getElementById('orderForm').addEventListener('reset', function() {
     document.getElementById('customerName').value = '';
     document.getElementById('customerClass').value = '';
 });
+
+// ... (mã hiện tại của app.js) ...
+
+// THÊM MỚI: Xử lý cho nút reset icon ở đầu trang
+const resetAppButton = document.getElementById('resetAppBtn');
+if (resetAppButton) {
+    resetAppButton.addEventListener('click', function() {
+        const orderForm = document.getElementById('orderForm');
+        if (orderForm) {
+            orderForm.reset(); // Điều này sẽ kích hoạt trình xử lý sự kiện 'reset' đã có trên form
+        }
+    });
+}
+
+// Trình xử lý sự kiện reset form (đã có từ trước, đảm bảo nó dọn dẹp đúng)
+document.getElementById('orderForm').addEventListener('reset', function() {
+    document.getElementById('priceDetails').innerHTML = '';
+    
+    const customerSelect = document.getElementById('customerSelect');
+    if (customerSelect) {
+        customerSelect.value = ""; 
+    }
+    // Đảm bảo các trường nhập liệu chính cũng được xóa (form.reset() thường làm điều này, nhưng để chắc chắn)
+    document.getElementById('customerName').value = '';
+    document.getElementById('customerClass').value = '';
+    document.getElementById('fileName').value = '';
+    // document.getElementById('pages').value = ''; // type="number" có thể cần xóa giá trị
+    // document.getElementById('printType').value = 'portrait';
+    // document.getElementById('friendDiscount').checked = false;
+    // document.getElementById('discount').value = '0';
+});
