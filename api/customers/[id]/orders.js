@@ -23,13 +23,6 @@ async function connectToDatabase() {
     return db;
 }
 
-// Hàm phụ trợ để parse chuỗi ngày tháng từ client (ví dụ: "dd/mm/yyyy, HH:MM:SS")
-// thành đối tượng Date mà MongoDB có thể hiểu đúng (thường là đối tượng Date UTC).
-function parseClientDateTimeToUTCDate(clientDateTimeString) {
-    if (!clientDateTimeString) {
-        console.warn("[API Add Order] clientDateTimeString is undefined or null, defaulting to current date.");
-        return new Date(); // Mặc định là thời gian hiện tại nếu không có
-    }
     
     console.log(`[API Add Order] Parsing client date string: ${clientDateTimeString}`);
     const parts = clientDateTimeString.split(', '); 
@@ -99,13 +92,13 @@ export default async function handler(req, res) {
         const newOrder = {
             ...orderDataFromClient, 
             orderId: new ObjectId(), 
-            createdAt: parseClientDateTimeToUTCDate(orderDataFromClient.createdAt), 
+            createdAt: new Date() // << QUAN TRỌNG: Lấy ngày giờ hiện tại của SERVER
         };
-        // Xóa createdAtDate nếu client có gửi lên, vì chúng ta dùng createdAt chuẩn từ server
-        delete newOrder.createdAtDate; 
-
-
-        console.log("[API Add Order] New order object to be pushed:", newOrder);
+        // Xóa createdAt từ client nếu có, để dùng của server
+        delete newOrder.createdAtDate; // Nếu client có gửi trường này
+        if (orderDataFromClient.hasOwnProperty('createdAt')) {
+            console.log(`[API Add Order] Client sent createdAt: ${orderDataFromClient.createdAt}, but server will use its current time.`);
+        }
 
         const result = await customersCollection.updateOne(
             { _id: customerObjectId },
