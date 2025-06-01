@@ -116,6 +116,16 @@ button:hover {
   background-color: #45a049;
 }
 
+/* Thêm style cho nút Làm Mới */
+.reset-btn {
+  background-color: #f44336; /* Màu đỏ */
+  margin-top: 10px; /* Tạo khoảng cách với nút ở trên */
+}
+
+.reset-btn:hover {
+  background-color: #d32f2f;
+}
+
 /* Kết quả hiển thị */
 #result {
   margin-top: 20px;
