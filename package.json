@@ -2,7 +2,6 @@
   "name": "PHOTO",
   "version": "1.0.0",
   "dependencies": {
-    "mongodb": "^8.0.9" 
-    // Nếu bạn dùng phiên bản mongodb khác, hãy ghi đúng phiên bản
+    "mongodb": "8.0.9" 
   }
 }
