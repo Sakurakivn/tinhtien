@@ -12,6 +12,11 @@
 
         <form id="orderForm">
             <div class="form-group">
+                <label for="customerSelect">Chọn khách hàng (hoặc nhập mới bên dưới):</label>
+                <select id="customerSelect" name="customerSelect" class="customer-select">
+                    <option value="">-- Khách hàng mới / Nhập tay --</option>  </select>
+            </div>            
+            <div class="form-group">
                 <label for="customerName">Tên khách hàng:</label>
                 <input type="text" id="customerName" name="customerName" placeholder="Nhập tên khách hàng" required>
             </div>
