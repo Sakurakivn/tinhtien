@@ -408,3 +408,241 @@ input[type="checkbox"]:checked + label::after {
         font-size: 18px; /* Giảm kích thước chữ cảm ơn */
     }
 }
+
+
+/* === CSS CHO TRANG DANH SÁCH KHÁCH HÀNG (customers.html) === */
+body.modal-open {
+    overflow: hidden; /* Ngăn cuộn trang body khi modal mở */
+}
+
+.customer-list-page-container {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 900px;
+  margin: 30px auto;
+  text-align: left;
+  backdrop-filter: blur(8px); /* Giữ lại hiệu ứng blur nếu có */
+  border: 1px solid #e0e0e0;
+}
+
+.customer-list-page-container h1 {
+  text-align: center;
+  color: #4CAF50; /* Màu xanh lá cây giống theme */
+  margin-bottom: 25px;
+  font-size: 28px;
+  border-bottom: 2px solid #4CAF50;
+  padding-bottom: 10px;
+}
+.customer-list-page-container h1 i {
+    margin-right: 10px;
+}
+
+
+.search-customer-container {
+    margin-bottom: 20px;
+}
+
+#customerSearchInput {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box; /* Quan trọng để padding không làm tăng kích thước */
+}
+#customerSearchInput:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.customer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.customer-list li {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eeeeee;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-size: 17px;
+  color: #333;
+  display: flex; /* Cho phép căn chỉnh icon và text */
+  align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.customer-list li i.fa-user-circle { /* Style cho icon user */
+    margin-right: 10px;
+    color: #4CAF50; /* Màu icon */
+    font-size: 20px; /* Kích thước icon */
+}
+
+.customer-list li .customer-meta {
+    font-size: 0.9em;
+    color: #777;
+    margin-left: auto; /* Đẩy thông tin meta sang phải */
+    padding-left: 10px; /* Khoảng cách nhỏ */
+}
+
+
+.customer-list li:last-child {
+  border-bottom: none;
+}
+
+.customer-list li:hover {
+  background-color: #e8f5e9; /* Màu xanh lá cây rất nhạt khi hover */
+  color: #2e7d32; /* Màu chữ đậm hơn khi hover */
+}
+
+.button-link {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 18px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-size: 16px;
+    border: none; /* Bỏ border mặc định của link/button */
+    cursor: pointer;
+}
+.button-link:hover {
+    background-color: #45a049;
+}
+.button-link i { /* Style cho icon trong button link */
+    margin-right: 5px;
+}
+
+
+/* === CSS CHO MODAL (POP-UP) === */
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1000; 
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; 
+  background-color: rgba(0, 0, 0, 0.6); 
+  animation: fadeInBackdrop 0.3s ease-out;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 4% auto; 
+  padding: 25px 30px;
+  border: 1px solid #bbb;
+  width: 85%; 
+  max-width: 700px; 
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative; 
+  animation: slideInModal 0.4s ease-out;
+}
+
+.modal-content.large { /* Class cho modal rộng hơn, dùng cho chi tiết khách hàng */
+    max-width: 950px; /* Rộng hơn để chứa bảng thoải mái */
+}
+
+
+#modalHeader {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+#modalHeader h3 {
+    margin-top: 0;
+    color: #4CAF50; /* Màu tiêu đề modal */
+    font-size: 24px;
+}
+#modalHeader h3 i {
+    margin-right: 8px;
+}
+#modalHeader p {
+    margin: 5px 0 8px 0;
+    font-size: 16px;
+    color: #555;
+}
+#modalHeader p i {
+    color: #4CAF50; /* Icon trong phần thông tin */
+    margin-right: 8px;
+    width: 20px; 
+    text-align: center;
+}
+
+
+.close-button {
+  color: #777;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 32px;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: #333; /* Màu đậm hơn khi hover */
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.table-responsive-container {
+    max-height: 450px; /* Giới hạn chiều cao bảng và cho phép cuộn */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top:10px;
+}
+
+#customerOrdersTable {
+  width: 100%;
+  border-collapse: collapse; 
+  margin-top: 0; 
+  font-size: 14px; 
+}
+
+#customerOrdersTable th,
+#customerOrdersTable td {
+  border: 1px solid #e0e0e0;
+  padding: 10px 12px; 
+  text-align: left;
+  vertical-align: middle; 
+}
+
+#customerOrdersTable th {
+  background-color: #f0f0f0; /* Màu nền header của bảng */
+  color: #333;
+  font-weight: 600; 
+  position: sticky; 
+  top: 0; /* Dính header khi cuộn trong table-responsive-container */
+  z-index: 10; /* Đảm bảo header nổi trên nội dung cuộn */
+}
+
+#customerOrdersTable tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* Màu xen kẽ cho các dòng */
+}
+#customerOrdersTable tbody tr:hover {
+  background-color: #f1f1f1; 
+}
+
+/* Animations cho modal */
+@keyframes fadeInBackdrop {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+@keyframes slideInModal {
+  from {opacity: 0; transform: translateY(-30px) scale(0.98);}
+  to {opacity: 1; transform: translateY(0) scale(1);}
+}
+
+/* CSS cho các icon Font Awesome nếu chưa có chung */
+.fas { 
+    /* Có thể bạn đã có định nghĩa chung cho Font Awesome */
+}
