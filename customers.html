@@ -11,7 +11,7 @@
     <div class="customer-list-page-container">
         <h1><i class="fas fa-users"></i> Danh Sách Khách Hàng</h1>
         <div class="search-customer-container">
-            <input type="text" id="customerSearchInput" placeholder="Tìm kiếm khách hàng theo tên...">
+            <input type="text" id="customerSearchInput" placeholder="Tìm kiếm khách hàng theo tên hoặc lớp...">
         </div>
         <ul id="customerList" class="customer-list">
             <li>Đang tải danh sách khách hàng...</li>
@@ -26,13 +26,79 @@
     <div id="customerModal" class="modal">
         <div class="modal-content large">
             <span class="close-button">&times;</span>
+            
             <div id="modalHeader">
-                <h3 id="modalCustomerName"></h3>
-                <p><strong><i class="fas fa-chalkboard-teacher"></i> Lớp:</strong> <span id="modalCustomerClass"></span></p>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <h3 id="modalCustomerNameDisplay"></h3>
+                    <button id="editCustomerInfoBtn" class="icon-button" title="Chỉnh sửa thông tin khách hàng">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                <div id="editCustomerForm" style="display:none; margin-top:10px; padding:10px; background-color:#f9f9f9; border-radius:5px;">
+                    <div class="form-group-modal">
+                        <label for="editCustomerNameInput">Tên khách hàng mới:</label>
+                        <input type="text" id="editCustomerNameInput">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="editCustomerClassInput">Lớp mới:</label>
+                        <input type="text" id="editCustomerClassInput">
+                    </div>
+                    <button id="saveCustomerInfoBtn" class="small-action-button"><i class="fas fa-save"></i> Lưu</button>
+                    <button id="cancelEditCustomerBtn" class="small-action-button-cancel"><i class="fas fa-times"></i> Hủy</button>
+                </div>
+                <p><strong><i class="fas fa-chalkboard-teacher"></i> Lớp:</strong> <span id="modalCustomerClassDisplay"></span></p>
                 <p><strong><i class="fas fa-shopping-cart"></i> Tổng số lần mua:</strong> <span id="modalPurchaseCount"></span></p>
             </div>
             
             <h4><i class="fas fa-history"></i> Lịch sử mua hàng:</h4>
+            <div class="table-actions-header">
+                 <button id="showAddOrderFormBtn" class="small-action-button add-order-btn">
+                    <i class="fas fa-plus"></i> Thêm đơn hàng
+                </button>
+            </div>
+             <div id="addOrderForm" style="display:none; margin-top:10px; margin-bottom: 15px; padding:15px; background-color:#f0f8ff; border-radius:5px; border: 1px solid #bde0ff;">
+                <h5><i class="fas fa-pencil-alt"></i> Nhập thông tin đơn hàng mới</h5>
+                <div class="form-grid">
+                    <div class="form-group-modal">
+                        <label for="newOrderDate">Ngày mua (dd/mm/yyyy hh:mm:ss):</label>
+                        <input type="text" id="newOrderDate" placeholder="VD: 01/06/2025 10:30:00">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="newOrderFileName">Tên file:</label>
+                        <input type="text" id="newOrderFileName">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="newOrderPages">Số trang:</label>
+                        <input type="number" id="newOrderPages" min="0">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="newOrderPrintType">Cách In:</label>
+                        <select id="newOrderPrintType">
+                            <option value="portrait">Dọc (2 trang A4)</option>
+                            <option value="landscape">Ngang (4 trang A4)</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="newOrderProgramDiscount">Giảm Giá CT (%):</label>
+                        <input type="number" id="newOrderProgramDiscount" value="0" min="0" max="100">
+                    </div>
+                    <div class="form-group-modal checkbox-style-modal">
+                        <input type="checkbox" id="newOrderFriendDiscount">
+                        <label for="newOrderFriendDiscount">Khách hàng thân thiết?</label>
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="newOrderBasePrice">Số tiền gốc (VND):</label>
+                        <input type="number" id="newOrderBasePrice" min="0">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="newOrderFinalPrice">Tổng số tiền (VND):</label>
+                        <input type="number" id="newOrderFinalPrice" min="0">
+                    </div>
+                </div>
+                <button id="saveNewOrderBtn" class="small-action-button"><i class="fas fa-save"></i> Lưu đơn hàng</button>
+                <button id="cancelNewOrderBtn" class="small-action-button-cancel"><i class="fas fa-times"></i> Hủy</button>
+            </div>
+
             <div class="table-responsive-container">
                 <table id="customerOrdersTable">
                     <thead>
@@ -45,7 +111,7 @@
                             <th>KHTT?</th>
                             <th>Số tiền gốc</th>
                             <th>Tổng số tiền</th>
-                        </tr>
+                            <th>Thao tác</th> </tr>
                     </thead>
                     <tbody id="customerOrdersTbody">
                         </tbody>
