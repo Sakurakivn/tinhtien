@@ -1,31 +1,31 @@
 // Biến toàn cục để lưu trữ dữ liệu khách hàng từ API
-// Cấu trúc: { 'Tên Khách Hàng': { _id: 'mongoDbId', name: 'Tên', class: 'Lớp', purchaseCount: 0, orders: [] } }
 let customersDataFromAPI = {}; 
 
-// Hàm tải dữ liệu khách hàng từ API
 async function loadCustomersFromAPI() {
     try {
+        console.log("Đang tải danh sách khách hàng từ API...");
         const response = await fetch('/api/customers'); 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
             throw new Error(`Lỗi HTTP: ${response.status} - ${errorData.message || 'Không thể tải danh sách khách hàng'}`);
         }
         const customersArray = await response.json();
-        customersDataFromAPI = {}; // Reset
+        customersDataFromAPI = {}; 
         customersArray.forEach(customer => {
-            customersDataFromAPI[customer.name] = customer; // Dùng tên làm key để ít thay đổi code populate
+            customersDataFromAPI[customer.name] = customer; 
         });
+        console.log("Đã tải xong khách hàng:", Object.keys(customersDataFromAPI).length, "khách hàng");
         populateCustomerDropdown();
     } catch (error) {
         console.error("Không thể tải danh sách khách hàng từ API:", error);
-        alert("Lỗi: Không thể tải danh sách khách hàng. Vui lòng thử lại sau.\n" + error.message);
+        alert("Lỗi: Không thể tải danh sách khách hàng. Vui lòng thử lại sau.\nChi tiết: " + error.message);
     }
 }
 
-// Hàm điền danh sách khách hàng vào dropdown (giữ nguyên logic DOM, chỉ thay đổi nguồn dữ liệu)
 function populateCustomerDropdown() {
     const customerSelect = document.getElementById('customerSelect');
     if (!customerSelect) return;
+    console.log("Đang cập nhật dropdown khách hàng...");
 
     const currentSelectedValueInDropdown = customerSelect.value; 
     const currentCustomerNameInInput = document.getElementById('customerName').value;
@@ -39,27 +39,24 @@ function populateCustomerDropdown() {
     sortedCustomerNames.forEach(name => {
         const customer = customersDataFromAPI[name];
         const option = document.createElement('option');
-        option.value = name; // Value của option vẫn là tên khách hàng
+        option.value = name; 
         const displayClass = (customer.class || '').trim() || 'Chưa có lớp';
         option.textContent = `${name} (${displayClass}) - ${customer.purchaseCount || 0} lần mua`;
         customerSelect.appendChild(option);
     });
     
-    // Ưu tiên giữ lựa chọn hiện tại trong dropdown nếu nó vẫn hợp lệ
     if (currentSelectedValueInDropdown && customersDataFromAPI[currentSelectedValueInDropdown]) {
         customerSelect.value = currentSelectedValueInDropdown;
     } 
-    // Hoặc nếu có tên khách hàng trong ô input và tên đó có trong danh sách API, chọn nó
     else if (currentCustomerNameInInput && customersDataFromAPI[currentCustomerNameInInput]) {
         customerSelect.value = currentCustomerNameInInput;
     } 
-    // Mặc định là khách hàng mới
     else {
         customerSelect.value = ""; 
     }
+    console.log("Dropdown khách hàng đã được cập nhật.");
 }
 
-// Hàm xử lý khi chọn một khách hàng từ dropdown
 function handleCustomerSelection() {
     const customerSelect = document.getElementById('customerSelect');
     const customerNameInput = document.getElementById('customerName');
@@ -68,19 +65,21 @@ function handleCustomerSelection() {
     if (!customerSelect || !customerNameInput || !customerClassInput) return;
 
     const selectedName = customerSelect.value;
+    console.log("Khách hàng được chọn từ dropdown:", selectedName);
     if (selectedName && customersDataFromAPI[selectedName]) {
         customerNameInput.value = customersDataFromAPI[selectedName].name;
         customerClassInput.value = customersDataFromAPI[selectedName].class || '';
     } else {
         if (selectedName === "") { 
-            customerNameInput.value = ''; 
-            customerClassInput.value = '';
+            // customerNameInput.value = ''; // Để người dùng tự nhập nếu muốn tên khác
+            // customerClassInput.value = '';
+            console.log("Chọn tạo khách hàng mới hoặc nhập tay.");
         }
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadCustomersFromAPI(); // Tải khách hàng từ API khi trang sẵn sàng
+    loadCustomersFromAPI(); 
 
     const customerSelect = document.getElementById('customerSelect');
     if (customerSelect) {
@@ -100,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('orderForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-    // Hiển thị loading/spinner ở đây nếu muốn
+    document.getElementById('priceDetails').innerHTML = '<p>Đang xử lý, vui lòng chờ...</p>'; // Thông báo chờ
 
     const customerNameInput = document.getElementById('customerName');
     const customerClassInput = document.getElementById('customerClass');
@@ -108,7 +107,6 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
     let customerName = customerNameInput.value.trim();
     let customerClass = customerClassInput.value.trim();
     
-    // Các thông tin đơn hàng khác
     const fileName = document.getElementById('fileName').value;
     const pages = parseInt(document.getElementById('pages').value);
     const printType = document.getElementById('printType').value;
@@ -117,68 +115,60 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
 
     if (isNaN(pages) || pages <= 0 || !customerName) {
         alert("Vui lòng nhập số trang hợp lệ và tên khách hàng!");
+        document.getElementById('priceDetails').innerHTML = ''; // Xóa thông báo chờ
         return;
     }
 
-    let customerInSystem = customersDataFromAPI[customerName];
+    let customerInSystem;
     let customerId;
 
     try {
-        if (!customerInSystem) {
-            // Thử tìm khách hàng trên server phòng trường hợp danh sách local chưa cập nhật
-            const checkResponse = await fetch(`/api/customers?name=${encodeURIComponent(customerName)}`);
-            if (checkResponse.ok) {
-                customerInSystem = await checkResponse.json();
-                customersDataFromAPI[customerName] = customerInSystem; // Cập nhật cache cục bộ
-            } else if (checkResponse.status === 404) {
-                // Khách hàng thực sự mới, tạo mới
-                console.log(`Khách hàng "${customerName}" chưa có, đang tạo mới...`);
-                const createResponse = await fetch('/api/customers', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: customerName, class: customerClass })
-                });
-                if (!createResponse.ok) {
-                    const errorData = await createResponse.json();
-                    throw new Error(`Không thể tạo khách hàng mới: ${errorData.message || createResponse.statusText}`);
-                }
-                customerInSystem = await createResponse.json();
-                customersDataFromAPI[customerName] = customerInSystem; // Thêm vào cache cục bộ
-                console.log("Đã tạo khách hàng mới:", customerInSystem);
-            } else {
-                const errorData = await checkResponse.json();
-                throw new Error(`Lỗi khi kiểm tra khách hàng: ${errorData.message || checkResponse.statusText}`);
-            }
-        } else {
-            // Khách hàng đã có trong cache cục bộ, kiểm tra xem lớp có thay đổi không
-            if (customerInSystem.class !== customerClass) {
-                console.log(`Cập nhật lớp cho khách hàng "${customerName}"`);
-                const updateResponse = await fetch(`/api/customers?id=${customerInSystem._id}`, {
+        // Bước 1: Xác định hoặc tạo/cập nhật khách hàng
+        console.log(`Đang tìm/tạo khách hàng: "${customerName}"`);
+        let existingCustomerData = customersDataFromAPI[customerName];
+
+        if (existingCustomerData) { // Nếu khách hàng có trong cache local (đã load từ API)
+             // Kiểm tra xem lớp có thay đổi không
+            if (existingCustomerData.class !== customerClass) {
+                console.log(`Khách hàng "${customerName}" đã tồn tại, cập nhật lớp.`);
+                const updateResponse = await fetch(`/api/customers?id=${existingCustomerData._id}`, { // Dùng query param cho ID
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ class: customerClass }) // Chỉ gửi những gì thay đổi
+                    body: JSON.stringify({ name: customerName, class: customerClass }) // Gửi cả tên để API có thể kiểm tra trùng lặp nếu tên thay đổi
                 });
                 if (!updateResponse.ok) {
-                    const errorData = await updateResponse.json();
-                    throw new Error(`Không thể cập nhật lớp cho khách hàng: ${errorData.message || updateResponse.statusText}`);
+                    const errorData = await updateResponse.json().catch(() => ({ message: updateResponse.statusText }));
+                    throw new Error(`Không thể cập nhật thông tin khách hàng: ${errorData.message}`);
                 }
                 customerInSystem = await updateResponse.json();
                 customersDataFromAPI[customerName] = customerInSystem; // Cập nhật cache
+            } else {
+                customerInSystem = existingCustomerData;
+            }
+        } else { // Khách hàng không có trong cache, thử POST để tạo (API sẽ kiểm tra tồn tại)
+            console.log(`Khách hàng "${customerName}" không có trong cache, gửi yêu cầu POST tới API.`);
+            const createOrGetResponse = await fetch('/api/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: customerName, class: customerClass })
+            });
+            if (!createOrGetResponse.ok && createOrGetResponse.status !== 409) { // 409 là lỗi trùng tên, API của tôi trả về 200 và customer nếu trùng
+                const errorData = await createOrGetResponse.json().catch(() => ({ message: createOrGetResponse.statusText }));
+                throw new Error(`Không thể tạo hoặc lấy thông tin khách hàng: ${errorData.message}`);
+            }
+            const responseData = await createOrGetResponse.json();
+            customerInSystem = responseData.customer || responseData; // API POST trả về customer nếu trùng, hoặc khách hàng mới nếu tạo
+            
+            if (!customersDataFromAPI[customerInSystem.name]) { // Thêm vào cache nếu là mới hoặc tên khác
+                 customersDataFromAPI[customerInSystem.name] = customerInSystem;
             }
         }
         
         customerId = customerInSystem._id;
+        console.log(`Đã xác định khách hàng: ID ${customerId}, Tên: ${customerInSystem.name}, Lớp: ${customerInSystem.class}`);
 
-        // TODO: Bước tiếp theo là gọi API để thêm đơn hàng này vào khách hàng customerId
-        // Ví dụ: POST /api/customers/${customerId}/orders hoặc /api/orders?customerId=${customerId}
-        // Đồng thời, API backend sẽ cần cập nhật purchaseCount cho khách hàng này.
-        // Hiện tại, chúng ta sẽ giả định purchaseCount được cập nhật phía backend khi thêm order.
-        // Hoặc, chúng ta có thể fetch lại thông tin khách hàng sau khi thêm order để có purchaseCount mới nhất.
-        console.log(`Đơn hàng cho khách hàng ID: ${customerId}, Tên: ${customerName}`);
-        // Giả sử sau khi thêm đơn hàng, purchaseCount của customerInSystem đã được cập nhật (từ response hoặc fetch lại)
-        // customersDataFromAPI[customerName].purchaseCount +=1; // Tạm thời tăng ở client, lý tưởng là lấy từ server sau khi thêm order
-
-        // --- Logic tính toán giá (giữ nguyên) ---
+        // Bước 2: Tạo đối tượng invoiceData
+        // (Phần tính toán giá giữ nguyên)
         let pricePerPage;
         if (pages <= 250) { pricePerPage = friendDiscountCheckbox ? 483 : 543; }
         else if (pages <= 500) { pricePerPage = friendDiscountCheckbox ? 463 : 520; }
@@ -193,58 +183,78 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
         const roundedAdditionalFriendDiscount = Math.round(additionalFriendDiscountValue);
         const roundedProgramDiscount = Math.round(programDiscountValue);
         const roundedFinalTotalPrice = Math.round(finalTotalCalculated);
-        const formattedFinalTotalPrice = roundedFinalTotalPrice.toLocaleString('vi-VN');
-        const formattedTotalPriceBeforePercentageDiscounts = roundedTotalPriceBeforePercentageDiscounts.toLocaleString('vi-VN');
-        const formattedAdditionalFriendDiscount = roundedAdditionalFriendDiscount.toLocaleString('vi-VN');
-        const formattedProgramDiscount = roundedProgramDiscount.toLocaleString('vi-VN');
-        let priceDetailsHTML = `<p><strong>Số tiền tạm tính (sau ưu đãi giá/trang):</strong> ${formattedTotalPriceBeforePercentageDiscounts} VND</p>`;
-        if (roundedAdditionalFriendDiscount > 0) { priceDetailsHTML += `<p><em>- ${formattedAdditionalFriendDiscount} VND : Giảm thêm cho Khách hàng thân thiết (10%)</em></p>`; }
-        if (roundedProgramDiscount > 0) { priceDetailsHTML += `<p><em>- ${formattedProgramDiscount} VND : Chương trình giảm ${discountPercentage}%</em></p>`; }
-        priceDetailsHTML += `<p><strong class="totalAmount">Tổng số tiền: </strong>${formattedFinalTotalPrice} VND</p>`;
+        
+        const dateOptionsForDisplay = { year: 'numeric', month: '2-digit', day: '2-digit' };
         const orderTime = new Date();
         let estimatedDeliveryDateStart = new Date(orderTime); let estimatedDeliveryDateEnd = new Date(orderTime);
         if (orderTime.getHours() >= 16) { estimatedDeliveryDateStart.setDate(estimatedDeliveryDateStart.getDate() + 1); estimatedDeliveryDateEnd.setDate(estimatedDeliveryDateEnd.getDate() + 2); }
         else { estimatedDeliveryDateStart.setDate(estimatedDeliveryDateStart.getDate() + 1); estimatedDeliveryDateEnd.setDate(estimatedDeliveryDateEnd.getDate() + 1); }
         if (estimatedDeliveryDateStart.getDay() === 0) { estimatedDeliveryDateStart.setDate(estimatedDeliveryDateStart.getDate() + 2); estimatedDeliveryDateEnd.setDate(estimatedDeliveryDateEnd.getDate() + 2); }
-        const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        const formattedStartDate = estimatedDeliveryDateStart.toLocaleDateString('vi-VN', dateOptions);
-        const formattedEndDate = estimatedDeliveryDateEnd.toLocaleDateString('vi-VN', dateOptions);
-        priceDetailsHTML += `<p><strong>Dự kiến ngày nhận hàng:</strong> ${formattedStartDate} - ${formattedEndDate}</p>`;
-        
-        // Lấy purchaseCount từ customerInSystem (đã được cập nhật từ API hoặc tạo mới)
-        priceDetailsHTML += `<p><strong>Số lần mua của khách ${customerName}:</strong> ${customerInSystem.purchaseCount || 0}</p>`; 
-        // TODO: Sau khi API thêm đơn hàng hoạt động và cập nhật purchaseCount, dòng trên sẽ hiển thị đúng.
-        // Hiện tại, nếu tạo KH mới, API trả về purchaseCount = 0. Cần API để tăng nó khi thêm đơn hàng.
-        // Hoặc, gọi lại API GET customer để lấy thông tin mới nhất sau khi thêm order.
-        
-        priceDetailsHTML += `<button id="generateInvoice">Xuất hóa đơn</button>`;
-        document.getElementById('priceDetails').innerHTML = priceDetailsHTML;
+        const formattedStartDate = estimatedDeliveryDateStart.toLocaleDateString('vi-VN', dateOptionsForDisplay);
+        const formattedEndDate = estimatedDeliveryDateEnd.toLocaleDateString('vi-VN', dateOptionsForDisplay);
 
-        const invoiceData = {
-            customerName, customerClass, fileName, pages, printType,
+        const invoiceDataForStorage = { // Dữ liệu này sẽ được gửi lên server để lưu vào đơn hàng
+            customerName: customerInSystem.name, // Dùng tên đã chuẩn hóa từ server nếu có
+            customerClass: customerInSystem.class, // Dùng lớp đã chuẩn hóa từ server nếu có
+            fileName, pages, printType,
             totalPriceBeforeDiscount: roundedTotalPriceBeforePercentageDiscounts,
             friendDiscountApplied: friendDiscountCheckbox,
             friendDiscountAmount: roundedAdditionalFriendDiscount, 
             programDiscountPercentage: discountPercentage,
             programDiscountAmount: roundedProgramDiscount, 
             finalTotalPrice: roundedFinalTotalPrice, 
-            estimatedStartDate: formattedStartDate, estimatedEndDate: formattedEndDate,
-            purchaseCount: customerInSystem.purchaseCount || 0, // Tương tự như trên
-            createdAt: new Date().toLocaleString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+            estimatedStartDate: formattedStartDate, 
+            estimatedEndDate: formattedEndDate,
+            // purchaseCount sẽ được server tự động tăng, không cần gửi lên
+            createdAt: new Date().toLocaleString('vi-VN', { // Client tạo chuỗi ngày giờ local
+                year: 'numeric', month: '2-digit', day: '2-digit', 
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+            })
         };
-        localStorage.setItem('invoiceData', JSON.stringify(invoiceData)); // Vẫn dùng localStorage cho invoice.html tạm thời
+        
+        // Bước 3: Gọi API để thêm đơn hàng này vào khách hàng
+        console.log(`Đang gửi đơn hàng cho khách hàng ID: ${customerId}`);
+        const addOrderResponse = await fetch(`/api/customers/${customerId}/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(invoiceDataForStorage)
+        });
+
+        if (!addOrderResponse.ok) {
+            const errorData = await addOrderResponse.json().catch(() => ({ message: addOrderResponse.statusText }));
+            throw new Error(`Không thể thêm đơn hàng: ${errorData.message}`);
+        }
+        
+        const addOrderResult = await addOrderResponse.json();
+        const updatedCustomerFromServer = addOrderResult.customer; // API trả về khách hàng đã cập nhật
+        
+        // Cập nhật cache khách hàng cục bộ với thông tin mới nhất từ server
+        customersDataFromAPI[updatedCustomerFromServer.name] = updatedCustomerFromServer;
+        console.log("Đã thêm đơn hàng và cập nhật khách hàng:", updatedCustomerFromServer);
+
+        // Bước 4: Hiển thị kết quả
+        let priceDetailsHTML = `<p><strong>Số tiền tạm tính (sau ưu đãi giá/trang):</strong> ${roundedTotalPriceBeforePercentageDiscounts.toLocaleString('vi-VN')} VND</p>`;
+        if (roundedAdditionalFriendDiscount > 0) { priceDetailsHTML += `<p><em>- ${roundedAdditionalFriendDiscount.toLocaleString('vi-VN')} VND : Giảm thêm cho Khách hàng thân thiết (10%)</em></p>`; }
+        if (roundedProgramDiscount > 0) { priceDetailsHTML += `<p><em>- ${roundedProgramDiscount.toLocaleString('vi-VN')} VND : Chương trình giảm ${discountPercentage}%</em></p>`; }
+        priceDetailsHTML += `<p><strong class="totalAmount">Tổng số tiền: </strong>${roundedFinalTotalPrice.toLocaleString('vi-VN')} VND</p>`;
+        priceDetailsHTML += `<p><strong>Dự kiến ngày nhận hàng:</strong> ${formattedStartDate} - ${formattedEndDate}</p>`;
+        priceDetailsHTML += `<p><strong>Số lần mua của khách ${updatedCustomerFromServer.name}:</strong> ${updatedCustomerFromServer.purchaseCount}</p>`;
+        priceDetailsHTML += `<button id="generateInvoice">Xuất hóa đơn</button>`;
+        document.getElementById('priceDetails').innerHTML = priceDetailsHTML;
+        
+        // Dữ liệu cho trang invoice.html (vẫn dùng localStorage cho trang này)
+        localStorage.setItem('invoiceData', JSON.stringify({
+            ...invoiceDataForStorage, // Dùng dữ liệu đã chuẩn bị để gửi
+            purchaseCount: updatedCustomerFromServer.purchaseCount // Lấy purchaseCount mới nhất
+        }));
 
         // Gửi dữ liệu đến Google Sheets (giữ nguyên)
         fetch('https://script.google.com/macros/s/AKfycbxiJXoMIf4fffa9YOQYTVs-lVNTiQXLCww4eW744isDTsYK-wK2UFVCAUBQ61wcty4hUQ/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(invoiceData) 
+            body: JSON.stringify({ ...invoiceDataForStorage, purchaseCount: updatedCustomerFromServer.purchaseCount }) 
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result === "Success") { console.log("Gửi Google Sheets thành công!"); }
-            else { console.error("Lỗi gửi Google Sheets:", data.message); }
-        })
+        .then(res => res.json()).then(data => console.log("Gửi Google Sheets:", data.result))
         .catch(error => console.error('Lỗi fetch Google Sheets:', error));
 
         const generateInvoiceButton = document.getElementById('generateInvoice');
@@ -253,18 +263,21 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
                 window.location.href = 'invoice.html';
             });
         }
-        // Tải lại danh sách khách hàng để cập nhật dropdown với thông tin mới nhất (nếu có khách mới hoặc purchaseCount thay đổi từ server)
-        await loadCustomersFromAPI(); 
+        
+        // Cập nhật lại dropdown để hiển thị số lần mua mới và khách hàng mới (nếu có)
+        // populateCustomerDropdown(); // loadCustomersFromAPI sẽ gọi hàm này
+        await loadCustomersFromAPI(); // Tải lại toàn bộ để đảm bảo nhất quán, hoặc chỉ cập nhật customer vừa rồi
         // Đảm bảo khách hàng hiện tại được chọn
         const customerSelectElement = document.getElementById('customerSelect');
-         if(customerSelectElement && customerName) {
-            customerSelectElement.value = customerName;
+         if(customerSelectElement && updatedCustomerFromServer.name) {
+            customerSelectElement.value = updatedCustomerFromServer.name;
         }
 
 
     } catch (error) {
         console.error("Lỗi trong quá trình xử lý đơn hàng:", error);
-        alert("Đã xảy ra lỗi: " + error.message + "\nVui lòng thử lại.");
+        alert("Đã xảy ra lỗi: " + error.message + "\nVui lòng kiểm tra Console (F12) để biết thêm chi tiết và thử lại.");
+        document.getElementById('priceDetails').innerHTML = `<p style="color:red;">Lỗi: ${error.message}</p>`;
     } finally {
         // Ẩn loading/spinner ở đây nếu có
     }
@@ -278,4 +291,5 @@ document.getElementById('orderForm').addEventListener('reset', function() {
     }
     document.getElementById('customerName').value = '';
     document.getElementById('customerClass').value = '';
+    // Các trường khác sẽ được reset tự động bởi form.reset()
 });
