@@ -646,6 +646,126 @@ body.modal-open {
 .fas { 
     /* Có thể bạn đã có định nghĩa chung cho Font Awesome */
 }
+/* === TINH CHỈNH KIỂU DÁNG CÁC NÚT HÀNH ĐỘNG TRONG MODAL (customers.html) === */
+
+/* Nút icon chung (VD: Nút sửa thông tin khách hàng hình cái bút) */
+.modal #editCustomerInfoBtn.icon-button { /* Áp dụng cho nút sửa KH cụ thể */
+    background-color: transparent;
+    border: 1px solid #ced4da; /* Viền nhẹ hơn */
+    color: #495057; /* Màu chữ/icon tối hơn chút */
+    font-size: 0.9em;   /* Giảm kích thước icon một chút */
+    padding: 6px 8px;   /* Giảm padding */
+    border-radius: 4px;
+    margin-left: 10px;
+    vertical-align: middle; /* Căn chỉnh tốt hơn với text */
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.modal #editCustomerInfoBtn.icon-button:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+    border-color: #007bff;
+}
+
+/* Các nút hành động nhỏ dạng chữ (Lưu, Hủy, Thêm) */
+.modal .small-action-button,
+.modal .small-action-button-cancel {
+    padding: 7px 12px;       /* Giảm padding */
+    font-size: 0.875em;      /* Font nhỏ hơn */
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    margin-right: 6px;      /* Giảm margin */
+    margin-top: 8px;        /* Thêm margin top để có khoảng cách nếu wrap */
+    font-weight: 500;       /* Chữ vừa phải, không quá đậm */
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.5;       /* Căn chữ dọc tốt hơn */
+    min-width: 80px;        /* Độ rộng tối thiểu để nút không quá nhỏ */
+    text-align: center;
+}
+.modal .small-action-button i,
+.modal .small-action-button-cancel i {
+    margin-right: 5px;
+}
+
+/* Nút Lưu/Xác nhận (Xanh lá) */
+.modal .small-action-button {
+    background-color: #28a745; /* Màu xanh lá cây Bootstrap success */
+    color: white;
+    border-color: #28a745;
+}
+.modal .small-action-button:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Nút Hủy/Từ chối (Đỏ hoặc Xám) */
+.modal .small-action-button-cancel {
+    background-color: #6c757d; /* Màu xám cho Hủy (ít chói hơn đỏ) */
+    color: white;
+    border-color: #6c757d;
+}
+.modal .small-action-button-cancel:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+/* Nếu muốn nút Hủy trong form thêm đơn hàng màu đỏ: */
+#addOrderForm .small-action-button-cancel {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+#addOrderForm .small-action-button-cancel:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+
+/* Nút "Thêm đơn hàng" (Xanh dương) - id: #showAddOrderFormBtn */
+.modal .add-order-btn {
+    background-color: #007bff; /* Bootstrap primary blue */
+    color: white;
+    border-color: #007bff;
+    font-size: 0.9em; /* Kích thước tương đồng */
+    padding: 7px 12px;
+}
+.modal .add-order-btn:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Nút Xóa đơn hàng trong bảng (icon X) */
+.modal .delete-order-btn {
+    background-color: transparent;
+    color: #dc3545;  /* Màu đỏ Bootstrap danger */
+    border: 1px solid transparent; /* Thêm border transparent để giữ kích thước khi hover */
+    cursor: pointer;
+    font-size: 1em;   /* Kích thước icon X */
+    padding: 4px 7px; /* Padding vừa phải */
+    border-radius: 4px;
+    line-height: 1; /* Căn icon */
+    transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+.modal .delete-order-btn:hover {
+    color: white;
+    background-color: #c82333; /* Đỏ đậm hơn khi hover */
+    border-color: #c82333;
+}
+
+/* Điều chỉnh khoảng cách cho các form trong modal */
+.modal #editCustomerForm,
+.modal #addOrderForm {
+    border-top: 1px dashed #e0e0e0; /* Đường gạch mờ phân cách */
+    padding-top: 15px;
+    margin-top: 15px;
+    margin-bottom: 10px; /* Thêm margin bottom cho form */
+}
+.modal #editCustomerForm {
+    background-color: #f8f9fa; /* Nền xám rất nhạt cho form sửa */
+    padding: 15px; /* Thêm padding cho form sửa */
+}
+
 
 /* CSS cho nút chuyển trang trên index.html */
 .button-link-navigation {
