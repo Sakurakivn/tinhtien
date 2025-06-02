@@ -1,150 +1,212 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const CUSTOMERS_STORAGE_KEY_UNUSED = 'photoAppCustomers'; // Không dùng nữa
-    const lookupForm = document.getElementById('customerLookupForm');
-    const customerNameInput = document.getElementById('customerNameToLookup');
-    const lookupResultDiv = document.getElementById('lookupResult');
+    const lookupFormContainer = document.getElementById('lookupFormContainer');
+    const lookupForm = document.getElementById('customerLookupFormWrapped');
+    const customerNameInput = document.getElementById('customerNameToLookupWrapped');
+    const lookupErrorMessage = document.getElementById('lookupErrorMessageWrapped');
+    
+    const wrappedContainer = document.getElementById('wrappedContainer');
+    const slides = document.querySelectorAll('.wrapped-slide');
+    const prevSlideBtn = document.getElementById('prevSlideBtn');
+    const nextSlideBtn = document.getElementById('nextSlideBtn');
+    const closeWrappedBtn = document.getElementById('closeWrappedBtn');
+
+    let currentSlideIndex = 0;
+    let customerDataGlobal = null; // Lưu trữ dữ liệu khách hàng sau khi fetch
+
+    // --- Các hàm xử lý ngày tháng (giữ lại từ trước) ---
+    function ensureDateObject(dateValue) {
+        if (!dateValue) return null;
+        if (dateValue instanceof Date && !isNaN(dateValue.getTime())) return dateValue;
+        const parsedDate = new Date(dateValue);
+        if (!isNaN(parsedDate.getTime())) return parsedDate;
+        if (typeof dateValue === 'string' && dateValue.includes('/') && dateValue.includes(',')) {
+            try {
+                const parts = String(dateValue).split(', ');
+                const dateParts = parts[0].split('/');
+                const timeParts = parts[1] ? parts[1].split(':') : ['00', '00', '00'];
+                return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0] || '0'), parseInt(timeParts[1] || '0'), parseInt(timeParts[2] || '0'));
+            } catch (e) { /* ignore */ }
+        }
+        return null;
+    }
+
+    // --- Logic cho Wrapped ---
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active-slide');
+            if (i === index) {
+                slide.classList.add('active-slide');
+            }
+        });
+        prevSlideBtn.style.display = index === 0 ? 'none' : 'inline-block';
+        nextSlideBtn.style.display = index === slides.length - 1 ? 'none' : 'inline-block';
+        closeWrappedBtn.style.display = index === slides.length - 1 ? 'inline-block' : 'none';
+    }
+
+    function populateWrappedData(customer) {
+        if (!customer) return;
+
+        // Slide Chào mừng
+        document.getElementById('welcomeName').textContent = `Chào mừng ${customer.name} quay trở lại!`;
+
+        // Slide Tổng quan
+        const totalOrders = customer.orders ? customer.orders.length : 0;
+        const totalSpent = customer.orders ? customer.orders.reduce((sum, order) => sum + (order.finalTotalPrice || 0), 0) : 0;
+        document.getElementById('totalOrders').textContent = totalOrders;
+        document.getElementById('totalSpent').textContent = `${totalSpent.toLocaleString('vi-VN')} VND`;
+
+        // Slide "Thói quen"
+        let favPrintType = "Không xác định";
+        let totalPagesPrinted = 0;
+        if (totalOrders > 0) {
+            const printTypes = customer.orders.map(o => o.printType);
+            const typeCounts = printTypes.reduce((acc, type) => {
+                acc[type] = (acc[type] || 0) + 1;
+                return acc;
+            }, {});
+            if (Object.keys(typeCounts).length > 0) {
+                favPrintType = Object.keys(typeCounts).reduce((a, b) => typeCounts[a] > typeCounts[b] ? a : b);
+                favPrintType = favPrintType === 'portrait' ? 'In Dọc' : (favPrintType === 'landscape' ? 'In Ngang' : favPrintType);
+            }
+            totalPagesPrinted = customer.orders.reduce((sum, order) => sum + (order.pages || 0), 0);
+        }
+        document.getElementById('favPrintType').textContent = favPrintType;
+        document.getElementById('totalPagesPrinted').textContent = totalPagesPrinted.toLocaleString('vi-VN');
+        
+        // Slide Lời nhận xét
+        const remarkTitle = document.getElementById('remarkTitle');
+        const remarkText = document.getElementById('remarkText');
+        if (totalOrders === 0) {
+            remarkTitle.textContent = "Một Khởi Đầu Mới!";
+            remarkText.textContent = "Chúng tôi rất vui khi được đồng hành cùng bạn trong những đơn hàng sắp tới!";
+        } else if (totalOrders <= 5) {
+            remarkTitle.textContent = "Người Bạn Thân Thiết!";
+            remarkText.textContent = `Với ${totalOrders} đơn hàng, bạn đã là một phần quan trọng của chúng tôi. Cảm ơn sự tin tưởng của bạn!`;
+        } else if (totalOrders <= 15) {
+            remarkTitle.textContent = "Chuyên Gia In Ấn!";
+            remarkText.textContent = `Bạn thực sự biết mình cần gì! ${totalOrders} đơn hàng là minh chứng cho sự hiệu quả và chăm chỉ của bạn.`;
+        } else {
+            remarkTitle.textContent = "Huyền Thoại In Ấn!";
+            remarkText.textContent = `Wow, ${customer.name}! Với ${totalOrders} đơn hàng, bạn là một nguồn cảm hứng! Chúng tôi vô cùng biết ơn sự ủng hộ của bạn.`;
+        }
+         if (totalSpent > 200000 && totalOrders > 5) { // Ví dụ: mốc chi tiêu cao
+            remarkText.textContent += " Bạn quả là một khách hàng VIP!";
+        }
+
+
+        // Slide Cảm ơn
+        document.getElementById('thankYouName').textContent = `Cảm ơn bạn, ${customer.name}, đã luôn tin tưởng và ủng hộ!`;
+    }
+    
+    function launchFireworks() {
+        const numFireworks = 15; // Số lượng pháo hoa
+        for (let i = 0; i < numFireworks; i++) {
+            const firework = document.createElement('div');
+            firework.classList.add('firework');
+            firework.style.left = Math.random() * 100 + 'vw';
+            // Thời gian phóng ngẫu nhiên để không đồng loạt
+            firework.style.animationDelay = Math.random() * 1.5 + 's'; 
+            // Màu sắc ngẫu nhiên cho box-shadow (phần explode)
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            firework.style.setProperty('--explode-color-1', `rgba(${r},${g},${b},0.8)`);
+            firework.style.setProperty('--explode-color-2', `rgba(${r},${g},${b},0.5)`);
+            
+            // Thêm vào body hoặc wrappedContainer để dễ quản lý
+            (wrappedContainer || document.body).appendChild(firework);
+            // Tự hủy sau khi nổ
+            firework.addEventListener('animationend', (e) => {
+                if (e.animationName === 'explode') {
+                    firework.remove();
+                }
+            });
+        }
+    }
+
+
+    async function startWrappedExperience(name) {
+        if(lookupErrorMessage) lookupErrorMessage.textContent = '';
+        if(lookupForm) lookupForm.querySelector('button[type="submit"]').disabled = true;
+        if(lookupForm) lookupForm.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
+
+        try {
+            const response = await fetch(`/api/customers?name=${encodeURIComponent(name)}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    if(lookupErrorMessage) lookupErrorMessage.textContent = `Không tìm thấy thông tin cho "${name}". Vui lòng thử lại tên khác.`;
+                } else {
+                    const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(`Lỗi ${response.status}: ${errorData.message || 'Không thể tải dữ liệu'}`);
+                }
+                if(lookupForm) lookupForm.querySelector('button[type="submit"]').disabled = false;
+                if(lookupForm) lookupForm.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-paper-plane"></i> Xem Ngay!';
+                return;
+            }
+            customerDataGlobal = await response.json();
+            
+            populateWrappedData(customerDataGlobal);
+            currentSlideIndex = 0;
+            showSlide(currentSlideIndex);
+            
+            if(lookupFormContainer) lookupFormContainer.style.display = 'none'; // Ẩn form đăng nhập
+            if(wrappedContainer) wrappedContainer.classList.add('active');
+            document.body.classList.add('wrapped-active');
+
+        } catch (error) {
+            console.error("Lỗi khi bắt đầu Wrapped Experience:", error);
+            if(lookupErrorMessage) lookupErrorMessage.textContent = `Lỗi: ${error.message}. Vui lòng thử lại.`;
+            if(lookupForm) lookupForm.querySelector('button[type="submit"]').disabled = false;
+            if(lookupForm) lookupForm.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-paper-plane"></i> Xem Ngay!';
+        }
+    }
 
     if (lookupForm) {
-        lookupForm.addEventListener('submit', async function(event) {
+        lookupForm.addEventListener('submit', function(event) {
             event.preventDefault();
             const customerName = customerNameInput.value.trim();
             if (!customerName) {
-                displayMessage("Vui lòng nhập tên của bạn để bắt đầu tra cứu.", "info");
+                if(lookupErrorMessage) lookupErrorMessage.textContent = "Vui lòng nhập tên của bạn.";
                 return;
             }
-            // Hiển thị thông báo đang tải
-            displayMessage("Đang tìm kiếm đơn hàng của bạn, vui lòng chờ...", "loading");
-            await lookupOrdersAPI(customerName);
+            startWrappedExperience(customerName);
         });
     }
 
-    // Hàm phụ trợ để parse chuỗi ngày tháng từ server (nếu cần) hoặc đảm bảo là Date object
-    function ensureDateObject(dateValue) {
-        if (!dateValue) return null;
-        if (dateValue instanceof Date) return dateValue;
-        // Thử parse các định dạng phổ biến, bao gồm ISO string từ MongoDB
-        const parsedDate = new Date(dateValue); 
-        if (isNaN(parsedDate.getTime())) {
-            // Nếu parse trực tiếp không được, thử parse định dạng "dd/mm/yyyy, HH:MM:SS" 
-            // (ít có khả năng server trả về dạng này cho createdAt, thường là ISO hoặc timestamp)
-            try {
-                const parts = String(dateValue).split(', '); 
-                const dateParts = parts[0].split('/'); 
-                const timeParts = parts[1] ? parts[1].split(':') : ['00', '00', '00'];
-                return new Date(
-                    parseInt(dateParts[2]), 
-                    parseInt(dateParts[1]) - 1, // Tháng trong JavaScript là 0-indexed
-                    parseInt(dateParts[0]),
-                    parseInt(timeParts[0] || '0'), 
-                    parseInt(timeParts[1] || '0'), 
-                    parseInt(timeParts[2] || '0')
-                );
-            } catch (e) {
-                console.warn("Không thể parse ngày:", dateValue, e);
-                return null; // Trả về null nếu không parse được
-            }
-        }
-        return parsedDate;
-    }
-
-
-    async function lookupOrdersAPI(name) {
-        try {
-            // Gọi API backend để tìm khách hàng theo tên
-            // API /api/customers?name=TEN_KHACH_HANG đã được tạo ở bước trước
-            console.log(`Đang tra cứu khách hàng: ${name}`);
-            const response = await fetch(`/api/customers?name=${encodeURIComponent(name)}`);
-
-            if (!response.ok) {
-                if (response.status === 404) {
-                    displayMessage(`Không tìm thấy thông tin cho khách hàng "${name}". Vui lòng kiểm tra lại tên hoặc liên hệ người quản lý.`, "error");
-                } else {
-                    // Cố gắng lấy chi tiết lỗi từ server nếu có
-                    const errorData = await response.json().catch(() => ({ message: response.statusText })); // Gói trong catch để tránh lỗi nếu body không phải JSON
-                    throw new Error(`Lỗi ${response.status}: ${errorData.message || 'Không thể tra cứu đơn hàng'}`);
+    if (nextSlideBtn) {
+        nextSlideBtn.addEventListener('click', () => {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+                if (currentSlideIndex === slides.length - 1) { // Slide cảm ơn cuối cùng
+                    launchFireworks();
                 }
-                return;
             }
-
-            const customerData = await response.json();
-            console.log("Đã nhận dữ liệu khách hàng:", customerData);
-            displayOrders(customerData);
-
-        } catch (error) {
-            console.error("Lỗi khi tra cứu đơn hàng từ API:", error);
-            displayMessage(`Đã xảy ra lỗi khi tra cứu: ${error.message}. Vui lòng thử lại.`, "error");
-        }
+        });
     }
 
-    function displayOrders(customer) {
-        lookupResultDiv.innerHTML = ''; // Xóa kết quả cũ
-
-        const greeting = document.createElement('p');
-        greeting.classList.add('customer-greeting');
-        greeting.innerHTML = `Chào bạn <strong>${customer.name}</strong> (${customer.class || 'Không có thông tin lớp'}), đây là lịch sử đơn hàng của bạn:`;
-        lookupResultDiv.appendChild(greeting);
-
-        if (!customer.orders || !Array.isArray(customer.orders) || customer.orders.length === 0) {
-            const noOrdersMsg = document.createElement('p');
-            noOrdersMsg.classList.add('no-orders-message');
-            noOrdersMsg.textContent = "Bạn chưa có đơn hàng nào được ghi nhận.";
-            lookupResultDiv.appendChild(noOrdersMsg);
-            return;
-        }
-
-        const table = document.createElement('table');
-        table.classList.add('customer-order-history-table');
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
-        const headers = ["Ngày đặt", "Tên file", "Số trang", "Cách In", "Giảm Giá (CT)", "KHTT?", "Số tiền gốc", "Tổng tiền"];
-        headers.forEach(text => {
-            const th = document.createElement('th');
-            th.textContent = text;
-            headerRow.appendChild(th);
-        });
-
-        const tbody = table.createTBody();
-        // Sắp xếp đơn hàng theo ngày, mới nhất lên đầu
-        // Giả sử `order.createdAt` từ server là một chuỗi ngày tháng chuẩn (ví dụ ISO 8601) hoặc đã được parse thành Date object ở backend
-        const sortedOrders = [...customer.orders].sort((a, b) => {
-            const dateA = ensureDateObject(a.createdAt); // Đảm bảo là Date object
-            const dateB = ensureDateObject(b.createdAt);
-            return (dateB || 0) - (dateA || 0); // Xử lý trường hợp date có thể null (mặc dù không nên)
-        });
-        
-        sortedOrders.forEach(order => {
-            const row = tbody.insertRow();
-            let displayDate = 'N/A';
-            const orderDate = ensureDateObject(order.createdAt); // Đảm bảo là Date object
-            if (orderDate && !isNaN(orderDate.getTime())) { // Kiểm tra xem Date có hợp lệ không
-                displayDate = `${String(orderDate.getDate()).padStart(2, '0')}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}`;
-            } else if (typeof order.createdAt === 'string' && order.createdAt.includes('/')) { 
-                // Nếu vẫn là chuỗi dd/mm/yyyy... thì cố gắng hiển thị phần ngày
-                displayDate = order.createdAt.split(',')[0]; 
+    if (prevSlideBtn) {
+        prevSlideBtn.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
             }
-
-
-            row.insertCell().textContent = displayDate;
-            row.insertCell().textContent = order.fileName || '-';
-            row.insertCell().textContent = order.pages || '0';
-            row.insertCell().textContent = order.printType === 'portrait' ? 'Dọc' : (order.printType === 'landscape' ? 'Ngang' : '-');
-            row.insertCell().textContent = `${order.programDiscountPercentage || 0}%`;
-            row.insertCell().textContent = order.friendDiscountApplied ? 'Có' : 'Không';
-            // Đảm bảo các giá trị số không phải là null/undefined trước khi gọi toLocaleString
-            row.insertCell().textContent = (order.totalPriceBeforeDiscount != null) ? order.totalPriceBeforeDiscount.toLocaleString('vi-VN') + ' VND' : '0 VND';
-            row.insertCell().textContent = (order.finalTotalPrice != null) ? order.finalTotalPrice.toLocaleString('vi-VN') + ' VND' : '0 VND';
         });
-
-        lookupResultDiv.appendChild(table);
     }
 
-    function displayMessage(message, type = "info") { 
-        let messageClass = 'lookup-message'; // Class chung cho thông báo
-        if (type === "error") {
-            messageClass += ' error-message'; 
-        } else if (type === "loading") {
-            messageClass += ' loading-message'; 
-        }
-        lookupResultDiv.innerHTML = `<p class="${messageClass}">${message}</p>`;
+    if (closeWrappedBtn) {
+        closeWrappedBtn.addEventListener('click', () => {
+            if(wrappedContainer) wrappedContainer.classList.remove('active');
+            document.body.classList.remove('wrapped-active');
+            if(lookupFormContainer) lookupFormContainer.style.display = 'block'; // Hiện lại form đăng nhập
+            if(lookupForm) lookupForm.reset(); // Reset form
+            if(lookupForm) lookupForm.querySelector('button[type="submit"]').disabled = false;
+            if(lookupForm) lookupForm.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-paper-plane"></i> Xem Ngay!';
+            if(customerNameInput) customerNameInput.value = '';
+            if(lookupErrorMessage) lookupErrorMessage.textContent = '';
+
+            // Dọn dẹp pháo hoa nếu có
+            document.querySelectorAll('.firework').forEach(fw => fw.remove());
+        });
     }
 });
