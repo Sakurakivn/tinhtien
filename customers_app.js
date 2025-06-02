@@ -142,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const paidCell = row.insertCell();
                 const paidCheckbox = document.createElement('input');
                 paidCheckbox.type = 'checkbox';
-                paidCheckbox.checked = order.paid || false;
-                paidCheckbox.classList.add('paid-status-checkbox');
+                paidCheckbox.checked = order.paid || false; // Lấy trạng thái 'paid' từ dữ liệu đơn hàng, mặc định là false nếu không có
+                paidCheckbox.classList.add('paid-status-checkbox')
                 const orderIdStringForPaid = order.orderId ? (typeof order.orderId === 'string' ? order.orderId : order.orderId.toString()) : null;
                 if (orderIdStringForPaid) {
                     paidCheckbox.dataset.orderId = orderIdStringForPaid;
