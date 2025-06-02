@@ -56,43 +56,47 @@
                     <i class="fas fa-plus"></i> Thêm đơn hàng
                 </button>
             </div>
-             <div id="addOrderForm" style="display:none; margin-top:10px; margin-bottom: 15px; padding:15px; background-color:#f0f8ff; border-radius:5px; border: 1px solid #bde0ff;">
+            
+            <div id="addOrderForm" style="display:none; margin-top:10px; margin-bottom: 15px; padding:15px; background-color:#f0f8ff; border-radius:5px; border: 1px solid #bde0ff;">
                 <h5><i class="fas fa-pencil-alt"></i> Nhập thông tin đơn hàng mới</h5>
                 <div class="form-grid">
                     <div class="form-group-modal">
-                        <label for="newOrderDate">Ngày mua (dd/mm/yyyy hh:mm:ss):</label>
-                        <input type="text" id="newOrderDate" placeholder="VD: 01/06/2025 10:30:00">
+                        <label for="newOrderDate">Ngày mua:</label>
+                        <input type="datetime-local" id="newOrderDate" name="newOrderDate">
                     </div>
                     <div class="form-group-modal">
                         <label for="newOrderFileName">Tên file:</label>
-                        <input type="text" id="newOrderFileName">
+                        <input type="text" id="newOrderFileName" name="newOrderFileName">
                     </div>
                     <div class="form-group-modal">
                         <label for="newOrderPages">Số trang:</label>
-                        <input type="number" id="newOrderPages" min="0">
+                        <input type="number" id="newOrderPages" name="newOrderPages" min="0">
                     </div>
                     <div class="form-group-modal">
                         <label for="newOrderPrintType">Cách In:</label>
-                        <select id="newOrderPrintType">
+                        <select id="newOrderPrintType" name="newOrderPrintType">
                             <option value="portrait">Dọc (2 trang A4)</option>
                             <option value="landscape">Ngang (4 trang A4)</option>
                         </select>
                     </div>
                     <div class="form-group-modal">
                         <label for="newOrderProgramDiscount">Giảm Giá CT (%):</label>
-                        <input type="number" id="newOrderProgramDiscount" value="0" min="0" max="100">
+                        <input type="number" id="newOrderProgramDiscount" name="newOrderProgramDiscount" value="0" min="0" max="100">
                     </div>
                     <div class="form-group-modal checkbox-style-modal">
-                        <input type="checkbox" id="newOrderFriendDiscount">
+                        <input type="checkbox" id="newOrderFriendDiscount" name="newOrderFriendDiscount">
                         <label for="newOrderFriendDiscount">Khách hàng thân thiết?</label>
                     </div>
                     <div class="form-group-modal">
-                        <label for="newOrderBasePrice">Số tiền gốc (VND):</label>
-                        <input type="number" id="newOrderBasePrice" min="0">
+                        <label>Số tiền gốc (VND):</label>
+                        <span id="newOrderBasePriceDisplay" class="calculated-price">0 VND</span>
                     </div>
                     <div class="form-group-modal">
-                        <label for="newOrderFinalPrice">Tổng số tiền (VND):</label>
-                        <input type="number" id="newOrderFinalPrice" min="0">
+                        <label>Tổng số tiền (VND):</label>
+                        <span id="newOrderFinalPriceDisplay" class="calculated-price total-amount-display">0 VND</span>
+                    </div>
+                     <div class="form-group-modal checkbox-style-modal"> <input type="checkbox" id="newOrderPaidStatus" name="newOrderPaidStatus">
+                        <label for="newOrderPaidStatus">Đã thanh toán?</label>
                     </div>
                 </div>
                 <button id="saveNewOrderBtn" class="small-action-button"><i class="fas fa-save"></i> Lưu đơn hàng</button>
@@ -103,15 +107,16 @@
                 <table id="customerOrdersTable">
                     <thead>
                         <tr>
-                            <th>Ngày mua</th>
+                            <th>STT</th> <th>Ngày mua</th>
                             <th>Tên file</th>
                             <th>Số trang</th>
                             <th>Cách In</th>
                             <th>Giảm Giá (CT)</th>
                             <th>KHTT?</th>
                             <th>Số tiền gốc</th>
-                            <th>Tổng số tiền</th>
-                            <th>Thao tác</th> </tr>
+                            <th>Tổng tiền</th>
+                            <th>Thanh toán</th> <th>Thao tác</th>
+                        </tr>
                     </thead>
                     <tbody id="customerOrdersTbody">
                         </tbody>
@@ -119,7 +124,6 @@
             </div>
         </div>
     </div>
-
     <script src="customers_app.js"></script>
 </body>
 </html>
