@@ -217,6 +217,103 @@
             .remark-text-style { font-size: 0.9em; }
             .wrapped-slide .icon-large { font-size: 2.5em; }
         }
+            .wrapped-controls {
+                position: fixed; /* Đổi thành fixed để nó luôn ở vị trí cố định trên màn hình */
+                bottom: 0;       /* Đặt ở dưới cùng */
+                left: 0;
+                right: 0;
+                width: 100%;     /* Chiếm toàn bộ chiều rộng */
+                display: flex;
+                justify-content: space-between; /* Đẩy nút Trước và Sau ra hai bên */
+                align-items: center;
+                padding: 15px 10px; /* Padding cho vùng điều khiển */
+                box-sizing: border-box;
+                z-index: 2002; /* Đảm bảo nằm trên các slide */
+                transform: none; /* Bỏ transform translateX(-50%) của desktop nếu có */
+            }
+            
+            .wrapped-controls button {
+                background-color: rgba(0, 0, 0, 0.3); /* Nền tối hơn một chút để nổi bật trên nhiều slide */
+                border: none; /* Bỏ viền mặc định */
+                color: white;
+                padding: 12px 15px; /* Kích thước nút phù hợp cho mobile */
+                font-size: 1em;    /* Kích thước chữ */
+                border-radius: 8px; /* Bo góc vừa phải */
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.2s;
+                display: inline-flex; /* Căn icon và text */
+                align-items: center;
+                justify-content: center;
+                min-width: 100px; /* Độ rộng tối thiểu */
+            }
+            .wrapped-controls button:hover {
+                background-color: rgba(0, 0, 0, 0.5);
+                transform: scale(1.03);
+            }
+            .wrapped-controls button i {
+                margin-right: 5px; /* Khoảng cách cho icon (nếu nút Next có text "Tiếp theo") */
+            }
+            
+            /* Nút Trước (bên trái) */
+            #prevSlideBtn {
+                /* justify-content: space-between trên parent đã đẩy nó sang trái */
+                /* Có thể không cần text "Trước" trên mobile nếu chỉ muốn icon */
+                /* Hoặc chỉ hiển thị icon: */
+                /* content: "\f060"; /* Font Awesome Left Arrow */
+                /* font-family: "Font Awesome 5 Free"; */
+                /* font-weight: 900; */
+                /* padding: 12px; */ /* Điều chỉnh padding nếu chỉ có icon */
+                /* min-width: auto; */
+            }
+            #prevSlideBtn i { /* Nếu chỉ dùng icon thì không cần text, margin icon không cần thiết */
+                margin-right: 0; 
+            }
+            
+            
+            /* Nút Sau (bên phải) */
+            #nextSlideBtn {
+
+            }
+            #nextSlideBtn i { /* Nếu có text "Tiếp theo" thì giữ margin, nếu không thì bỏ */
+                /* margin-left: 5px; */ /* Nếu icon ở sau text */
+                /* margin-right: 0; */
+            }
+            
+            
+            /* Nút Đóng */
+            #closeWrappedBtn {
+                /* Có thể đặt nút đóng ở giữa hoặc một vị trí khác nếu cần */
+                /* Nếu muốn nó ở giữa 2 nút kia khi cả 3 cùng hiện: */
+                /* position: absolute; */
+                /* left: 50%; */
+                /* transform: translateX(-50%); */
+                /* Hoặc đơn giản là để nó tự căn chỉnh trong flexbox nếu không có prev/next */
+                /* Hiện tại, nó sẽ bị đẩy sang phải cùng nextSlideBtn nếu cả 3 cùng display: inline-block */
+                /* Nếu chỉ có nút Đóng và nút Tiếp theo, justify-content: space-between sẽ đẩy chúng ra xa. */
+                /* Logic JS hiện tại là chỉ hiển thị nút Đóng khi ở slide cuối (lúc đó nút Next ẩn) */
+                /* Nên nút Đóng sẽ tự động được đẩy sang phải (nếu prevSlideBtn cũng ẩn) hoặc ở giữa (nếu prevSlideBtn hiện) */
+                /* Để nút đóng luôn ở giữa khi chỉ có nó và 1 nút khác, hoặc khi nó là nút duy nhất: */
+                margin-left: auto; /* Đẩy sang phải nếu có prev */
+                margin-right: auto; /* Đẩy sang trái nếu có next - nhưng chỉ hoạt động nếu nó là item duy nhất hoặc có không gian */
+                /* Cách đơn giản nhất là để JS điều khiển vị trí của nút đóng hoặc chấp nhận vị trí mặc định của nó trong flex */
+            }
+            
+            /* Ẩn chữ, chỉ giữ icon cho nút Trước và Sau trên mobile nếu muốn */
+            @media (max-width: 480px) { /* Cho màn hình rất nhỏ */
+                .wrapped-controls button#prevSlideBtn,
+                .wrapped-controls button#nextSlideBtn {
+                    min-width: auto; /* Cho phép nút co lại */
+                    padding: 12px;   /* Padding đều cho nút icon */
+                }
+                .wrapped-controls button#prevSlideBtn .button-text, /* Thêm class button-text vào text nếu muốn ẩn */
+                .wrapped-controls button#nextSlideBtn .button-text { 
+                    display: none; 
+                }
+                .wrapped-controls button#prevSlideBtn i, /* Icon sẽ tự căn giữa */
+                .wrapped-controls button#nextSlideBtn i {
+                    margin: 0;
+                }
+            }
 
     </style>
 </head>
