@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const orderDate = ensureDateObject(order.createdAt); // order.createdAt là từ server
                 if (orderDate && !isNaN(orderDate.getTime())) {
                     displayDate = `${String(orderDate.getDate()).padStart(2, '0')}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}`;
-                } 
                 } else if (typeof order.createdAt === 'string') {
                      // Fallback nếu createdAt là string không parse được, hiển thị phần ngày nếu có
                     displayDate = order.createdAt.split(',')[0] || order.createdAt;
