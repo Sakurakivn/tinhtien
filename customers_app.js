@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOpenCustomerOriginalName = null;
     let currentOpenCustomerId = null;
 
-    // DOM Elements - Đảm bảo tất cả các ID này tồn tại trong customers.html
+    // DOM Elements
     const customerListUl = document.getElementById('customerList');
     const modal = document.getElementById('customerModal');
     const closeModalButton = modal.querySelector('.close-button');
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerOrdersTbody = document.getElementById('customerOrdersTbody');
     const customerSearchInput = document.getElementById('customerSearchInput');
 
+    // Edit Customer Info Elements
     const editCustomerInfoBtn = document.getElementById('editCustomerInfoBtn');
     const editCustomerForm = document.getElementById('editCustomerForm');
     const editCustomerNameInput = document.getElementById('editCustomerNameInput');
@@ -20,27 +21,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveCustomerInfoBtn = document.getElementById('saveCustomerInfoBtn');
     const cancelEditCustomerBtn = document.getElementById('cancelEditCustomerBtn');
 
+    // Add Manual Order Elements
     const showAddOrderFormBtn = document.getElementById('showAddOrderFormBtn');
     const addOrderForm = document.getElementById('addOrderForm');
     const saveNewOrderBtn = document.getElementById('saveNewOrderBtn');
     const cancelNewOrderBtn = document.getElementById('cancelNewOrderBtn');
     
-    const newOrderDateInput = document.getElementById('newOrderDate');
+    // Elements for manual order price calculation
+    const newOrderDateInput = document.getElementById('newOrderDate'); // Giữ lại
+    const newOrderFileNameInput = document.getElementById('newOrderFileName'); // Thêm để clear
     const newOrderPagesInput = document.getElementById('newOrderPages');
     const newOrderPrintTypeSelect = document.getElementById('newOrderPrintType');
     const newOrderFriendDiscountCheckbox = document.getElementById('newOrderFriendDiscount');
     const newOrderProgramDiscountInput = document.getElementById('newOrderProgramDiscount');
     const newOrderBasePriceDisplay = document.getElementById('newOrderBasePriceDisplay');
     const newOrderFinalPriceDisplay = document.getElementById('newOrderFinalPriceDisplay');
-    const newOrderPaidStatusCheckbox = document.getElementById('newOrderPaidStatus');
-
+    // const newOrderPaidStatusCheckbox = document.getElementById('newOrderPaidStatus'); // BỎ ĐI
 
     function ensureDateObject(dateValue) {
         if (!dateValue) return null;
         if (dateValue instanceof Date && !isNaN(dateValue.getTime())) return dateValue;
         const parsedDate = new Date(dateValue);
         if (!isNaN(parsedDate.getTime())) return parsedDate;
-        if (typeof dateValue === 'string' && dateValue.includes('/') && dateValue.includes(',')) { // Check for 'dd/mm/yyyy, HH:MM:SS'
+        if (typeof dateValue === 'string' && dateValue.includes('/') && dateValue.includes(',')) {
             try {
                 const parts = String(dateValue).split(', ');
                 const dateParts = parts[0].split('/');
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!isNaN(isoAttempt.getTime())) return isoAttempt;
             } catch (e) { /* ignore */ }
         }
-        // console.warn("Không thể chuyển đổi thành Date hợp lệ:", dateValue); // Bỏ log này nếu quá nhiều
+        console.warn("Không thể chuyển đổi thành Date hợp lệ:", dateValue);
         return null;
     }
 
@@ -101,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customersToDisplay.sort((a, b) => a.name.localeCompare(b.name));
         customersToDisplay.forEach(customer => {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<i class="fas fa-user-circle"></i> <span class="math-inline">\{customer\.name\} <span class\="customer\-meta"\>\(</span>{(customer.class || '').trim() || 'Chưa có lớp'}) - ${customer.purchaseCount || 0} lần mua</span>`;
+            listItem.innerHTML = `<i class="fas fa-user-circle"></i> ${customer.name} <span class="customer-meta">(${(customer.class || '').trim() || 'Chưa có lớp'}) - ${customer.purchaseCount || 0} lần mua</span>`;
             listItem.dataset.customerId = customer._id;
             listItem.addEventListener('click', () => openModalForCustomer(customer._id));
             customerListUl.appendChild(listItem);
@@ -121,14 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             sortedOrders.forEach((order, index) => {
                 const row = customerOrdersTbody.insertRow();
-                row.insertCell().textContent = index + 1; 
+                row.insertCell().textContent = index + 1; // STT
 
                 let displayDate = 'N/A';
                 const orderDate = order.createdAtDate || ensureDateObject(order.createdAt);
                 if (orderDate && !isNaN(orderDate.getTime())) {
-                    displayDate = `<span class="math-inline">\{String\(orderDate\.getDate\(\)\)\.padStart\(2, '0'\)\}/</span>{String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}`;
+                    displayDate = `${String(orderDate.getDate()).padStart(2, '0')}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}`;
                 } else if (typeof order.createdAt === 'string' && order.createdAt) {
-                    displayDate = order.createdAt.split('T')[0].split('-').reverse().join('/'); // Cố gắng format YYYY-MM-DD thành DD/MM/YYYY
+                    displayDate = order.createdAt.split('T')[0].split('-').reverse().join('/');
                 }
                 row.insertCell().textContent = displayDate;
                 row.insertCell().textContent = order.fileName || '-';
@@ -139,21 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.insertCell().textContent = order.totalPriceBeforeDiscount != null ? order.totalPriceBeforeDiscount.toLocaleString('vi-VN') + ' VND' : '0 VND';
                 row.insertCell().textContent = order.finalTotalPrice != null ? order.finalTotalPrice.toLocaleString('vi-VN') + ' VND' : '0 VND';
                 
-                const paidCell = row.insertCell();
-                const paidCheckbox = document.createElement('input');
-                paidCheckbox.type = 'checkbox';
-                paidCheckbox.checked = order.paid || false;
-                paidCheckbox.classList.add('paid-status-checkbox');
-                const orderIdStringForPaid = order.orderId ? (typeof order.orderId === 'string' ? order.orderId : order.orderId.toString()) : null;
-                if (orderIdStringForPaid) {
-                    paidCheckbox.dataset.orderId = orderIdStringForPaid;
-                    paidCheckbox.dataset.customerId = customerId;
-                    paidCheckbox.addEventListener('change', handlePaidStatusChange);
-                } else {
-                    paidCheckbox.disabled = true;
-                    paidCheckbox.title = "Thiếu ID đơn hàng";
-                }
-                paidCell.appendChild(paidCheckbox);
+                // BỎ CỘT THANH TOÁN VÀ CHECKBOX LIÊN QUAN
+                // const paidCell = row.insertCell();
+                // ... (logic checkbox paid bị xóa) ...
                 
                 const deleteCell = row.insertCell();
                 const deleteBtn = document.createElement('button');
@@ -172,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const row = customerOrdersTbody.insertRow();
             const cell = row.insertCell();
-            cell.colSpan = 11;
+            cell.colSpan = 10; // Cập nhật colSpan (9 cột cũ + STT, bỏ cột Thanh toán)
             cell.textContent = 'Không có lịch sử mua hàng cho khách này.';
             cell.style.textAlign = 'center';
         }
@@ -211,20 +202,17 @@ document.addEventListener('DOMContentLoaded', () => {
             modalCustomerNameDisplay.style.display = 'none';
         };
     }
-
     if(cancelEditCustomerBtn) {
         cancelEditCustomerBtn.onclick = () => {
             if(editCustomerForm) editCustomerForm.style.display = 'none';
             if(modalCustomerNameDisplay) modalCustomerNameDisplay.style.display = 'inline-block';
         };
     }
-
     if(saveCustomerInfoBtn) {
         saveCustomerInfoBtn.onclick = async () => {
             if(!editCustomerNameInput || !editCustomerClassInput) return;
             const newName = editCustomerNameInput.value.trim();
             const newClass = editCustomerClassInput.value.trim();
-
             if (!newName) {
                 alert('Tên khách hàng không được để trống.'); return;
             }
@@ -305,17 +293,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Chức năng Thêm đơn hàng thủ công ---
     if(showAddOrderFormBtn){
         showAddOrderFormBtn.onclick = () => {
-            if(!addOrderForm || !newOrderDateInput || !newOrderPrintTypeSelect || !newOrderProgramDiscountInput || !newOrderFriendDiscountCheckbox || !newOrderPaidStatusCheckbox) return;
+            if(!addOrderForm || !newOrderDateInput || !newOrderFileNameInput || !newOrderPagesInput || !newOrderPrintTypeSelect || !newOrderProgramDiscountInput || !newOrderFriendDiscountCheckbox ) return;
+            
             addOrderForm.style.display = 'block';
-            addOrderForm.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
-                if(input.id !== 'newOrderProgramDiscount' && input.id !== 'newOrderPages') input.value = ''; // Không clear % giảm giá và số trang nếu muốn giữ lại
-            });
-            newOrderPagesInput.value = ''; // Clear số trang
-            newOrderProgramDiscountInput.value = '0'; // Reset % giảm giá
+            // Clear các input text và number, trừ % giảm giá
+            newOrderFileNameInput.value = '';
+            newOrderPagesInput.value = '';
+            // Giữ lại newOrderProgramDiscountInput.value = '0'; nếu muốn mặc định là 0
+            // Hoặc clear luôn: newOrderProgramDiscountInput.value = ''; rồi đặt placeholder
+
             newOrderDateInput.value = getCurrentDateTimeLocalString();
             newOrderPrintTypeSelect.value = 'portrait';
             newOrderFriendDiscountCheckbox.checked = false;
-            newOrderPaidStatusCheckbox.checked = false;
+            // Bỏ newOrderPaidStatusCheckbox.checked = false;
             
             calculateManualOrderPrice(); 
 
@@ -325,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.removeEventListener('change', calculateManualOrderPrice);
                     el.removeEventListener('input', calculateManualOrderPrice);
                     el.addEventListener('change', calculateManualOrderPrice);
-                    if (el.type === 'number' || el.type === 'text') {
+                    if (el.type === 'number' || el.type === 'text') { // Gắn input cho number pages
                         el.addEventListener('input', calculateManualOrderPrice);
                     }
                 }
@@ -339,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(saveNewOrderBtn){
         saveNewOrderBtn.onclick = async () => {
-            if (!currentOpenCustomerId || !newOrderDateInput || !document.getElementById('newOrderFileName') || !newOrderPagesInput || !newOrderPrintTypeSelect || !newOrderPaidStatusCheckbox) {
+            if (!currentOpenCustomerId || !newOrderDateInput || !document.getElementById('newOrderFileName') || !newOrderPagesInput || !newOrderPrintTypeSelect) {
                 alert("Lỗi: Không xác định được khách hàng hoặc thiếu thông tin form."); return;
             }
             const calculatedPrices = calculateManualOrderPrice();
@@ -356,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const hours = String(dateObj.getHours()).padStart(2, '0');
                     const minutes = String(dateObj.getMinutes()).padStart(2, '0');
                     const seconds = String(dateObj.getSeconds()).padStart(2, '0');
-                    formattedCreatedAt = `<span class="math-inline">\{day\}/</span>{month}/${year}, <span class="math-inline">\{hours\}\:</span>{minutes}:${seconds}`;
+                    formattedCreatedAt = `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
                 } else { alert("Ngày mua không hợp lệ."); return; }
             } else { alert("Vui lòng chọn Ngày mua."); return; }
 
@@ -365,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fileName: document.getElementById('newOrderFileName').value.trim(),
                 pages: parseInt(newOrderPagesInput.value) || 0,
                 printType: newOrderPrintTypeSelect.value,
-                paid: newOrderPaidStatusCheckbox.checked,
+                // Bỏ trường 'paid' khi gửi lên API nếu không dùng nữa
                 ...calculatedPrices
             };
             if (!newOrderClientData.fileName || newOrderClientData.pages <= 0) {
@@ -401,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // --- Chức năng Xóa đơn hàng ---
+    // --- Chức năng Xóa đơn hàng (giữ nguyên) ---
     async function handleDeleteOrder(customerId, orderIdStr) {
         console.log(`[Frontend] Bắt đầu handleDeleteOrder. CustomerID: ${customerId}, OrderID chuỗi: ${orderIdStr}`);
         const customer = allCustomersData[customerId];
@@ -412,13 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let confirmMessage = `Bạn có chắc chắn muốn xóa đơn hàng có ID: ${orderIdStr} không?`;
         if (orderObjectForConfirm) {
             const orderDate = ensureDateObject(orderObjectForConfirm.createdAt);
-            const formattedDate = orderDate && !isNaN(orderDate.getTime()) ? `<span class="math-inline">\{String\(orderDate\.getDate\(\)\)\.padStart\(2, '0'\)\}/</span>{String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}` : 'N/A';
+            const formattedDate = orderDate && !isNaN(orderDate.getTime()) ? `${String(orderDate.getDate()).padStart(2, '0')}/${String(orderDate.getMonth() + 1).padStart(2, '0')}/${orderDate.getFullYear()}` : 'N/A';
             confirmMessage = `Bạn có chắc chắn muốn xóa đơn hàng?\nFile: ${orderObjectForConfirm.fileName || 'Không tên'}\nNgày: ${formattedDate}`;
         } else { console.warn(`[Frontend] Không tìm thấy chi tiết đơn hàng với ID ${orderIdStr} trong cache.`); }
         
         if (confirm(confirmMessage)) {
             try {
-                const apiUrl = `/api/customers/<span class="math-inline">\{customerId\}/orders/</span>{orderIdStr}`;
+                const apiUrl = `/api/customers/${customerId}/orders/${orderIdStr}`;
                 console.log("[Frontend] CHUẨN BỊ GỬI YÊU CẦU DELETE đến:", apiUrl);
                 const response = await fetch(apiUrl, { method: 'DELETE' });
                 console.log("[Frontend] ĐÃ GỬI YÊU CẦU DELETE, response status:", response.status);
@@ -450,52 +440,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { console.log("[Frontend] Người dùng đã hủy thao tác xóa đơn hàng."); }
     };
 
-    // --- Chức năng Cập nhật Trạng thái Thanh toán ---
-    async function handlePaidStatusChange(event) {
-        const checkbox = event.target;
-        const orderId = checkbox.dataset.orderId;
-        const customerId = checkbox.dataset.customerId;
-        const newPaidStatus = checkbox.checked;
-
-        if (!orderId || !customerId) {
-            alert("Lỗi: Không tìm thấy ID đơn hàng hoặc ID khách hàng.");
-            checkbox.checked = !newPaidStatus; 
-            return;
-        }
-        console.log(`Cập nhật trạng thái thanh toán cho đơn ${orderId} của KH ${customerId} thành ${newPaidStatus}`);
-        try {
-            const response = await fetch(`/api/customers/<span class="math-inline">\{customerId\}/orders/</span>{orderId}`, { 
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ paid: newPaidStatus })
-            });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: response.statusText }));
-                throw new Error(`Không thể cập nhật trạng thái: ${errorData.message}`);
-            }
-            const result = await response.json();
-            const updatedCustomerFromServer = result.customer; // API nên trả về cả customer được cập nhật
-            
-            // Cập nhật cache cục bộ
-            allCustomersData[customerId] = updatedCustomerFromServer;
-             if (allCustomersData[customerId].orders && Array.isArray(allCustomersData[customerId].orders)) {
-                allCustomersData[customerId].orders.forEach(order => {
-                    order.createdAtDate = ensureDateObject(order.createdAt); // Cập nhật lại createdAtDate
-                });
-            }
-            // Không cần render lại toàn bộ bảng nếu chỉ thay đổi checkbox,
-            // nhưng nếu API trả về cả customer thì có thể purchaseCount cũng thay đổi (ít khả năng cho việc chỉ update paid status)
-            // Để đơn giản, ta có thể chỉ cập nhật trạng thái paid của order trong cache cục bộ nếu API chỉ trả về updatedOrder
-            // const orderInCache = allCustomersData[customerId].orders.find(o => (o.orderId ? o.orderId.toString() : null) === orderId);
-            // if(orderInCache && result.updatedOrder) orderInCache.paid = result.updatedOrder.paid;
-
-            console.log(`Đã cập nhật trạng thái thanh toán cho đơn ${orderId} thành ${newPaidStatus} trên server.`);
-        } catch (error) {
-            console.error("Lỗi cập nhật trạng thái thanh toán:", error);
-            alert("Lỗi: " + error.message);
-            checkbox.checked = !newPaidStatus; // Hoàn lại nếu lỗi
-        }
-    }
+    // BỎ HÀM handlePaidStatusChange VÌ KHÔNG CÒN DÙNG
+    // async function handlePaidStatusChange(event) { ... } 
 
     // --- Các trình xử lý sự kiện chung cho modal ---
     if(closeModalButton) closeModalButton.onclick = () => { if(modal) modal.style.display = 'none'; document.body.classList.remove('modal-open'); };
