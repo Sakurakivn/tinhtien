@@ -49,23 +49,59 @@
     </div>
 
     <script>
-        // Lấy dữ liệu từ localStorage
         const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
         if (invoiceData) {
-            document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('vi-VN');
+            // ... (điền các thông tin khác như customerName, pages, v.v.) ...
+
+            // HIỂN THỊ NGÀY TẠO HÓA ĐƠN TỪ DỮ LIỆU ĐÃ LƯU (serverCreatedAt)
+            if (invoiceData.serverCreatedAt) {
+                const orderCreationDate = new Date(invoiceData.serverCreatedAt); // serverCreatedAt nên là chuỗi ISO Date
+                if (!isNaN(orderCreationDate.getTime())) {
+                    document.getElementById('invoiceDate').textContent = orderCreationDate.toLocaleDateString('vi-VN', {
+                        day: '2-digit', month: '2-digit', year: 'numeric'
+                        // Bạn có thể thêm options cho giờ, phút nếu muốn:
+                        // hour: '2-digit', minute: '2-digit' 
+                    });
+                } else {
+                    // Fallback nếu serverCreatedAt không parse được, thử dùng createdAt cũ từ client nếu có
+                    const clientOrderCreationDate = invoiceData.createdAt ? new Date(invoiceData.createdAt) : null;
+                    if (clientOrderCreationDate && !isNaN(clientOrderCreationDate.getTime())) {
+                         document.getElementById('invoiceDate').textContent = clientOrderCreationDate.toLocaleDateString('vi-VN', {
+                            day: '2-digit', month: '2-digit', year: 'numeric'
+                        });
+                    } else {
+                        document.getElementById('invoiceDate').textContent = "Không rõ ngày tạo";
+                    }
+                }
+            } else {
+                // Fallback nếu không có serverCreatedAt (trường hợp dữ liệu cũ)
+                 const clientOrderCreationDate = invoiceData.createdAt ? new Date(invoiceData.createdAt) : null;
+                 if (clientOrderCreationDate && !isNaN(clientOrderCreationDate.getTime())) {
+                         document.getElementById('invoiceDate').textContent = clientOrderCreationDate.toLocaleDateString('vi-VN', {
+                            day: '2-digit', month: '2-digit', year: 'numeric'
+                        });
+                    } else {
+                        document.getElementById('invoiceDate').textContent = "Không rõ ngày tạo (cũ)";
+                    }
+            }
+
+            // ... (điền các thông tin còn lại như finalTotalPrice, ...)
             document.getElementById('customerName').textContent = invoiceData.customerName || 'Không có';
             document.getElementById('customerClass').textContent = invoiceData.customerClass || 'Không có';
             document.getElementById('fileName').textContent = invoiceData.fileName || 'Không có';
             document.getElementById('pages').textContent = invoiceData.pages || '0';
             document.getElementById('printType').textContent = invoiceData.printType === 'portrait' ? 'Dọc' : 'Ngang';
             document.getElementById('totalPriceBeforeDiscount').textContent = invoiceData.totalPriceBeforeDiscount ? invoiceData.totalPriceBeforeDiscount.toLocaleString('vi-VN') : '0';
-            document.getElementById('discountAmount').textContent = (invoiceData.friendDiscountAmount + invoiceData.programDiscountAmount).toLocaleString('vi-VN');
-            document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN');
-            document.getElementById('estimatedDeliveryDate').textContent = `${invoiceData.estimatedStartDate} - ${invoiceData.estimatedEndDate}`; // Hiển thị ngày nhận hàng
-            document.getElementById('finalAmount').textContent = invoiceData.finalTotalPrice.toLocaleString('vi-VN'); // Số tiền
-            document.getElementById('paymentContent').textContent = `${invoiceData.customerName} thanh toan hoa don photo`; // Nội dung thanh toán
+            // Giả sử discountAmount là tổng của friendDiscountAmount và programDiscountAmount
+            const totalDiscount = (invoiceData.friendDiscountAmount || 0) + (invoiceData.programDiscountAmount || 0);
+            document.getElementById('discountAmount').textContent = totalDiscount.toLocaleString('vi-VN');
+            document.getElementById('finalTotalPrice').textContent = invoiceData.finalTotalPrice ? invoiceData.finalTotalPrice.toLocaleString('vi-VN') : '0';
+            document.getElementById('estimatedDeliveryDate').textContent = `${invoiceData.estimatedStartDate} - ${invoiceData.estimatedEndDate}`;
+            document.getElementById('finalAmount').textContent = invoiceData.finalTotalPrice ? invoiceData.finalTotalPrice.toLocaleString('vi-VN') : '0';
+            document.getElementById('paymentContent').textContent = `${invoiceData.customerName} thanh toan hoa don photo`;
+
+
         } else {
-            // Nếu không có dữ liệu, hiển thị thông báo lỗi
             document.body.innerHTML = '<h2>Không có dữ liệu hóa đơn!</h2>';
         }
     </script>
