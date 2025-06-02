@@ -91,7 +91,8 @@ export default async function handler(req, res) {
         const newOrder = {
             ...orderDataFromClient, 
             orderId: new ObjectId(), 
-            createdAt: new Date()
+            createdAt: new Date(),
+            paid: orderDataFromClient.paid || false
         };
         // Xóa createdAtDate nếu client có gửi lên, vì chúng ta dùng createdAt chuẩn từ server đã được parse
         delete newOrder.createdAtDate; 
