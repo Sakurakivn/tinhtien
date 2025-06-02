@@ -226,12 +226,30 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
         }
         
         const addOrderResult = await addOrderResponse.json();
-        const updatedCustomerFromServer = addOrderResult.customer; // API trả về khách hàng đã cập nhật
+        const updatedCustomerFromServer = addOrderResult.customer; 
         
-        // Cập nhật cache khách hàng cục bộ với thông tin mới nhất từ server
+        // Cập nhật cache khách hàng cục bộ
         customersDataFromAPI[updatedCustomerFromServer.name] = updatedCustomerFromServer;
         console.log("Đã thêm đơn hàng và cập nhật khách hàng:", updatedCustomerFromServer);
 
+        // Lấy đơn hàng mới nhất từ phản hồi của server (đơn hàng này sẽ có createdAt từ server)
+        let actualCreatedAtFromServer = new Date().toISOString(); // Fallback
+        if (updatedCustomerFromServer.orders && updatedCustomerFromServer.orders.length > 0) {
+            // Giả sử đơn hàng mới nhất là đơn hàng cuối cùng trong mảng và có createdAt
+            const latestOrder = updatedCustomerFromServer.orders[updatedCustomerFromServer.orders.length - 1];
+            if (latestOrder && latestOrder.createdAt) {
+                actualCreatedAtFromServer = latestOrder.createdAt; // Đây là createdAt từ server (có thể là chuỗi ISO)
+            }
+        }
+
+        const finalInvoiceDataForLocalStorage = {
+            ...invoiceDataForStorage, // Dữ liệu client nhập ban đầu (bao gồm cả client's createdAt nếu bạn vẫn tạo)
+            serverCreatedAt: actualCreatedAtFromServer, // << LƯU createdAt CHUẨN TỪ SERVER
+            orderId: latestOrderFromServer ? (latestOrderFromServer.orderId ? latestOrderFromServer.orderId.toString() : null) : null, // Lấy orderId nếu có
+            purchaseCount: updatedCustomerFromServer.purchaseCount 
+        };
+        localStorage.setItem('invoiceData', JSON.stringify(finalInvoiceDataForLocalStorage));
+        
         // Bước 4: Hiển thị kết quả
         let priceDetailsHTML = `<p><strong>Số tiền tạm tính (sau ưu đãi giá/trang):</strong> ${roundedTotalPriceBeforePercentageDiscounts.toLocaleString('vi-VN')} VND</p>`;
         if (roundedAdditionalFriendDiscount > 0) { priceDetailsHTML += `<p><em>- ${roundedAdditionalFriendDiscount.toLocaleString('vi-VN')} VND : Giảm thêm cho Khách hàng thân thiết (10%)</em></p>`; }
