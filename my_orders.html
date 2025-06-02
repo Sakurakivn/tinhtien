@@ -149,7 +149,44 @@
                     35px -35px 2px var(--explode-color-2, gold), -35px 35px 2px var(--explode-color-2, gold);
             }
         }
-
+        /* Thêm vào CSS của bạn */
+        .habit-stats-initial,
+        .habit-remarks-final {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            width: 100%; /* Đảm bảo chiếm đủ không gian */
+        }
+        
+        .habit-stats-initial.fade-out {
+            opacity: 0;
+            transform: scale(0.95); /* Hiệu ứng thu nhỏ nhẹ khi mờ đi */
+        }
+        
+        .habit-remarks-final.fade-in {
+            display: block !important; /* Ghi đè display:none ban đầu */
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .habit-remarks-final { /* Trạng thái ban đầu trước khi fade-in */
+            opacity: 0;
+            transform: translateY(20px); /* Hơi dịch xuống dưới */
+        }
+        
+        .highlight-stat { /* Style cho các con số thống kê */
+            font-size: 2.2em; /* To hơn một chút so với text thường */
+            font-weight: bold;
+            color: #ffeb3b; /* Màu vàng nổi bật */
+            display: inline-block; /* Hoặc block nếu muốn xuống dòng */
+            margin: 0 5px;
+        }
+        
+        .remark-text-style { /* Style cho các câu nhận xét */
+            font-size: 1.4em; /* Kích thước chữ cho nhận xét */
+            line-height: 1.7;
+            font-style: italic;
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.9);
+        }
     </style>
 </head>
 <body class=""> <div class="lookup-page-container-wrapped" id="lookupFormContainer">
