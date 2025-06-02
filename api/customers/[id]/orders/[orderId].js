@@ -1,53 +1,33 @@
-// File: api/customers/[id]/orders/[orderId].js
+// File: api/customers/[id]/[orderId].js
 import { MongoClient, ObjectId } from 'mongodb';
 
 let cachedDb = null;
 const MONGODB_URI = process.env.MONGODB_URI;
-const DB_NAME = process.env.MONGODB_DB_NAME || 'photoAppDB'; // Đảm bảo tên DB này đúng với cấu hình của bạn
+const DB_NAME = process.env.MONGODB_DB_NAME || 'photoAppDB';
 
 async function connectToDatabase() {
-    if (cachedDb) {
-        console.log('[API Delete Order] Using cached database instance');
-        return cachedDb;
-    }
-    if (!MONGODB_URI) {
-        console.error('[API Delete Order] MONGODB_URI is not defined');
-        // Trong môi trường serverless, việc throw error sẽ khiến function bị crash và trả về 500
-        // Việc này thường được Vercel xử lý và log lại.
-        throw new Error('Vui lòng định nghĩa biến môi trường MONGODB_URI');
-    }
-    console.log('[API Delete Order] Connecting to new database instance...');
+    if (cachedDb) return cachedDb;
+    if (!MONGODB_URI) throw new Error('Vui lòng định nghĩa biến môi trường MONGODB_URI');
     const client = new MongoClient(MONGODB_URI);
     await client.connect();
     const db = client.db(DB_NAME);
     cachedDb = db;
-    console.log('[API Delete Order] Database connection established.');
     return db;
 }
 
 export default async function handler(req, res) {
-    // Lấy customerId từ phần '[id]' và orderId từ phần '[orderId]' của đường dẫn
-    // Ví dụ: /api/customers/abc/orders/xyz -> req.query.id = 'abc', req.query.orderId = 'xyz'
-    // Tuy nhiên, vì tên tệp là [orderId].js nằm trong thư mục [id],
-    // Vercel sẽ đặt tên tham số query theo tên thư mục/tệp đó.
     const customerIdParam = req.query.id; 
     const orderIdParam = req.query.orderId;
 
-    console.log(`[API Delete Order] Received request: Method=${req.method}, CustomerID Param=${customerIdParam}, OrderID Param=${orderIdParam}`);
+    console.log(`[API Order Action] Received request: Method=<span class="math-inline">\{req\.method\}, CustomerID\=</span>{customerIdParam}, OrderID=${orderIdParam}`);
+    if (req.body) console.log(`[API Order Action] Request body:`, req.body);
 
-    if (req.method !== 'DELETE') {
-        console.log(`[API Delete Order] Method Not Allowed: ${req.method}`);
-        res.setHeader('Allow', ['DELETE']);
-        return res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
 
-    if (!customerIdParam || !ObjectId.isValid(customerIdParam)) {
-        console.error(`[API Delete Order] Invalid Customer ID Param: ${customerIdParam}`);
-        return res.status(400).json({ message: `Customer ID không hợp lệ hoặc bị thiếu: ${customerIdParam}` });
+    if (!ObjectId.isValid(customerIdParam)) {
+        return res.status(400).json({ message: `Customer ID không hợp lệ: ${customerIdParam}` });
     }
-    if (!orderIdParam || !ObjectId.isValid(orderIdParam)) {
-        console.error(`[API Delete Order] Invalid Order ID Param: ${orderIdParam}`);
-        return res.status(400).json({ message: `Order ID không hợp lệ hoặc bị thiếu: ${orderIdParam}` });
+    if (!ObjectId.isValid(orderIdParam)) {
+        return res.status(400).json({ message: `Order ID không hợp lệ: ${orderIdParam}` });
     }
 
     const customerObjectId = new ObjectId(customerIdParam);
@@ -57,69 +37,78 @@ export default async function handler(req, res) {
         const db = await connectToDatabase();
         const customersCollection = db.collection('customers');
 
-        console.log(`[API Delete Order] Attempting to find customer with _id: ${customerObjectId}`);
-        const customerBeforeUpdate = await customersCollection.findOne({ _id: customerObjectId });
-        
-        if (!customerBeforeUpdate) {
-            console.log(`[API Delete Order] Customer not found with _id: ${customerObjectId}`);
-            return res.status(404).json({ message: `Không tìm thấy khách hàng với ID: ${customerIdParam}` });
-        }
-        console.log(`[API Delete Order] Customer found. Name: ${customerBeforeUpdate.name}. Current purchaseCount: ${customerBeforeUpdate.purchaseCount}`);
-        console.log(`[API Delete Order] Current orders count: ${customerBeforeUpdate.orders ? customerBeforeUpdate.orders.length : 0}`);
-
-        // Kiểm tra xem đơn hàng có thực sự tồn tại trong mảng orders của khách hàng không
-        const orderExists = customerBeforeUpdate.orders && customerBeforeUpdate.orders.some(order => order.orderId && order.orderId.equals(orderObjectId));
-
-        if (!orderExists) {
-            console.log(`[API Delete Order] Order with orderId: ${orderObjectId} not found in customer's orders array.`);
-            return res.status(404).json({ message: `Đơn hàng với ID ${orderIdParam} không tồn tại trong danh sách của khách hàng hoặc đã được xóa.` });
-        }
-        
-        console.log(`[API Delete Order] Order ${orderObjectId} found. Attempting to pull order and decrement purchaseCount.`);
-        const result = await customersCollection.updateOne(
-            { _id: customerObjectId }, // Điều kiện tìm khách hàng
-            {
-                $pull: { orders: { orderId: orderObjectId } }, // Xóa đơn hàng có orderId khớp
-                $inc: { purchaseCount: -1 },                  // Giảm purchaseCount đi 1
-                $set: { updatedAt: new Date() }               // Cập nhật thời gian
+        if (req.method === 'DELETE') {
+            // ... (Mã xử lý DELETE như bạn đã có và đã hoạt động tốt)
+            console.log(`[API Order Action] Attempting to DELETE order ${orderObjectId} for customer ${customerObjectId}`);
+            const customerBeforeDelete = await customersCollection.findOne({ _id: customerObjectId });
+            if (!customerBeforeDelete) {
+                return res.status(404).json({ message: `Không tìm thấy khách hàng với ID: ${customerIdParam}` });
             }
-        );
+            const orderExists = customerBeforeDelete.orders && customerBeforeDelete.orders.some(order => order.orderId && order.orderId.equals(orderObjectId));
+            if (!orderExists) {
+                return res.status(404).json({ message: `Đơn hàng với ID ${orderIdParam} không tồn tại trong danh sách của khách hàng.` });
+            }
 
-        console.log(`[API Delete Order] MongoDB updateOne result: matchedCount=${result.matchedCount}, modifiedCount=${result.modifiedCount}`);
+            const result = await customersCollection.updateOne(
+                { _id: customerObjectId },
+                {
+                    $pull: { orders: { orderId: orderObjectId } },
+                    $inc: { purchaseCount: -1 },
+                    $set: { updatedAt: new Date() }
+                }
+            );
+            if (result.modifiedCount > 0) {
+                 await customersCollection.updateOne( // Đảm bảo purchaseCount không âm
+                    { _id: customerObjectId, purchaseCount: { $lt: 0 } },
+                    { $set: { purchaseCount: 0, updatedAt: new Date() } }
+                );
+                const updatedCustomer = await customersCollection.findOne({ _id: customerObjectId });
+                return res.status(200).json({ message: 'Đã xóa đơn hàng thành công!', customer: updatedCustomer });
+            } else {
+                // Có thể đơn hàng đã bị xóa bởi request khác, hoặc customerId/orderId không khớp chính xác trong $pull
+                console.warn(`[API Order Action] DELETE: No order was modified for customer ${customerIdParam}, order ${orderIdParam}. Matched: ${result.matchedCount}`);
+                const currentCustomer = await customersCollection.findOne({ _id: customerObjectId }); // Lấy trạng thái hiện tại
+                return res.status(404).json({ message: 'Không tìm thấy đơn hàng để xóa hoặc không có gì thay đổi.', customer: currentCustomer });
+            }
 
-        if (result.matchedCount === 0) {
-            // Điều này không nên xảy ra nếu customerBeforeUpdate đã tìm thấy khách hàng
-            console.error("[API Delete Order] MatchedCount is 0 after customer was found. This indicates an unexpected issue.");
-            return res.status(404).json({ message: `Không tìm thấy khách hàng (lỗi logic không mong muốn).` });
+        } else if (req.method === 'PUT') {
+            // Xử lý cập nhật trạng thái thanh toán
+            const { paid } = req.body;
+            if (typeof paid !== 'boolean') {
+                return res.status(400).json({ message: 'Trạng thái "paid" phải là true hoặc false.' });
+            }
+            console.log(`[API Order Action] Attempting to update PAID status to ${paid} for order ${orderObjectId} of customer ${customerObjectId}`);
+
+            const result = await customersCollection.updateOne(
+                { _id: customerObjectId, "orders.orderId": orderObjectId },
+                { 
+                    $set: { "orders.$.paid": paid, updatedAt: new Date() } 
+                }
+            );
+
+            if (result.matchedCount === 0) {
+                return res.status(404).json({ message: 'Không tìm thấy khách hàng hoặc đơn hàng để cập nhật trạng thái thanh toán.' });
+            }
+            if (result.modifiedCount === 0) {
+                // Có thể trạng thái paid đã là giá trị mới rồi, không có gì thay đổi.
+                console.warn(`[API Order Action] Trạng thái thanh toán cho đơn hàng ${orderIdParam} không thay đổi (có thể đã là ${paid}).`);
+            }
+
+            const updatedCustomer = await customersCollection.findOne({ _id: customerObjectId });
+            const updatedOrder = updatedCustomer ? updatedCustomer.orders.find(o => o.orderId.equals(orderObjectId)) : null;
+
+            res.status(200).json({ 
+                message: 'Cập nhật trạng thái thanh toán thành công!', 
+                customer: updatedCustomer, // Trả về cả customer để frontend có thể cập nhật purchaseCount nếu cần trong tương lai
+                updatedOrder: updatedOrder // Trả về đơn hàng đã cập nhật
+            });
+
+        } else {
+            res.setHeader('Allow', ['DELETE', 'PUT']);
+            res.status(405).end(`Method ${req.method} Not Allowed`);
         }
-
-        if (result.modifiedCount === 0) {
-            // Nếu matchedCount là 1 nhưng modifiedCount là 0, có thể $pull không tìm thấy gì (đã check ở trên bằng orderExists)
-            // hoặc $inc không làm thay đổi gì (ví dụ purchaseCount đã là null - không nên).
-            // Trường hợp này đã được kiểm tra bằng orderExists, nếu vào đây thì lạ.
-            console.warn(`[API Delete Order] Khách hàng được tìm thấy nhưng không có thay đổi nào được ghi nhận (modifiedCount=0). Điều này không mong đợi nếu đơn hàng tồn tại.`);
-            // Không nhất thiết phải trả về lỗi nếu đơn hàng đã được xác nhận tồn tại và logic pull đúng.
-            // Có thể do $inc không thay đổi nếu purchaseCount không phải là số.
-        }
-        
-        // Đảm bảo purchaseCount không bị âm sau khi giảm
-        // Chạy lệnh này riêng biệt để đảm bảo nó được áp dụng ngay cả khi modifiedCount ở trên là 0 (mặc dù không nên)
-        await customersCollection.updateOne(
-            { _id: customerObjectId, purchaseCount: { $lt: 0 } },
-            { $set: { purchaseCount: 0, updatedAt: new Date() } }
-        );
-
-        const updatedCustomer = await customersCollection.findOne({ _id: customerObjectId });
-        if (!updatedCustomer) {
-             console.error("[API Delete Order] Không thể lấy thông tin khách hàng sau khi cập nhật.");
-             return res.status(500).json({ message: 'Không thể lấy thông tin khách hàng sau khi cập nhật.' });
-        }
-
-        console.log(`[API Delete Order] Order deletion process completed for customer ${updatedCustomer.name}. New purchaseCount: ${updatedCustomer.purchaseCount}`);
-        res.status(200).json({ message: 'Đã xóa đơn hàng thành công!', customer: updatedCustomer });
-
     } catch (error) {
-        console.error(`[API Delete Order] SERVER ERROR for customer ${customerIdParam}, order ${orderIdParam}:`, error.message, error.stack);
-        res.status(500).json({ message: 'Lỗi máy chủ nội bộ khi xóa đơn hàng', error: error.message });
+        console.error(`[API Order Action] SERVER ERROR for customer ${customerIdParam}, order ${orderIdParam}:`, error.message, error.stack);
+        res.status(500).json({ message: 'Lỗi máy chủ nội bộ', error: error.message });
     }
 }
