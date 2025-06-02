@@ -375,38 +375,205 @@ input[type="checkbox"]:checked + label::after {
 /* Tối ưu hóa cho thiết bị di động */
 @media (max-width: 768px) {
     body {
-        height: auto; /* Cho phép chiều cao tự động trên thiết bị di động */
+        /* Có thể không cần height: auto nếu bạn dùng min-height: 100vh cho body và các container co giãn */
+        /* height: auto; */ 
+        /* Nếu dùng hiệu ứng sao CSS, có thể giảm số lượng hoặc kích thước sao trên mobile */
     }
 
-    .container, .invoice-container {
-        padding: 15px; /* Giảm padding cho thiết bị di động */
-        margin: 10px; /* Giảm margin cho thiết bị di động */
-        max-width: 100%; /* Đảm bảo hóa đơn không vượt quá chiều rộng màn hình */
+    /* --- CHUNG CHO CÁC CONTAINER --- */
+    .container, 
+    .invoice-container,
+    .customer-list-page-container,
+    .lookup-page-container-wrapped {
+        padding: 15px;
+        margin: 10px; /* Giảm margin để tận dụng không gian */
+        max-width: 95%; /* Hoặc 100% với box-sizing: border-box và padding bên trong */
+        /* box-sizing: border-box; */ /* Nên có ở global */
     }
 
     h1 {
-        font-size: 26px; /* Giảm kích thước chữ tiêu đề */
+        font-size: 22px; /* Giảm kích thước tiêu đề chính */
+    }
+    .customer-list-page-container h1,
+    .lookup-page-container-wrapped h1 {
+        font-size: 20px; /* Tiêu đề cho các trang mới */
+        margin-bottom: 20px;
     }
 
-    input[type="number"], input[type="text"], select {
-        font-size: 14px; /* Giảm kích thước chữ cho input và select */
-    }
 
-    button {
-        font-size: 16px; /* Giảm kích thước chữ cho button */
+    /* --- TRANG INDEX.HTML --- */
+    .top-nav-buttons {
+        margin-bottom: 10px;
+        padding: 0 5px;
     }
-
+    .icon-nav-button {
+        width: 38px;
+        height: 38px;
+        font-size: 1em;
+    }
+    #orderForm .form-group {
+        margin-bottom: 15px;
+    }
+    input[type="number"], 
+    input[type="text"], 
+    select,
+    #orderForm input[type="text"], /* Đảm bảo các input trong form cụ thể cũng được target */
+    #orderForm input[type="number"],
+    #orderForm select {
+        font-size: 15px; /* Kích thước chữ trong input/select */
+        padding: 10px;
+    }
+    #orderForm button[type="submit"], 
+    #orderForm .reset-btn { /* Nếu còn nút reset cũ */
+        font-size: 16px;
+        padding: 12px 15px;
+    }
     .totalAmount {
-        font-size: 22px; /* Giảm kích thước chữ cho tổng số tiền */
+        font-size: 20px; /* Tổng tiền trong kết quả */
+    }
+    .button-link-navigation { /* Nút quản lý KH ở index.html */
+        font-size: 15px;
+        padding: 10px 15px;
     }
 
+
+    /* --- TRANG INVOICE.HTML --- */
+    .invoice-container h1 {
+        font-size: 22px;
+    }
+    .invoice-container p {
+        font-size: 15px;
+        margin: 12px 0;
+    }
+    .qr-and-info {
+        flex-direction: column; /* Chuyển sang 1 cột */
+        align-items: center; /* Căn giữa các item */
+    }
+    .qr-container {
+        margin-right: 0;
+        margin-bottom: 20px; /* Khoảng cách giữa QR và info */
+    }
+    .qr-code {
+        width: 120px; 
+        height: 120px;
+    }
+    .info-container {
+        max-width: 100%; /* Cho phép chiếm toàn bộ chiều rộng */
+        text-align: center; /* Căn giữa text nếu muốn */
+    }
+    .button-link-back { /* Nút quay lại trên invoice */
+        font-size: 15px;
+        padding: 10px 15px;
+    }
     .note, .invoice-date {
-        font-size: 10px; /* Giảm kích thước chữ cho ghi chú và ngày */
+        font-size: 11px;
+    }
+    .thank-you {
+        font-size: 17px;
     }
 
-    .thank-you {
-        font-size: 18px; /* Giảm kích thước chữ cảm ơn */
+
+    /* --- TRANG CUSTOMERS.HTML --- */
+    #customerSearchInput {
+        padding: 10px;
+        font-size: 15px;
     }
+    .customer-list li {
+        font-size: 15px;
+        padding: 10px;
+    }
+    .customer-list li i.fa-user-circle {
+        font-size: 18px;
+    }
+    .customer-list li .customer-meta {
+        font-size: 0.85em;
+    }
+    .modal-content { /* Modal chung */
+        width: 90%;
+        padding: 20px;
+        margin-top: 5%; /* Giảm margin top */
+    }
+    .modal-content.large { /* Modal cho chi tiết KH */
+        max-width: 95%; /* Chiếm gần hết màn hình */
+    }
+    #modalHeader h3 {
+        font-size: 20px;
+    }
+    #modalHeader p {
+        font-size: 14px;
+    }
+    .table-responsive-container {
+        max-height: 300px; /* Giảm chiều cao bảng cuộn */
+    }
+    #customerOrdersTable {
+        font-size: 12px; /* Chữ trong bảng nhỏ hơn */
+    }
+    #customerOrdersTable th,
+    #customerOrdersTable td {
+        padding: 6px 8px; /* Giảm padding cell */
+    }
+    /* Form trong modal */
+    .form-group-modal input[type="text"],
+    .form-group-modal input[type="number"],
+    .form-group-modal select,
+    input[type="datetime-local"] { /* Input ngày giờ */
+        padding: 8px;
+        font-size: 14px;
+    }
+    .form-grid { /* Grid trong form thêm đơn hàng */
+        grid-template-columns: 1fr; /* Luôn là 1 cột trên mobile */
+        gap: 10px;
+    }
+    .modal .small-action-button,
+    .modal .small-action-button-cancel,
+    .modal .add-order-btn {
+        padding: 8px 10px;
+        font-size: 0.85em;
+        width: 100%; /* Có thể cho nút chiếm toàn bộ chiều rộng để dễ nhấn */
+        margin-right: 0;
+        margin-bottom: 8px; /* Khoảng cách giữa các nút nếu xếp chồng */
+    }
+    .modal .small-action-button:last-child,
+    .modal .small-action-button-cancel:last-child {
+        margin-bottom: 0;
+    }
+
+
+    /* --- TRANG MY_ORDERS.HTML (WRAPPED) --- */
+    .lookup-page-container-wrapped { /* Form nhập tên ban đầu */
+        margin: 5vh auto; /* Ít margin hơn */
+        padding: 20px;
+    }
+    .wrapped-container {
+        /* Đã là full viewport, không cần thay đổi nhiều ở đây trừ khi có vấn đề */
+    }
+    .wrapped-slide h2 {
+        font-size: 1.8em; /* Giảm đáng kể */
+        margin-bottom: 8px;
+    }
+    .wrapped-slide p {
+        font-size: 1.1em; /* Giảm đáng kể */
+        margin-bottom: 15px;
+    }
+    .wrapped-slide .highlight,
+    .highlight-stat { /* Các con số nổi bật */
+        font-size: 2em; /* Giảm đáng kể */
+    }
+    .wrapped-slide .icon-large {
+        font-size: 3em; /* Giảm đáng kể */
+        margin-bottom: 15px;
+    }
+    .remark-text-style { /* Lời nhận xét trong wrapped */
+        font-size: 1.1em;
+    }
+    .author-wish { /* Lời chúc của tác giả */
+        font-size: 1em;
+    }
+    .wrapped-controls button {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+    /* Hiệu ứng pháo hoa có thể cần giảm số lượng hoặc kích thước trên mobile nếu nặng */
 }
 
 
