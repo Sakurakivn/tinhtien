@@ -28,7 +28,8 @@ export default async function handler(req, res) {
 
         if (req.method === 'GET') {
             if (req.query.id) {
-                if (!ObjectId.isValid(req.query.id)) {
+                // ... (logic tìm theo ID giữ nguyên) ...
+                 if (!ObjectId.isValid(req.query.id)) {
                     return res.status(400).json({ message: 'ID khách hàng không hợp lệ' });
                 }
                 const customer = await customersCollection.findOne({ _id: new ObjectId(req.query.id) });
@@ -36,6 +37,33 @@ export default async function handler(req, res) {
                     res.status(200).json(customer);
                 } else {
                     res.status(404).json({ message: 'Không tìm thấy khách hàng' });
+                }
+            } else if (req.query.name) {
+                const searchName = req.query.name;
+                console.log(`[API Get Customer] Searching for name (case-insensitive): "${searchName}"`);
+                
+                // Sử dụng regular expression để tìm kiếm không phân biệt hoa thường
+                // 'i' flag cho case-insensitive
+                // Cần escape các ký tự đặc biệt trong regex nếu tên có thể chứa chúng,
+                // nhưng với tên người Việt thông thường thì có thể không quá cần thiết.
+                // Để an toàn hơn, bạn có thể dùng một hàm để escape regex.
+                // Ví dụ đơn giản:
+                const customer = await customersCollection.findOne({ 
+                    name: { $regex: `^${searchName}$`, $options: 'i' } 
+                });
+                // Giải thích:
+                // - `^${searchName}$`: Đảm bảo khớp toàn bộ chuỗi tên, không phải chỉ một phần.
+                //   Nếu bạn muốn tìm kiếm gần đúng (ví dụ "an" khớp với "Đức An"), bạn có thể bỏ `^` và `$`,
+                //   ví dụ: name: { $regex: searchName, $options: 'i' }
+                //   Tuy nhiên, để tra cứu chính xác tên nhưng không phân biệt hoa/thường, `^...$` là tốt.
+                // - `$options: 'i'`: Bật chế độ không phân biệt hoa/thường.
+
+                if (customer) {
+                    console.log(`[API Get Customer] Found customer:`, customer.name);
+                    res.status(200).json(customer);
+                } else {
+                    console.log(`[API Get Customer] Customer not found with name (case-insensitive): "${searchName}"`);
+                    res.status(404).json({ message: `Không tìm thấy khách hàng với tên (không phân biệt hoa/thường): "${searchName}"` });
                 }
             } else if (req.query.name) {
                 const customer = await customersCollection.findOne({ name: req.query.name }); // Tìm chính xác theo tên
