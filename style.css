@@ -6,57 +6,57 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(45deg, #ff6f61, #ff9c00, #ffcc00, #ff6f61);
-  background-size: 400% 400%;
-  animation: gradientAnimation 10s ease infinite;
-  overflow: hidden; /* Giúp ngăn chặn cuộn trang khi có particles */
+  min-height: 100vh; /* Sử dụng min-height thay vì height để linh hoạt hơn với nội dung */
+  width: 100%;
+
+  /* THAY ĐỔI GRADIENT */
+  /* Ví dụ gradient màu tím/xanh đậm lung linh */
+  background: linear-gradient(45deg, #23074d, #591869, #00223E, #005A7C, #23074d);
+  background-size: 600% 600%; /* Tăng background-size để chuyển động mượt hơn */
+  animation: gradientAnimation 15s ease infinite; /* Tăng thời gian animation */
+
+  position: relative; /* Cần thiết để định vị các ngôi sao con */
+  overflow: hidden; /* Ngăn các ngôi sao tràn ra ngoài nếu chúng quá lớn hoặc di chuyển ra rìa */
 }
 
-/* Hiệu ứng gradient động */
 @keyframes gradientAnimation {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* Tạo hiệu ứng sao lấp lánh */
-@keyframes starsAnimation {
-  0% { opacity: 0.8; }
-  50% { opacity: 0.2; }
-  100% { opacity: 0.8; }
+/* XÓA HOẶC THAY ĐỔI HIỆU ỨNG .stars CŨ NẾU BẠN KHÔNG DÙNG NỮA */
+/* .stars { ... } */
+
+
+/* --- HIỆU ỨNG SAO LẤP LÁNH MỚI BẰNG CSS --- */
+/* Bạn sẽ cần thêm các div sao vào HTML hoặc tạo chúng bằng JavaScript */
+
+/* Ví dụ nếu bạn thêm các div sao trực tiếp vào HTML */
+.star {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    animation: twinkle 2s infinite ease-in-out;
+    box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0073e6; /* Thêm hiệu ứng tỏa sáng */
 }
 
-/* Hiệu ứng ngôi sao lấp lánh */
-.stars {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('https://www.transparenttextures.com/patterns/black-linen-5.png') repeat;
-  pointer-events: none;
-  z-index: -1;
+/* Animation lấp lánh */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
-/* Tạo các hạt phát sáng với hiệu ứng particles */
-.particle {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  background-color: #fff;
-  border-radius: 50%;
-  animation: particleMove 2s infinite ease-in-out;
-}
-
-/* Hiệu ứng di chuyển các particles */
-@keyframes particleMove {
-  0% { transform: translate(0, 0); opacity: 0.7; }
-  25% { transform: translate(100px, -100px); opacity: 1; }
-  50% { transform: translate(-100px, -150px); opacity: 0.8; }
-  75% { transform: translate(150px, 200px); opacity: 0.9; }
-  100% { transform: translate(-200px, 100px); opacity: 0.6; }
-}
+/* Bạn có thể tạo nhiều kích thước sao và vị trí khác nhau */
+.star.s1 { width: 1px; height: 1px; }
+.star.s2 { width: 2px; height: 2px; animation-duration: 2.5s; animation-delay: 0.5s; }
+.star.s3 { width: 3px; height: 3px; animation-duration: 3s; animation-delay: 1s; }
 
 /* Container chính */
 .container {
