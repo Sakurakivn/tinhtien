@@ -85,3 +85,29 @@
         </div> <script src="app.js"></script>
 </body>
 </html>
+
+<script>
+function createStars(numberOfStars) {
+    const body = document.body;
+    for (let i = 0; i < numberOfStars; i++) {
+        let star = document.createElement('div');
+        star.classList.add('star');
+
+        // Kích thước và animation ngẫu nhiên
+        let size = Math.floor(Math.random() * 3) + 1; // 1 đến 3px
+        star.classList.add('s' + size);
+        star.style.animationDuration = (Math.random() * 3 + 2) + 's'; // 2 đến 5s
+        star.style.animationDelay = Math.random() * 3 + 's';     // delay ngẫu nhiên
+
+        // Vị trí ngẫu nhiên
+        star.style.top = Math.random() * 100 + '%';
+        star.style.left = Math.random() * 100 + '%';
+
+        body.appendChild(star);
+    }
+}
+// Gọi hàm khi DOM đã tải xong
+document.addEventListener('DOMContentLoaded', function() {
+    createStars(100); // Tạo 100 ngôi sao
+});
+</script>
