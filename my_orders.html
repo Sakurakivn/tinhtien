@@ -9,9 +9,7 @@
     <style>
         /* CSS cho hiệu ứng và layout của Wrapped Page */
         body.wrapped-active {
-            /* Có thể thêm style đặc biệt cho body khi wrapped đang chạy */
-            /* background: #121212; /* Ví dụ: nền tối như Spotify */
-            overflow: hidden; /* Ngăn cuộn khi các slide đang hiển thị */
+            overflow: hidden; 
         }
 
         .wrapped-container {
@@ -24,14 +22,14 @@
             position: fixed;
             top: 0;
             left: 0;
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%); /* Ví dụ gradient mới */
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%); 
             color: white;
             font-family: 'Arial', sans-serif;
             text-align: center;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-            z-index: 2000; /* Nằm trên cùng */
+            z-index: 2000; 
         }
 
         .wrapped-container.active {
@@ -40,7 +38,7 @@
         }
 
         .wrapped-slide {
-            display: none; /* Mặc định ẩn các slide */
+            display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -48,12 +46,11 @@
             box-sizing: border-box;
             width: 90%;
             max-width: 600px;
-            /* Hiệu ứng xuất hiện cho slide */
             animation: fadeInSlide 0.8s ease-out forwards;
         }
 
         .wrapped-slide.active-slide {
-            display: flex; /* Chỉ hiển thị slide active */
+            display: flex; 
         }
 
         @keyframes fadeInSlide {
@@ -62,44 +59,44 @@
         }
 
         .wrapped-slide h2 {
-            font-size: 2.5em;
+            font-size: 2.2em; /* Điều chỉnh cho mobile */
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         .wrapped-slide p {
-            font-size: 1.5em;
+            font-size: 1.3em; /* Điều chỉnh cho mobile */
             line-height: 1.6;
             margin-bottom: 20px;
         }
         .wrapped-slide .highlight {
-            font-size: 2.8em;
+            font-size: 2.5em; /* Điều chỉnh cho mobile */
             font-weight: bold;
-            color: #ffeb3b; /* Màu vàng nổi bật */
+            color: #ffeb3b; 
             display: block;
             margin: 10px 0;
         }
         .wrapped-slide .icon-large {
-            font-size: 4em;
+            font-size: 3.5em; /* Điều chỉnh cho mobile */
             margin-bottom: 20px;
             color: rgba(255,255,255,0.8);
         }
 
-        /* Nút điều khiển (Next/Close) */
         .wrapped-controls {
             position: absolute;
-            bottom: 30px;
+            bottom: 20px; /* Gần hơn ở mobile */
             left: 50%;
             transform: translateX(-50%);
+            z-index: 2001; /* Nằm trên các slide */
         }
         .wrapped-controls button {
             background-color: rgba(255, 255, 255, 0.2);
             border: 1px solid white;
             color: white;
-            padding: 12px 25px;
-            font-size: 1em;
+            padding: 10px 20px; /* Điều chỉnh cho mobile */
+            font-size: 0.9em; /* Điều chỉnh cho mobile */
             border-radius: 25px;
             cursor: pointer;
-            margin: 0 10px;
+            margin: 0 8px;
             transition: background-color 0.3s, transform 0.2s;
         }
         .wrapped-controls button:hover {
@@ -107,39 +104,55 @@
             transform: scale(1.05);
         }
         
-        /* Login form (ban đầu hiển thị, sau đó ẩn đi) */
-        .lookup-page-container-wrapped { /* Đổi tên class để không bị ẩn bởi wrapped-active */
-             max-width: 500px; margin: 10vh auto; padding: 30px;
+        .lookup-page-container-wrapped { 
+             max-width: 500px; margin: 10vh auto; padding: 25px; /* Điều chỉnh padding */
              background-color: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1);
-             color: #333; /* Màu chữ cho form */
+             color: #333; 
         }
          .lookup-page-container-wrapped h1 {
-            text-align: center; color: #007bff; margin-bottom: 20px; font-size: 24px;
+            text-align: center; color: #007bff; margin-bottom: 20px; font-size: 22px; /* Điều chỉnh cho mobile */
+        }
+        .lookup-form .form-note { /* CSS cho ghi chú */
+            font-size: 0.8em;
+            color: #555;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        .lookup-form .form-group input[type="text"]{ /* Đảm bảo input text responsive */
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+         .lookup-form button.action-button { /* Nút Xem Ngay! */
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
         }
 
 
+        /* Hiệu ứng pháo hoa */
         .firework {
-            position: absolute;
+            position: absolute; 
             width: 5px;
             height: 5px;
-            background: white;
+            background: white; 
             border-radius: 50%;
-            opacity: 0;
+            opacity: 0; 
             animation: launchUp 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards, 
-                       shatter 0.6s cubic-bezier(0.1, 0.7, 0.3, 1) 0.7s forwards;
+                       shatter 0.6s cubic-bezier(0.1, 0.7, 0.3, 1) 0.7s forwards; 
         }
-
         @keyframes launchUp {
             0% { transform: translateY(100vh) scale(1); opacity: 1; }
             80% { opacity: 1; transform: translateY(15vh) scale(1.5); }
             100% { transform: translateY(10vh) scale(0.5); opacity: 0; }
         }
-
         @keyframes shatter {
             0% { opacity: 1; transform: scale(0.5); box-shadow: none; }
             100% {
                 opacity: 0;
-                transform: scale(35);
+                transform: scale(35); 
                 box-shadow: 
                     0 0 5px var(--explode-color-1, white), 0 0 10px var(--explode-color-1, white), 0 0 15px var(--explode-color-1, white),
                     0 0 20px var(--explode-color-2, gold), 0 0 25px var(--explode-color-2, gold), 0 0 30px var(--explode-color-2, gold),
@@ -149,65 +162,75 @@
                     35px -35px 2px var(--explode-color-2, gold), -35px 35px 2px var(--explode-color-2, gold);
             }
         }
-        /* Thêm vào CSS của bạn */
+
+        /* CSS cho hiệu ứng slide "Habits" */
         .habit-stats-initial,
         .habit-remarks-final {
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            width: 100%; /* Đảm bảo chiếm đủ không gian */
+            width: 100%;
         }
-        
         .habit-stats-initial.fade-out {
             opacity: 0;
-            transform: scale(0.95); /* Hiệu ứng thu nhỏ nhẹ khi mờ đi */
+            transform: scale(0.95); 
         }
-        
         .habit-remarks-final.fade-in {
-            display: block !important; /* Ghi đè display:none ban đầu */
+            display: block !important; 
             opacity: 1;
             transform: translateY(0);
         }
-        
-        .habit-remarks-final { /* Trạng thái ban đầu trước khi fade-in */
+        .habit-remarks-final { 
             opacity: 0;
-            transform: translateY(20px); /* Hơi dịch xuống dưới */
+            transform: translateY(20px); 
         }
-        
-        .highlight-stat { /* Style cho các con số thống kê */
-            font-size: 2.2em; /* To hơn một chút so với text thường */
+        .highlight-stat { 
+            font-size: 2em; /* Điều chỉnh cho mobile */
             font-weight: bold;
-            color: #ffeb3b; /* Màu vàng nổi bật */
-            display: inline-block; /* Hoặc block nếu muốn xuống dòng */
+            color: #ffeb3b; 
+            display: inline-block; 
             margin: 0 5px;
         }
-        
-        .remark-text-style { /* Style cho các câu nhận xét */
-            font-size: 1.4em; /* Kích thước chữ cho nhận xét */
+        .remark-text-style { 
+            font-size: 1.2em; /* Điều chỉnh cho mobile */
             line-height: 1.7;
             font-style: italic;
             margin-top: 15px;
             color: rgba(255, 255, 255, 0.9);
         }
-        /* Thêm vào CSS của bạn */
-        .lookup-form .form-note {
-            font-size: 0.85em;
-            color: #555;
-            margin-top: 8px;
-            line-height: 1.4;
+
+        /* CSS cho responsive chung hơn (nếu bạn không đặt trong style.css chính) */
+        @media (max-width: 768px) {
+            .wrapped-slide h2 { font-size: 1.8em; }
+            .wrapped-slide p { font-size: 1em; }
+            .wrapped-slide .highlight { font-size: 2em; }
+            .highlight-stat { font-size: 1.8em; }
+            .remark-text-style { font-size: 1em; }
+            .wrapped-slide .icon-large { font-size: 3em; }
+            .wrapped-controls button { padding: 8px 15px; font-size: 0.8em; }
+            .lookup-page-container-wrapped { padding: 20px; margin: 5vh auto; }
+            .lookup-page-container-wrapped h1 { font-size: 20px; }
         }
-        .lookup-form .form-note em {
-            font-style: normal; /* Hoặc giữ italic tùy bạn */
+         @media (max-width: 480px) {
+            .wrapped-slide h2 { font-size: 1.5em; }
+            .wrapped-slide p { font-size: 0.9em; }
+            .wrapped-slide .highlight { font-size: 1.7em; }
+            .highlight-stat { font-size: 1.5em; }
+            .remark-text-style { font-size: 0.9em; }
+            .wrapped-slide .icon-large { font-size: 2.5em; }
         }
+
     </style>
 </head>
-<body class=""> <div class="lookup-page-container-wrapped" id="lookupFormContainer">
+<body class=""> 
+
+    <div class="lookup-page-container-wrapped" id="lookupFormContainer">
         <h1><i class="fas fa-receipt"></i> Xem Lại Hành Trình In Ấn Của Bạn</h1>
         <form id="customerLookupFormWrapped" class="lookup-form">
             <div class="form-group">
-                <label for="customerNameToLookupWrapped">Nhập tên của bạn để xem tổng kết:</label>
-                <input type="text" id="customerNameToLookupWrapped" placeholder="Nhập chính xác tên đã dùng khi đặt in..." required>
+                <label for="customerNameToLookupWrapped">Nhập tên của bạn:</label>
+                <input type="text" id="customerNameToLookupWrapped" placeholder="Ví dụ: Nguyễn Văn A" required>
                 <p class="form-note">
-                    <em>Ghi chú: Bạn có thể nhập tên không cần phân biệt chữ hoa, chữ thường, và GHI RÕ HỌ VÀ TÊN CỦA BẠN!. <br>
-                    Ví dụ: nếu tên của bạn là "Nguyễn Văn A", bạn có thể nhập "nguyễn văn a" hoặc "NGUYỄN VĂN A".</em>
+                    <em>Ghi chú: Bạn có thể nhập tên không cần phân biệt chữ hoa, chữ thường. <br>
+                    Ví dụ: nếu tên của bạn là "Lã Đức An", bạn có thể nhập "lã đức an".</em>
                 </p>
             </div>
             <button type="submit" class="action-button"><i class="fas fa-paper-plane"></i> Xem Ngay!</button>
@@ -219,10 +242,10 @@
             </a>
         </p>
     </div>
-    
+
     <div class="wrapped-container" id="wrappedContainer">
         <div class="wrapped-slide" id="slide-welcome">
-            <i class="fas fa-hands-helping icon-large"></i>
+            <i class="fas fa-glass-cheers icon-large"></i>
             <h2 id="welcomeName">Chào mừng bạn quay trở lại!</h2>
             <p>Hãy cùng nhìn lại những khoảnh khắc in ấn đáng nhớ của bạn nhé!</p>
         </div>
@@ -235,41 +258,39 @@
         </div>
         
         <div class="wrapped-slide" id="slide-habits">
-            <i class="fas fa-print icon-large"></i>
+            <i class="fas fa-cogs icon-large"></i>
             <h2>"Gu" In Ấn Của Bạn</h2>
-
             <div class="habit-stats-initial">
                 <p>Cách in ưa thích của bạn là <span id="favPrintTypeStat" class="highlight-stat">...</span></p>
                 <p>Bạn đã in tổng cộng <span id="totalPagesPrintedStat" class="highlight-stat">0</span> trang giấy!</p>
             </div>
-
             <div class="habit-remarks-final" style="display: none;">
                 <p id="favPrintTypeRemark" class="remark-text-style"></p>
                 <p id="totalPagesPrintedRemark" class="remark-text-style"></p>
             </div>
         </div>
+
         <div class="wrapped-slide" id="slide-remark">
-            <i class="fas fa-star icon-large"></i>
-            <h2 id="remarkTitle">Một Chút Nhận Xét...</h2>
-            <p id="remarkText" style="font-style: italic;">...</p>
+            <i class="fas fa-quote-left icon-large"></i>
+            <h2 id="remarkTitle">Đôi Lời Nhắn Gửi...</h2>
+            <p id="remarkText" style="font-size: 1.3em; line-height: 1.7;"></p>
         </div>
         
         <div class="wrapped-slide" id="slide-thankyou">
             <i class="fas fa-gifts icon-large"></i>
-            <h2>Xin Cảm Ơn!</h2>
-            <p id="thankYouName">Cảm ơn bạn, [Tên Khách Hàng], đã luôn tin tưởng và ủng hộ!</p>
-            <p>Chúc bạn một ngày tốt lành và hẹn gặp lại ở những đơn hàng sau!</p>
+            <h2>Xin Chân Thành Cảm Ơn!</h2>
+            <p id="thankYouName">Cảm ơn bạn đã luôn tin tưởng và ủng hộ!</p>
             </div>
 
         <div class="wrapped-controls">
-            <button id="prevSlideBtn" style="display: none;">Trước</button>
+            <button id="prevSlideBtn" style="display: none;"><i class="fas fa-arrow-left"></i> Trước</button>
             <button id="nextSlideBtn">Tiếp theo <i class="fas fa-arrow-right"></i></button>
-            <button id="closeWrappedBtn" style="display: none;">Đóng</button>
+            <button id="closeWrappedBtn" style="display: none;">Đóng <i class="fas fa-times-circle"></i></button>
         </div>
     </div>
 
     <script src="my_orders_app.js"></script> 
-    </body>
+</body>
 </html>
 
 <script>
