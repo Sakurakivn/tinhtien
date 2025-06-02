@@ -375,10 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         console.log(`Cập nhật trạng thái thanh toán cho đơn ${orderId} của KH ${customerId} thành ${newPaidStatus}`);
         try {
-            const response = await fetch(`/api/customers/${customerId}/orders/${orderId}/paidstatus`, { // API endpoint mới
+            const response = await fetch(`/api/customers/<span class="math-inline">\{customerId\}/orders/</span>{orderId}`, { // URL này sẽ gọi đến api/customers/[id]/[orderId].js
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ paid: newPaidStatus })
+                body: JSON.stringify({ paid: newPaidStatus }) // Gửi trạng thái paid mới
             });
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: response.statusText }));
