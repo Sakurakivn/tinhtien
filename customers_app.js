@@ -61,11 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if(customerListUl) customerListUl.innerHTML = '<li><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</li>';
         try {
             const response = await fetch('/api/customers');
+            console.log("[CustomersApp] Fetch response status:", response.status);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                console.error("[CustomersApp] Lỗi fetch API:", response.status, errorText);
                 throw new Error(`Lỗi HTTP ${response.status}: ${errorData.message || 'Không thể tải danh sách khách hàng'}`);
             }
             const customersArray = await response.json();
+            console.log("[CustomersApp] Dữ liệu khách hàng từ API:", customersArray);
             allCustomersData = {};
             customersArray.forEach(customer => {
                 allCustomersData[customer._id] = customer;
