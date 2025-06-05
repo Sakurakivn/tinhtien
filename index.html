@@ -113,7 +113,10 @@
                 }
                 logoutButton.addEventListener('click', handleLogout);
             }
-
+             // Sau khi đăng nhập thành công, cần đảm bảo nút logout hiển thị
+            // Có thể thêm logic này vào onSuccess của handleLogin trong setupIndexPageAuth nếu cần
+            // hoặc kiểm tra lại khi mainAppContainer hiển thị.
+            // Cách đơn giản: khi mainAppContainer hiển thị, nút logout cũng hiển thị
              if (isAuthenticated() && logoutButton && mainAppContainer.style.display !== 'none') {
                 logoutButton.style.display = 'inline-flex';
             }
