@@ -1272,3 +1272,64 @@ input[type="datetime-local"] {
     margin: 0;
     font-size: 1em;
 }
+
+/* Thêm vào cuối tệp style.css */
+
+/* Container cho thanh công cụ (tìm kiếm và xuất) */
+.toolbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+}
+
+.search-customer-container {
+    flex-grow: 1; /* Cho phép ô tìm kiếm chiếm nhiều không gian hơn */
+    margin-right: 15px; /* Khoảng cách với nút xuất */
+}
+
+.export-buttons-container {
+    display: flex;
+    gap: 10px; /* Khoảng cách giữa các nút xuất */
+}
+
+.action-button.export-btn {
+    background-color: #17a2b8; /* Màu xanh cyan cho export */
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.2s, transform 0.1s;
+}
+.action-button.export-btn:hover {
+    background-color: #138496;
+    transform: translateY(-1px);
+}
+.action-button.export-btn i {
+    margin-right: 6px;
+}
+
+/* Responsive cho toolbar */
+@media (max-width: 768px) {
+    .toolbar-container {
+        flex-direction: column; /* Xếp chồng trên mobile */
+        align-items: stretch; /* Kéo dài các item */
+    }
+    .search-customer-container {
+        margin-right: 0;
+        margin-bottom: 10px; /* Khoảng cách với nút xuất khi xếp chồng */
+    }
+    .export-buttons-container {
+        justify-content: flex-start; /* Căn các nút xuất về đầu khi xếp chồng */
+    }
+    .action-button.export-btn {
+        flex-grow: 1; /* Có thể cho các nút xuất chia đều không gian còn lại */
+        text-align: center;
+        justify-content: center;
+    }
+}
