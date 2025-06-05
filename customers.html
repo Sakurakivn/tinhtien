@@ -1,4 +1,4 @@
-<!DOCTYPE html>More actions
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -6,13 +6,35 @@
     <title>Danh Sách Khách Hàng - Photo App</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="auth.js"></script>
+    <script>
+        protectPage();
+    </script>
 </head>
 <body>
     <div class="customer-list-page-container">
         <h1><i class="fas fa-users"></i> Danh Sách Khách Hàng</h1>
-        <div class="search-customer-container">
-            <input type="text" id="customerSearchInput" placeholder="Tìm kiếm khách hàng theo tên hoặc lớp...">
+        
+        <div class="toolbar-container">
+            <div class="search-customer-container">
+                <input type="text" id="customerSearchInput" placeholder="Tìm kiếm khách hàng theo tên hoặc lớp...">
+            </div>
+            <!-- KHU VỰC NÚT XUẤT DỮ LIỆU MỚI -->
+            <div class="export-buttons-container">
+                <button id="exportCsvBtn" class="action-button export-btn">
+                    <i class="fas fa-file-csv"></i> Xuất CSV
+                </button>
+                <!-- Bạn có thể thêm các nút khác ở đây sau này, ví dụ:
+                <button id="exportExcelBtn" class="action-button export-btn">
+                    <i class="fas fa-file-excel"></i> Xuất Excel
+                </button>
+                <button id="exportPdfBtn" class="action-button export-btn">
+                    <i class="fas fa-file-pdf"></i> Xuất PDF
+                </button>
+                -->
+            </div>
         </div>
+
         <ul id="customerList" class="customer-list">
             <li>Đang tải danh sách khách hàng...</li>
         </ul>
@@ -23,10 +45,11 @@
         </p>
     </div>
 
+    <!-- Modal hiển thị thông tin chi tiết khách hàng và lịch sử mua hàng -->
     <div id="customerModal" class="modal">
+        <!-- Nội dung modal giữ nguyên như cũ của bạn -->
         <div class="modal-content large">
             <span class="close-button">&times;</span>
-
             <div id="modalHeader">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <h3 id="modalCustomerNameDisplay"></h3>
@@ -49,14 +72,12 @@
                 <p><strong><i class="fas fa-chalkboard-teacher"></i> Lớp:</strong> <span id="modalCustomerClassDisplay"></span></p>
                 <p><strong><i class="fas fa-shopping-cart"></i> Tổng số lần mua:</strong> <span id="modalPurchaseCount"></span></p>
             </div>
-
             <h4><i class="fas fa-history"></i> Lịch sử mua hàng:</h4>
             <div class="table-actions-header">
                  <button id="showAddOrderFormBtn" class="small-action-button add-order-btn">
                     <i class="fas fa-plus"></i> Thêm đơn hàng
                 </button>
             </div>
-
             <div id="addOrderForm" style="display:none; margin-top:10px; margin-bottom: 15px; padding:15px; background-color:#f0f8ff; border-radius:5px; border: 1px solid #bde0ff;">
                 <h5><i class="fas fa-pencil-alt"></i> Nhập thông tin đơn hàng mới</h5>
                 <div class="form-grid">
@@ -95,19 +116,22 @@
                         <label>Tổng số tiền (VND):</label>
                         <span id="newOrderFinalPriceDisplay" class="calculated-price total-amount-display">0 VND</span>
                     </div>
-                     <div class="form-group-modal checkbox-style-modal"> <input type="checkbox" id="newOrderPaidStatus" name="newOrderPaidStatus">
+                    <!-- Bỏ checkbox đã thanh toán ở đây nếu bạn đã quyết định bỏ
+                    <div class="form-group-modal checkbox-style-modal"> 
+                        <input type="checkbox" id="newOrderPaidStatus" name="newOrderPaidStatus">
                         <label for="newOrderPaidStatus">Đã thanh toán?</label>
                     </div>
+                    -->
                 </div>
                 <button id="saveNewOrderBtn" class="small-action-button"><i class="fas fa-save"></i> Lưu đơn hàng</button>
                 <button id="cancelNewOrderBtn" class="small-action-button-cancel"><i class="fas fa-times"></i> Hủy</button>
             </div>
-
             <div class="table-responsive-container">
                 <table id="customerOrdersTable">
                     <thead>
                         <tr>
-                            <th>STT</th> <th>Ngày mua</th>
+                            <th>STT</th>
+                            <th>Ngày mua</th>
                             <th>Tên file</th>
                             <th>Số trang</th>
                             <th>Cách In</th>
@@ -115,54 +139,24 @@
                             <th>KHTT?</th>
                             <th>Số tiền gốc</th>
                             <th>Tổng tiền</th>
-                            <th>Thanh toán</th> <th>Thao tác</th>
+                            <!-- Bỏ cột Thanh toán nếu đã quyết định bỏ
+                            <th>Thanh toán</th> 
+                            -->
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody id="customerOrdersTbody">
-                        </tbody>
+                    <tbody id="customerOrdersTbody"></tbody>
                 </table>
             </div>
         </div>
     </div>
-    <script src="customers_app.js"></script>
+    
+    <script>
+        if (isAuthenticated()) { 
+            const script = document.createElement('script');
+            script.src = 'customers_app.js';
+            document.body.appendChild(script);
+        }
+    </script>
 </body>
 </html>
-
-
-<script>
-function createStars(numberOfStars) {
-    const body = document.body;
-    for (let i = 0; i < numberOfStars; i++) {
-        let star = document.createElement('div');
-        star.classList.add('star');
-
-        // Kích thước và animation ngẫu nhiên
-        let size = Math.floor(Math.random() * 3) + 1; // 1 đến 3px
-        star.classList.add('s' + size);
-        star.style.animationDuration = (Math.random() * 3 + 2) + 's'; // 2 đến 5s
-        star.style.animationDelay = Math.random() * 3 + 's';     // delay ngẫu nhiên
-
-        // Vị trí ngẫu nhiên
-        star.style.top = Math.random() * 100 + '%';
-        star.style.left = Math.random() * 100 + '%';
-
-        body.appendChild(star);
-    }
-}
-// Gọi hàm khi DOM đã tải xong
-document.addEventListener('DOMContentLoaded', function() {
-    createStars(100); // Tạo 100 ngôi sao
-});
-</script>
-
-<div id="loadingSpinner" class="loading-spinner-overlay" style="display: none;">
-    <div class="spinner"></div>
-    <p>Đang xử lý...</p>
-</div>
-
-<div id="notificationPopup" class="notification-popup" style="display: none;">
-    <div class="notification-content">
-        <span class="notification-close-btn" onclick="hideNotification()">&times;</span>
-        <p id="notificationMessage"></p>
-    </div>
-</div>
