@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('orderForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-    document.getElementById('priceDetails').innerHTML = '<p>Đang xử lý, vui lòng chờ...</p>'; // Thông báo chờ
+    showLoadingSpinner("Đang xử lý đơn hàng..."); // HIỂN THỊ SPINNER
 
     const customerNameInput = document.getElementById('customerName');
     const customerClassInput = document.getElementById('customerClass');
@@ -114,8 +114,8 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
     const discountPercentage = parseInt(document.getElementById('discount').value) || 0;
 
     if (isNaN(pages) || pages <= 0 || !customerName) {
-        alert("Vui lòng nhập số trang hợp lệ và tên khách hàng!");
-        document.getElementById('priceDetails').innerHTML = ''; // Xóa thông báo chờ
+        hideLoadingSpinner();
+        showNotification("Vui lòng nhập số trang hợp lệ và tên khách hàng!", "error");
         return;
     }
 
@@ -230,6 +230,9 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
         
         customersDataFromAPI[updatedCustomerFromServer.name] = updatedCustomerFromServer;
         console.log("Đã thêm đơn hàng và cập nhật khách hàng:", updatedCustomerFromServer);
+        hideLoadingSpinner(); // ẨN SPINNER
+        showNotification('Đơn hàng đã được xử lý thành công!', 'success'); 
+
 
         // Lấy đơn hàng mới nhất từ phản hồi của server (đơn hàng này sẽ có createdAt từ server)
         let actualCreatedAtFromServer = new Date().toISOString(); // Fallback
