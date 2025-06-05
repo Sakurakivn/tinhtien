@@ -340,18 +340,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Lỗi tính giá. Vui lòng kiểm tra lại."); return;
             }
             let formattedCreatedAt = '';
-            if (newOrderDateInput.value) {
-                const dateObj = new Date(newOrderDateInput.value);
+            if (newOrderDateInput && newOrderDateInput.value) {
+                const dateObj = new Date(newOrderDateInput.value); // datetime-local value is directly parsable
                 if (!isNaN(dateObj.getTime())) {
                     const day = String(dateObj.getDate()).padStart(2, '0');
-                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Tháng (0-11) nên +1
                     const year = dateObj.getFullYear();
                     const hours = String(dateObj.getHours()).padStart(2, '0');
                     const minutes = String(dateObj.getMinutes()).padStart(2, '0');
                     const seconds = String(dateObj.getSeconds()).padStart(2, '0');
-                    formattedCreatedAt = `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
-                } else { alert("Ngày mua không hợp lệ."); return; }
-            } else { alert("Vui lòng chọn Ngày mua."); return; }
+                    formattedCreatedAt = `<span class="math-inline">\{day\}/</span>{month}/${year}, <span class="math-inline">\{hours\}\:</span>{minutes}:${seconds}`;
+                } else { /* ... xử lý lỗi ngày không hợp lệ ... */ }
+            } else { /* ... xử lý lỗi chưa chọn ngày ... */ }
 
             const newOrderClientData = {
                 createdAt: formattedCreatedAt,
