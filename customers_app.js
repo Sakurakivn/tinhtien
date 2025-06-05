@@ -450,6 +450,122 @@ document.addEventListener('DOMContentLoaded', () => {
     if(closeModalButton) closeModalButton.onclick = () => { if(modal) modal.style.display = 'none'; document.body.classList.remove('modal-open'); };
     window.onclick = (event) => { if (event.target === modal) { if(modal) modal.style.display = 'none'; document.body.classList.remove('modal-open'); } };
     
-    // Khởi tạo
+    // === PHẦN THÊM MỚI CHO XUẤT CSV ===
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', handleExportToCSV);
+    }
+
+    function escapeCsvCell(cellData) {
+        if (cellData == null) { // null hoặc undefined
+            return '';
+        }
+        const stringData = String(cellData);
+        // Nếu dữ liệu chứa dấu phẩy, dấu ngoặc kép, hoặc ký tự xuống dòng, bao nó trong dấu ngoặc kép
+        // và thay thế dấu ngoặc kép bên trong bằng hai dấu ngoặc kép
+        if (stringData.includes(',') || stringData.includes('"') || stringData.includes('\n') || stringData.includes('\r')) {
+            return `"${stringData.replace(/"/g, '""')}"`;
+        }
+        return stringData;
+    }
+
+    function formatDateForCSV(dateObj) {
+        if (!dateObj || isNaN(dateObj.getTime())) {
+            return ''; // Trả về rỗng nếu ngày không hợp lệ
+        }
+        // Định dạng dd/MM/yyyy HH:mm:ss
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Tháng là 0-indexed
+        const year = dateObj.getFullYear();
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+
+    function handleExportToCSV() {
+        if (Object.keys(allCustomersData).length === 0) {
+            alert("Không có dữ liệu khách hàng để xuất.");
+            return;
+        }
+
+        showLoadingSpinner("Đang chuẩn bị dữ liệu CSV..."); // Sử dụng hàm spinner bạn đã có
+
+        // Xác định tiêu đề cột
+        const headers = [
+            "Customer ID", "Tên Khách Hàng", "Lớp", "Số Lần Mua",
+            "Order ID", "Ngày Mua", "Tên File (Đơn hàng)", "Số Trang (Đơn hàng)", "Cách In (Đơn hàng)",
+            "Giảm Giá CT (%)", "KHTT (Đơn hàng)?", 
+            "Số Tiền Gốc (Đơn hàng)", "Giảm Giá Bạn Bè (Số tiền)", "Giảm Giá CT (Số tiền)", "Tổng Tiền (Đơn hàng)",
+            // "Thanh Toán (Đơn hàng)?" // Bỏ cột này nếu bạn đã loại bỏ tính năng "Đã thanh toán"
+        ];
+        
+        let csvContent = headers.map(header => escapeCsvCell(header)).join(",") + "\r\n";
+
+        // Lặp qua từng khách hàng và từng đơn hàng của họ
+        Object.values(allCustomersData).forEach(customer => {
+            const customerId = escapeCsvCell(customer._id);
+            const customerName = escapeCsvCell(customer.name);
+            const customerClass = escapeCsvCell(customer.class);
+            const purchaseCount = escapeCsvCell(customer.purchaseCount);
+
+            if (customer.orders && customer.orders.length > 0) {
+                customer.orders.forEach(order => {
+                    const orderId = escapeCsvCell(order.orderId ? order.orderId.toString() : '');
+                    // Đảm bảo order.createdAtDate là đối tượng Date hợp lệ trước khi format
+                    const createdAtDateObj = order.createdAtDate || ensureDateObject(order.createdAt); // Sử dụng ensureDateObject
+                    const orderCreatedAt = escapeCsvCell(formatDateForCSV(createdAtDateObj));
+                    
+                    const orderFileName = escapeCsvCell(order.fileName);
+                    const orderPages = escapeCsvCell(order.pages);
+                    const orderPrintType = escapeCsvCell(order.printType === 'portrait' ? 'Dọc' : (order.printType === 'landscape' ? 'Ngang' : order.printType));
+                    const orderProgramDiscount = escapeCsvCell(order.programDiscountPercentage);
+                    const orderFriendDiscountApplied = escapeCsvCell(order.friendDiscountApplied ? 'Có' : 'Không');
+                    const orderBasePrice = escapeCsvCell(order.totalPriceBeforeDiscount);
+                    const orderFriendDiscountAmount = escapeCsvCell(order.friendDiscountAmount);
+                    const orderProgramDiscountAmount = escapeCsvCell(order.programDiscountAmount);
+                    const orderFinalPrice = escapeCsvCell(order.finalTotalPrice);
+                    // const orderPaid = escapeCsvCell(order.paid ? 'Đã thanh toán' : 'Chưa thanh toán'); // Bỏ nếu không có trường paid
+
+                    const row = [
+                        customerId, customerName, customerClass, purchaseCount,
+                        orderId, orderCreatedAt, orderFileName, orderPages, orderPrintType,
+                        orderProgramDiscount, orderFriendDiscountApplied,
+                        orderBasePrice, orderFriendDiscountAmount, orderProgramDiscountAmount, orderFinalPrice,
+                        // orderPaid // Bỏ nếu không có
+                    ];
+                    csvContent += row.join(",") + "\r\n";
+                });
+            } else {
+                // Nếu khách hàng không có đơn hàng, vẫn xuất thông tin khách hàng
+                const row = [
+                    customerId, customerName, customerClass, purchaseCount,
+                    '', '', '', '', '', '', '', '', '', '', '', // Các cột đơn hàng để trống
+                    // '' // Cột paid để trống
+                ];
+                csvContent += row.join(",") + "\r\n";
+            }
+        });
+
+        // Tạo và tải file CSV
+        // Thêm BOM cho UTF-8 để Excel (một số phiên bản) đọc tiếng Việt tốt hơn
+        const BOM = "\uFEFF"; 
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "danh_sach_khach_hang_va_don_hang.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        hideLoadingSpinner(); // Sử dụng hàm spinner bạn đã có
+        showNotification("Đã xuất dữ liệu CSV thành công!", "success"); // Sử dụng hàm thông báo
+    }
+    // === KẾT THÚC PHẦN THÊM MỚI CHO XUẤT CSV ===
+    
     loadInitialCustomers();
 });
