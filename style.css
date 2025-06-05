@@ -1079,3 +1079,100 @@ input[type="datetime-local"] {
     align-items: center; /* Đảm bảo checkbox và label thẳng hàng */
     padding-top: 1.2em; /* Dịch xuống cho thẳng hàng với các input khác nếu label ở trên */
 }
+/* Thêm vào cuối tệp style.css của bạn */
+
+/* === LOGIN FORM STYLES === */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed; /* Nằm trên cùng và chiếm toàn màn hình */
+    top: 0;
+    left: 0;
+    background: linear-gradient(45deg, #23074d, #591869, #00223E, #005A7C, #23074d); /* Giống nền body wrapped */
+    background-size: 600% 600%;
+    animation: gradientAnimation 15s ease infinite; /* Giữ animation gradient */
+    z-index: 3000; /* Đảm bảo nằm trên mọi thứ khác */
+}
+
+.login-box {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    backdrop-filter: blur(5px);
+}
+
+.login-box h2 {
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+.login-box h2 i {
+    margin-right: 10px;
+    color: #007bff; /* Màu icon khóa */
+}
+
+.login-box .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.login-box .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+}
+
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+.login-box input[type="password"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.login-box .action-button.login-button {
+    background-color: #007bff; /* Màu nút đăng nhập */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 17px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.login-box .action-button.login-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.login-message {
+    margin-top: 15px;
+    color: red;
+    font-size: 0.9em;
+    min-height: 1.2em; /* Để layout không nhảy khi có/không có message */
+}
+
+/* Đảm bảo top-nav-buttons trên index.html có nút logout */
+.top-nav-buttons #logoutBtn {
+    background-color: #e74c3c; /* Màu đỏ cho logout */
+    /* Các style khác giống icon-nav-button nếu cần */
+}
+.top-nav-buttons #logoutBtn:hover {
+    background-color: #c0392b;
+}
+
