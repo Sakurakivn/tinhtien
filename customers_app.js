@@ -491,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        showLoadingSpinner("Đang chuẩn bị dữ liệu CSV..."); // Sử dụng hàm spinner bạn đã có
+        // showLoadingSpinner("Đang chuẩn bị dữ liệu CSV..."); // << BỎ DÒNG NÀY
 
         // Xác định tiêu đề cột
         const headers = [
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
         document.body.removeChild(link);
 
-        hideLoadingSpinner(); // Sử dụng hàm spinner bạn đã có
+        // hideLoadingSpinner(); // << BỎ DÒNG NÀY
         showNotification("Đã xuất dữ liệu CSV thành công!", "success"); // Sử dụng hàm thông báo
     }
     // === KẾT THÚC PHẦN THÊM MỚI CHO XUẤT CSV ===
