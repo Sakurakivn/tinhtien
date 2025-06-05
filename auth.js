@@ -1,9 +1,24 @@
+// File: auth.js
+
+// KHÔNG CÒN MẬT KHẨU Ở ĐÂY NỮA
+// const CORRECT_PASSWORD = "admin123"; 
 
 const AUTH_KEY = 'isAuthenticated';
 
+/**
+ * Kiểm tra xem người dùng đã xác thực chưa.
+ * @returns {boolean} True nếu đã xác thực, ngược lại là false.
+ */
 function isAuthenticated() {
     return sessionStorage.getItem(AUTH_KEY) === 'true';
+}
 
+/**
+ * Xử lý việc đăng nhập bằng cách gọi API.
+ * @param {string} password - Mật khẩu người dùng nhập vào.
+ * @param {function} onSuccess - Callback sẽ được gọi khi đăng nhập thành công.
+ * @param {function} onFailure - Callback sẽ được gọi khi đăng nhập thất bại.
+ */
 async function handleLogin(password, onSuccess, onFailure) {
     try {
         console.log("[Auth.js] Đang gửi yêu cầu đăng nhập đến API...");
