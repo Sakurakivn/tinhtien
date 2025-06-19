@@ -1420,3 +1420,10 @@ input[type="datetime-local"] {
 .selected-file-name {
     text-align: center;
 }
+/* Thêm vào cuối file style.css */
+.action-button.import-btn {
+    background-color: #28a745; /* Màu xanh lá cây */
+}
+.action-button.import-btn:hover {
+    background-color: #218838;
+}
