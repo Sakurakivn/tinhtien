@@ -1344,3 +1344,79 @@ input[type="datetime-local"] {
     background-color: #138496;
     border-color: #117a8b;
 }
+/* ===== Thêm vào cuối file style.css để làm đẹp Pop-up Nhập File ===== */
+
+/* Định dạng tổng thể cho phần hướng dẫn mới */
+.import-instructions.stylish {
+    text-align: left;
+    padding: 10px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+}
+
+/* Định dạng danh sách các bước */
+.instruction-list {
+    list-style-type: none; /* Bỏ dấu chấm mặc định */
+    padding-left: 0;
+    counter-reset: instruction-counter;
+}
+.instruction-list li {
+    counter-increment: instruction-counter;
+    margin-bottom: 15px;
+    font-size: 16px;
+    position: relative;
+    padding-left: 35px; /* Tạo không gian cho số thứ tự */
+}
+/* Tạo số thứ tự tùy chỉnh */
+.instruction-list li::before {
+    content: counter(instruction-counter);
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 24px;
+    height: 24px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    text-align: center;
+    line-height: 24px;
+    font-size: 14px;
+}
+.instruction-list li a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+.instruction-list li a:hover {
+    text-decoration: underline;
+}
+
+/* Ghi chú nhỏ bên dưới link */
+.instruction-note {
+    font-size: 13px;
+    color: #6c757d;
+    margin: 4px 0 0 0;
+    padding-left: 0; /* Ghi chú không cần thụt vào */
+}
+
+/* Nút tải lên file CSV mới */
+.stylish-upload-btn {
+    width: 100%;
+    margin-top: 15px;
+    text-align: center;
+    background: linear-gradient(45deg, #28b4d8, #1d92f2);
+    padding: 14px 20px;
+    font-size: 17px;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+    border: none;
+}
+.stylish-upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+
+.selected-file-name {
+    text-align: center;
+}
