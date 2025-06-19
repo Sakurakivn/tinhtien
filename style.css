@@ -709,7 +709,6 @@ body.modal-open {
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   position: relative; 
-  animation: slideInModal 0.4s ease-out;
 }
 
 .modal-content.large { /* Class cho modal rộng hơn, dùng cho chi tiết khách hàng */
@@ -804,10 +803,7 @@ body.modal-open {
   from {opacity: 0;}
   to {opacity: 1;}
 }
-@keyframes slideInModal {
-  from {opacity: 0; transform: translateY(-30px) scale(0.98);}
-  to {opacity: 1; transform: translateY(0) scale(1);}
-}
+
 
 /* CSS cho các icon Font Awesome nếu chưa có chung */
 .fas { 
