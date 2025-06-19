@@ -110,35 +110,71 @@ document.addEventListener('DOMContentLoaded', () => {
     function showSlide(newIndex, direction = 'next') {
         if (isAnimating || newIndex === currentSlideIndex) return;
         isAnimating = true;
-
+    
         const oldSlide = slides[currentSlideIndex];
         const newSlide = slides[newIndex];
         
+        // Chuẩn bị cho slide mới
         wrapLetters(`#${newSlide.id} h2`);
         newSlide.style.display = 'flex';
-        newSlide.style.opacity = 0;
-
+        newSlide.style.opacity = 0; // Bắt đầu với trạng thái trong suốt
+    
         const rotationValue = 90;
         const outDirection = (direction === 'next') ? -rotationValue : rotationValue;
         const inDirection = (direction === 'next') ? rotationValue : -rotationValue;
         
+        // Tinh chỉnh easing để mượt hơn
+        const easing = 'easeInOutExpo'; 
+    
+        // **TỐI ƯU 1: TÁCH BIỆT HIỆU ỨNG NỘI DUNG**
+        // Hàm này sẽ được gọi sau khi slide đã lật xong
+        function animateNewSlideContent() {
+            const newSlideContent = newSlide.querySelectorAll('.icon-large, h2 .letter, p, .stat-card');
+            anime({
+                targets: newSlideContent,
+                translateY: [20, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(50),
+                duration: 600,
+                easing: 'easeOutQuad',
+            });
+        }
+    
+        // **TỐI ƯU 2: CHIA CÁC TIMELINE ĐỂ GIẢM TẢI**
         const timeline = anime.timeline({
-            duration: 800, easing: 'easeInOutQuint',
+            duration: 700, // Giảm nhẹ thời gian lật slide
+            easing: easing,
             complete: () => {
                 isAnimating = false;
                 oldSlide.style.display = 'none';
                 currentSlideIndex = newIndex;
                 updateNavButtons();
+                
+                // Chỉ chạy animation nội dung SAU KHI slide đã lật xong
+                animateNewSlideContent(); 
+    
+                // Bắn pháo hoa nếu là slide cuối
+                if (newIndex === slides.length - 1) {
+                    launchFireworksAnime();
+                }
             }
         });
-
-        timeline.add({ targets: oldSlide, rotateY: outDirection, scale: 0.8, opacity: 0, }, 0);
-        timeline.add({ targets: newSlide, rotateY: [inDirection, 0], scale: [0.8, 1], opacity: 1, }, 100);
-        timeline.add({ targets: `#${newSlide.id} .icon-large, #${newSlide.id} h2 .letter, #${newSlide.id} p, #${newSlide.id} .stat-card`, translateY: [20, 0], opacity: [0, 1], delay: anime.stagger(50), }, '-=300');
-
-        if (newIndex === slides.length - 1) {
-            launchFireworksAnime();
-        }
+    
+        // Animation cho slide cũ lật ra ngoài
+        timeline.add({
+            targets: oldSlide,
+            rotateY: outDirection,
+            scale: 0.9, // Giảm độ co nhỏ để bớt nặng
+            opacity: 0,
+        }, 0);
+    
+        // Animation cho slide mới lật vào
+        timeline.add({
+            targets: newSlide,
+            rotateY: [inDirection, 0],
+            scale: [0.9, 1],
+            opacity: 1,
+        }, 50); // Bắt đầu sau một chút để tạo cảm giác nối tiếp
     }
 
     function updateNavButtons() {
