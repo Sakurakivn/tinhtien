@@ -49,12 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function launchFireworksAnime() {
         const container = document.getElementById('wrappedContainer');
         if (!container) return;
+    
         function createParticle(x, y) {
             const particle = document.createElement('div');
             particle.style.position = 'absolute';
             particle.style.left = x + 'px';
             particle.style.top = y + 'px';
-            particle.style.width = anime.random(2, 6) + 'px';
+            particle.style.width = anime.random(3, 7) + 'px'; // Tăng kích thước hạt một chút
             particle.style.height = particle.style.width;
             particle.style.borderRadius = '50%';
             particle.style.backgroundColor = `hsl(${anime.random(0, 360)}, 100%, 70%)`;
@@ -62,27 +63,30 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(particle);
             return particle;
         }
+    
         function launch(x) {
             const particle = createParticle(x, window.innerHeight);
             anime({
                 targets: particle,
                 top: anime.random(window.innerHeight * 0.1, window.innerHeight * 0.4),
-                left: x + anime.random(-80, 80),
+                left: x + anime.random(-100, 100),
                 easing: 'easeOutQuad',
-                duration: anime.random(800, 1500),
+                duration: anime.random(1000, 1800),
                 complete: (anim) => {
                     const p = anim.animatables[0].target;
                     const pX = parseFloat(p.style.left);
                     const pY = parseFloat(p.style.top);
                     p.remove();
-                    for (let i = 0; i < 40; i++) {
+                    
+                    // NÂNG CẤP: Tăng số lượng hạt khi nổ từ 40 lên 60
+                    for (let i = 0; i < 60; i++) { 
                         const explosion = createParticle(pX, pY);
                         anime({
                             targets: explosion,
-                            left: pX + anime.random(-180, 180),
-                            top: pY + anime.random(-180, 180),
+                            left: pX + anime.random(-200, 200), // Tăng phạm vi nổ
+                            top: pY + anime.random(-200, 200),
                             opacity: [1, 0],
-                            duration: anime.random(1000, 1800),
+                            duration: anime.random(1200, 2000), // Tăng thời gian tồn tại
                             easing: 'easeOutExpo',
                             complete: (a) => a.animatables[0].target.remove()
                         });
@@ -90,12 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+        
+        // NÂNG CẤP: Bắn pháo hoa dày và lâu hơn
         anime({
-            targets: {}, duration: 1, delay: anime.stagger(250, {start: 300}), loop: 5,
-            update: () => launch(anime.random(window.innerWidth * 0.2, window.innerWidth * 0.8))
+            targets: {},
+            duration: 1,
+            delay: anime.stagger(150), // Giảm delay, bắn nhanh hơn (trước là 250)
+            loop: 8, // Tăng số lần lặp (trước là 5)
+            update: () => launch(anime.random(window.innerWidth * 0.1, window.innerWidth * 0.9)) // Mở rộng phạm vi bắn
         });
     }
-
     // --- CÁC HÀM CHÍNH ĐƯỢC NÂNG CẤP ---
 
     function populateWrappedData(customer) {
