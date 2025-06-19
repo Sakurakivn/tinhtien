@@ -44,6 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerCsvFileInput = document.getElementById('customerCsvFileInput');
     const importCustomerNameSpan = document.getElementById('importCustomerName');
     const selectedCustomerFileNameP = document.getElementById('selectedCustomerFileName');
+    const importPreviewModal = document.getElementById('importPreviewModal');
+    const closePreviewModalBtn = document.getElementById('closePreviewModalBtn');
+    const previewTableContainer = document.getElementById('previewTableContainer');
+    const confirmImportFinalBtn = document.getElementById('confirmImportFinalBtn');
+    // Biến lưu file tạm thời để dùng cho bước xác nhận cuối cùng
+    let fileToUpload = null; 
+
         
     function ensureDateObject(dateValue) {
         if (!dateValue) return null;
@@ -456,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Các trình xử lý sự kiện chung cho modal ---
     if(closeModalButton) closeModalButton.onclick = () => { if(modal) modal.style.display = 'none'; document.body.classList.remove('modal-open'); };
     window.onclick = (event) => { if (event.target === modal) { if(modal) modal.style.display = 'none'; document.body.classList.remove('modal-open'); } };
-
+    // Mở pop-up chọn file
     if (showImportForCustomerBtn) {
         showImportForCustomerBtn.onclick = () => {
             const customer = allCustomersData[currentOpenCustomerId];
@@ -466,122 +473,147 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (importCustomerNameSpan) importCustomerNameSpan.textContent = customer.name;
             if (importForCustomerModal) importForCustomerModal.style.display = 'block';
+            // Reset trạng thái
             if (selectedCustomerFileNameP) selectedCustomerFileNameP.textContent = '';
             if (customerCsvFileInput) customerCsvFileInput.value = '';
         };
     }
     
-    // Đóng modal
+    // Đóng pop-up chọn file
     if (closeImportForCustomerModalBtn) {
         closeImportForCustomerModalBtn.onclick = () => {
             if (importForCustomerModal) importForCustomerModal.style.display = 'none';
         };
     }
     
+    // Tải file mẫu (có sẵn dữ liệu ví dụ)
     if (downloadCustomerTemplateLink) {
         downloadCustomerTemplateLink.onclick = (e) => {
             e.preventDefault();
-    
-            // Dòng tiêu đề của các cột
-            const headers = [
-                "TenFile",
-                "SoTrang",
-                "CachIn",
-                "LaKhachThanThiet",
-                "GiamGiaChuongTrinh",
-                "NgayMua"
-            ];
-    
-            // Dữ liệu mẫu
+            const headers = ["TenFile", "SoTrang", "CachIn", "LaKhachThanThiet", "GiamGiaChuongTrinh", "NgayMua"];
             const exampleData = [
-                {
-                    TenFile: "Đề cương Ôn tập Toán.pdf",
-                    SoTrang: "150",
-                    CachIn: "portrait",
-                    LaKhachThanThiet: "true",
-                    GiamGiaChuongTrinh: "10",
-                    NgayMua: "20/06/2025 09:30"
-                },
-                {
-                    TenFile: "Bài giảng Lịch sử Đảng",
-                    SoTrang: "80",
-                    CachIn: "landscape",
-                    LaKhachThanThiet: "false",
-                    GiamGiaChuongTrinh: "0",
-                    NgayMua: "" // Để trống để lấy ngày giờ hiện tại khi nhập
-                }
+                { TenFile: "Đề cương Ôn tập Toán.pdf", SoTrang: "150", CachIn: "portrait", LaKhachThanThiet: "true", GiamGiaChuongTrinh: "10", NgayMua: "20/06/2025 09:30" },
+                { TenFile: "Bài giảng Lịch sử Đảng", SoTrang: "80", CachIn: "landscape", LaKhachThanThiet: "false", GiamGiaChuongTrinh: "0", NgayMua: "" }
             ];
-    
-            // Tạo nội dung file CSV
             let csvContent = headers.join(",") + "\r\n";
             exampleData.forEach(row => {
                 const values = headers.map(header => row[header]);
                 csvContent += values.join(",") + "\r\n";
             });
-    
-            // Tạo và tải file
             const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            const customerName = importCustomerNameSpan.textContent.replace(/\s/g, '_') || 'khach_hang';
-            link.setAttribute("download", `don_hang_mau_${customerName}.csv`);
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", `don_hang_mau.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         };
     }
     
-    // Xử lý khi chọn file và tải lên
+    // --- LOGIC MỚI CHO VIỆC XEM TRƯỚC VÀ XÁC NHẬN ---
+    
+    /**
+     * Hàm phân tích nội dung CSV thành dữ liệu có cấu trúc
+     */
+    function parseCSV(csvText) {
+        const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
+        if (lines.length < 1) return [];
+        const headers = lines.shift().split(',').map(h => h.trim());
+        return lines.map(line => {
+            const values = line.split(',');
+            return headers.reduce((obj, header, i) => {
+                obj[header] = values[i] ? values[i].trim() : '';
+                return obj;
+            }, {});
+        });
+    }
+    
+    /**
+     * Hàm tạo bảng HTML để xem trước dữ liệu
+     */
+    function createPreviewTable(data) {
+        if (!data || data.length === 0) {
+            previewTableContainer.innerHTML = '<p style="text-align:center; padding: 20px;">Không có dữ liệu hợp lệ trong file.</p>';
+            confirmImportFinalBtn.style.display = 'none';
+            return;
+        }
+        confirmImportFinalBtn.style.display = 'inline-block';
+        const headers = Object.keys(data[0]);
+        let tableHTML = '<table><thead><tr>';
+        headers.forEach(header => tableHTML += `<th>${header}</th>`);
+        tableHTML += '</tr></thead><tbody>';
+        data.forEach(row => {
+            tableHTML += '<tr>';
+            headers.forEach(header => tableHTML += `<td>${row[header] || ''}</td>`);
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody></table>';
+        previewTableContainer.innerHTML = tableHTML;
+    }
+    
+    // Sự kiện chính: Khi người dùng chọn một file
     if (customerCsvFileInput) {
-        customerCsvFileInput.onchange = async (event) => {
+        customerCsvFileInput.onchange = (event) => {
             const file = event.target.files[0];
-            if (!file || !currentOpenCustomerId) return;
+            if (!file) return;
+            fileToUpload = file; // Lưu file lại để dùng ở bước xác nhận cuối
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsedData = parseCSV(e.target.result);
+                    createPreviewTable(parsedData);
+                    if (importPreviewModal) importPreviewModal.style.display = 'block';
+                    if (importForCustomerModal) importForCustomerModal.style.display = 'none';
+                } catch (error) {
+                    alert("Lỗi khi phân tích file CSV. Vui lòng kiểm tra lại định dạng.");
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        };
+    }
     
-            if (selectedCustomerFileNameP) selectedCustomerFileNameP.textContent = `File đã chọn: ${file.name}`;
+    // Sự kiện đóng pop-up xem trước
+    if (closePreviewModalBtn) {
+        closePreviewModalBtn.onclick = () => {
+            if (importPreviewModal) importPreviewModal.style.display = 'none';
+            fileToUpload = null;
+            if (customerCsvFileInput) customerCsvFileInput.value = '';
+        };
+    }
     
-            if (!confirm(`Nhập các đơn hàng từ file "${file.name}" cho khách hàng này?`)) {
-                if (selectedCustomerFileNameP) selectedCustomerFileNameP.textContent = '';
-                if (customerCsvFileInput) customerCsvFileInput.value = '';
+    // Sự kiện khi người dùng nhấn nút "Xác nhận và Nhập Dữ liệu" cuối cùng
+    if (confirmImportFinalBtn) {
+        confirmImportFinalBtn.onclick = async () => {
+            if (!fileToUpload || !currentOpenCustomerId) {
+                alert("Không có file để nhập. Vui lòng thử lại.");
                 return;
             }
-    
-            showLoadingSpinner("Đang xử lý file...");
+            showLoadingSpinner("Đang nhập dữ liệu...");
             const formData = new FormData();
-            formData.append('ordersFile', file);
-    
+            formData.append('ordersFile', fileToUpload);
             try {
-                // API mới, chuyên biệt cho việc nhập đơn hàng của 1 khách hàng
                 const response = await fetch(`/api/customers/${currentOpenCustomerId}/orders/import`, {
                     method: 'POST',
                     body: formData,
                 });
                 const result = await response.json();
                 hideLoadingSpinner();
-    
-                if (!response.ok) throw new Error(result.message || 'Lỗi không xác định từ server.');
-    
-                alert(`Kết quả nhập file:\n- Thành công: ${result.successfulImports}\n- Thất bại: ${result.failedImports}` +
-                      (result.errors.length > 0 ? `\nChi tiết lỗi:\n- ${result.errors.join('\n- ')}` : ''));
-    
-                // Cập nhật lại thông tin sau khi nhập thành công
+                if (!response.ok) throw new Error(result.message || 'Lỗi server.');
+                alert(`Kết quả:\n- Thành công: ${result.successfulImports}\n- Thất bại: ${result.failedImports}` +
+                      (result.errors.length > 0 ? `\nLỗi:\n- ${result.errors.join('\n- ')}` : ''));
                 if (result.customer) {
                     allCustomersData[currentOpenCustomerId] = result.customer;
-                     if (allCustomersData[currentOpenCustomerId].orders && Array.isArray(allCustomersData[currentOpenCustomerId].orders)) {
-                        allCustomersData[currentOpenCustomerId].orders.forEach(order => {
-                            order.createdAtDate = ensureDateObject(order.createdAt);
-                        });
-                    }
                     populateOrdersTable(currentOpenCustomerId);
-                    if(modalPurchaseCountSpan) modalPurchaseCountSpan.textContent = result.customer.purchaseCount;
-                    renderCustomerList(); // Cập nhật danh sách chính
+                    if (modalPurchaseCountSpan) modalPurchaseCountSpan.textContent = result.customer.purchaseCount;
+                    renderCustomerList();
                 }
-                if (importForCustomerModal) importForCustomerModal.style.display = 'none';
-    
             } catch (error) {
                 hideLoadingSpinner();
-                console.error("Lỗi khi nhập file cho khách hàng:", error);
-                alert("Đã xảy ra lỗi: " + error.message);
+                alert("Lỗi nghiêm trọng: " + error.message);
+            } finally {
+                if (importPreviewModal) importPreviewModal.style.display = 'none';
+                fileToUpload = null;
+                if (customerCsvFileInput) customerCsvFileInput.value = '';
             }
         };
     }
