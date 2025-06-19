@@ -1427,3 +1427,36 @@ input[type="datetime-local"] {
 .action-button.import-btn:hover {
     background-color: #218838;
 }
+/* ===== Thêm vào cuối file style.css ===== */
+
+/* Định dạng cho bảng xem trước */
+#previewTableContainer {
+    max-height: 450px;
+    overflow: auto;
+    border: 1px solid #ddd;
+}
+
+#previewTableContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+#previewTableContainer th,
+#previewTableContainer td {
+    border: 1px solid #e0e0e0;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+#previewTableContainer th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+#previewTableContainer tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
