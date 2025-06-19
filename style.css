@@ -545,7 +545,8 @@ input[type="checkbox"]:checked + label::after {
         padding: 20px;
     }
     .wrapped-container {
-        /* Đã là full viewport, không cần thay đổi nhiều ở đây trừ khi có vấn đề */
+    perspective: 1500px; /* Độ sâu của sân khấu 3D */
+    perspective-origin: 50% 50%; /* Điểm nhìn */
     }
     .wrapped-slide h2 {
         font-size: 1.8em; /* Giảm đáng kể */
