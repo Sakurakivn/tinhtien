@@ -153,23 +153,24 @@
             <div id="modalHeader">
                 <h3><i class="fas fa-file-upload"></i> Nhập Đơn Hàng cho <span id="importCustomerName"></span></h3>
             </div>
-            <div class="import-instructions">
-                <div class="instruction-box">
-                    <p><strong>1. Tải về file mẫu CSV.</strong></p>
-                    <p>
-                        <a id="downloadCustomerTemplateLink" href="#" class="template-link">
-                            <i class="fas fa-download"></i> Tải mẫu CSV
-                        </a>
-                    </p>
-                    <p class="form-note" style="margin-top: 5px;">
-                        <em>File mẫu này không cần cột Tên và Lớp vì bạn đang thêm đơn hàng cho khách hàng hiện tại.</em>
-                    </p>
-                    <p><strong>2. Điền thông tin và tải file CSV của bạn lên.</strong></p>
-                </div>
-    
+            <div class="import-instructions stylish">
+                <ol class="instruction-list">
+                    <li>
+                        <a id="copyTemplateLink" href="https://docs.google.com/spreadsheets/d/ABC-123_YOUR_SHEET_ID/copy" target="_blank">Sao chép</a> 
+                        hoặc 
+                        <a id="downloadCustomerTemplateLink" href="#">Tải về</a> 
+                        bảng tính mẫu của chúng tôi.
+                        <p class="instruction-note">
+                            (Link "Sao chép" sẽ tạo một bản sao trên Google Sheets của bạn).
+                        </p>
+                    </li>
+                    <li>Điền thông tin đơn hàng và xuất tệp dưới dạng CSV.</li>
+                    <li>Tải tệp CSV lên bên dưới.</li>
+                </ol>
+                
                 <input type="file" id="customerCsvFileInput" accept=".csv" style="display: none;">
-                <label for="customerCsvFileInput" class="action-button upload-csv-label">
-                    <i class="fas fa-upload"></i> Chọn file để Tải Lên
+                <label for="customerCsvFileInput" class="action-button upload-csv-label stylish-upload-btn">
+                    <i class="fas fa-upload"></i> Tải lên file CSV
                 </label>
                 <p id="selectedCustomerFileName" class="selected-file-name"></p>
             </div>
