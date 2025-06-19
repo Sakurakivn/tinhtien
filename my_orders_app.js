@@ -1,5 +1,5 @@
+// File: my_orders_app.js - Phiên bản sửa lỗi cú pháp
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
     const lookupFormContainer = document.getElementById('lookupFormContainer');
     const lookupForm = document.getElementById('customerLookupFormWrapped');
     const customerNameInput = document.getElementById('customerNameToLookupWrapped');
@@ -15,16 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentSlideIndex = 0;
     let customerDataGlobal = null;
+    let isAnimating = false;
 
-    // Mảng câu thoại ngẫu nhiên
+    // --- Mảng chứa các câu nói ngẫu nhiên (Phiên bản đầy đủ) ---
     const greetings = [
         "Chào mừng [TEN_KHACH_HANG]! Hãy cùng khám phá hành trình photo đáng nhớ của bạn nhé!",
-        "Một năm nhìn lại, một chặng đường đầy ắp kỷ niệm! Chào mừng [TEN_KHACH_HANG]!",
+        "Một năm nhìn lại, một chặng đường đầy ắp kỷ niệm! Chào mừng [TEN_KHACH_HANG] đến với tổng kết photo của riêng bạn!",
         "Sẵn sàng cho chuyến du hành ngược thời gian qua những bản in tuyệt vời chứ, [TEN_KHACH_HANG]?",
     ];
     const habitRemarks = {
         printType: ["Có vẻ như [CACH_IN_UU_THICH] là \"chân ái\" của bạn rồi!", "Phong cách in [CACH_IN_UU_THICH] rất hợp với bạn đó!"],
-        totalPages: ["Với [TONG_SO_TRANG] trang giấy, bạn đã tạo nên cả một thư viện ký ức!", "[TONG_SO_TRANG] trang! Một con số ấn tượng cho những tài liệu quan trọng."]
+        totalPages: ["Với [TONG_SO_TRANG] trang giấy, bạn đã tạo nên cả một thư viện ký ức!", "[TONG_SO_TRANG] trang! Một con số ấn tượng."]
     };
     const generalRemarks = {
         low: "Mỗi khởi đầu đều đáng quý. Hy vọng bạn sẽ có thêm nhiều dự án tuyệt vời trong tương lai!",
@@ -32,22 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
         high: "Bạn thực sự là một nguồn cảm hứng với năng suất làm việc của mình, [TEN_KHACH_HANG]. Thật ấn tượng!"
     };
     const authorThankYouMessages = [
-        { message: "Cảm ơn bạn, [TEN_KHACH_HANG], đã đồng hành cùng mình trên một chặng đường có thể không quá dài, nhưng chứa đầy những cảm xúc và kỷ niệm. Sự tin tưởng của bạn là động lực rất lớn cho mình.", wish: "Chúc bạn sẽ luôn vững bước, chinh phục được nguyện vọng 1 và đỗ vào trường đại học mà bạn hằng mơ ước. Hãy luôn giữ lửa đam mê và không ngừng cố gắng nhé!" },
+        { message: "Cảm ơn bạn, [TEN_KHACH_HANG], đã đồng hành cùng mình trên một chặng đường có thể không quá dài, nhưng chứa đầy những cảm xúc và kỷ niệm. Sự tin tưởng của bạn là động lực rất lớn cho mình.", wish: "Chúc bạn sẽ luôn vững bước, chinh phục được nguyện vọng 1 và đỗ vào trường đại học mà bạn hằng mơ ước. Hãy luôn giữ lửa đam mê nhé!" },
         { message: "Gửi [TEN_KHACH_HANG], mỗi một đơn hàng của bạn không chỉ là những trang giấy, mà còn là niềm vui và sự khích lệ cho mình. Cảm ơn bạn đã là một phần của hành trình này.", wish: "Mong rằng mọi dự định của bạn trong tương lai đều thành công rực rỡ, đặc biệt là cánh cửa đại học rộng mở chào đón bạn. Cố lên nhé!" }
     ];
 
-    function getRandomElement(arr) {
-        if (!arr || arr.length === 0) return "";
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    // --- CÁC HÀM HỖ TRỢ HIỆU ỨNG MỚI ---
-
-    function wrapLetters(selector) {
-        document.querySelectorAll(selector).forEach(el => {
-            el.innerHTML = el.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
-        });
-    }
+    function getRandomElement(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function wrapLetters(selector) { document.querySelectorAll(selector).forEach(el => { el.innerHTML = el.textContent.replace(/\S/g, "<span class='letter'>$&</span>"); }); }
 
     function launchFireworksAnime() {
         const container = document.getElementById('wrappedContainer');
