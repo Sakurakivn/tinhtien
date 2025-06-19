@@ -558,6 +558,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         tableHTML += '</tbody></table>';
         previewTableContainer.innerHTML = tableHTML;
+        anime({
+            targets: '.preview-table tbody tr',
+            translateY: [20, 0], // Di chuyển từ dưới lên 20px
+            opacity: [0, 1],
+            delay: anime.stagger(50), // Mỗi dòng xuất hiện cách nhau 50ms
+            easing: 'easeOutQuad'
+        });
     }
     
     // Sự kiện chính: Khi người dùng chọn một file
