@@ -166,12 +166,41 @@ document.addEventListener('DOMContentLoaded', () => {
             welcomeNameEl.textContent = welcomeMsg.replace(/\[TEN_KHACH_HANG\]/g, customerName);
         }
 
-        const totalOrders = customer.orders ? customer.orders.length : 0;
-        const totalSpent = customer.orders ? customer.orders.reduce((sum, order) => sum + (order.finalTotalPrice || 0), 0) : 0;
-        const totalOrdersEl = document.getElementById('totalOrders');
-        const totalSpentEl = document.getElementById('totalSpent');
-        if (totalOrdersEl) totalOrdersEl.textContent = totalOrders;
-        if (totalSpentEl) totalSpentEl.textContent = `${totalSpent.toLocaleString('vi-VN')} VND`;
+const totalOrders = customer.orders ? customer.orders.length : 0;
+const totalSpent = customer.orders ? customer.orders.reduce((sum, order) => sum + (order.finalTotalPrice || 0), 0) : 0;
+
+const totalOrdersEl = document.getElementById('totalOrders');
+const totalSpentEl = document.getElementById('totalSpent');
+
+// Hiệu ứng đếm số cho Tổng Đơn Hàng
+if (totalOrdersEl) {
+    let orderCounter = { value: 0 };
+    anime({
+        targets: orderCounter,
+        value: totalOrders,
+        round: 1, // Làm tròn số vì đơn hàng là số nguyên
+        duration: 1500,
+        easing: 'easeInOutCubic',
+        update: function() {
+            totalOrdersEl.innerHTML = orderCounter.value;
+        }
+    });
+}
+
+// Hiệu ứng đếm số cho Tổng Chi Phí
+if (totalSpentEl) {
+    let spentCounter = { value: 0 };
+    anime({
+        targets: spentCounter,
+        value: totalSpent,
+        round: 1,
+        duration: 2000,
+        easing: 'easeInOutCubic',
+        update: function() {
+            totalSpentEl.innerHTML = `${Math.round(spentCounter.value).toLocaleString('vi-VN')} VND`;
+        }
+    });
+}
         
         // --- Xử lý cho Slide "Thói quen" / "Phong Cách" ---
         const favPrintTypeStatEl = document.getElementById('favPrintTypeStat');
