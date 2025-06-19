@@ -46,9 +46,11 @@
             box-sizing: border-box;
             width: 90%;
             max-width: 600px;
-            animation: fadeInSlide 0.8s ease-out forwards;
+        
+            will-change: transform, opacity; /* Báo trước cho trình duyệt */
+            transform: translateZ(0); /* Kích hoạt tăng tốc phần cứng */
         }
-
+        
         .wrapped-slide.active-slide {
             display: flex; 
         }
