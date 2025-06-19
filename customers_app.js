@@ -478,24 +478,54 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
     
-    // Tải file mẫu (đã được đơn giản hóa)
     if (downloadCustomerTemplateLink) {
         downloadCustomerTemplateLink.onclick = (e) => {
             e.preventDefault();
+    
+            // Dòng tiêu đề của các cột
             const headers = [
                 "TenFile",
-                "SoTrang", // Bắt buộc
-                "CachIn", // Bắt buộc: 'portrait' hoặc 'landscape'
-                "LaKhachThanThiet", // Bắt buộc: 'true' hoặc 'false'
-                "GiamGiaChuongTrinh", // Bắt buộc: Nhập số (ví dụ: 10 cho 10%)
-                "NgayMua" // Tùy chọn, định dạng: dd/MM/yyyy HH:mm. Nếu trống, lấy ngày giờ hiện tại.
+                "SoTrang",
+                "CachIn",
+                "LaKhachThanThiet",
+                "GiamGiaChuongTrinh",
+                "NgayMua"
             ];
-            const csvContent = "Lưu ý: Dòng này sẽ bị bỏ qua khi nhập\r\n" + headers.join(",") + "\r\n";
+    
+            // Dữ liệu mẫu
+            const exampleData = [
+                {
+                    TenFile: "Đề cương Ôn tập Toán.pdf",
+                    SoTrang: "150",
+                    CachIn: "portrait",
+                    LaKhachThanThiet: "true",
+                    GiamGiaChuongTrinh: "10",
+                    NgayMua: "20/06/2025 09:30"
+                },
+                {
+                    TenFile: "Bài giảng Lịch sử Đảng",
+                    SoTrang: "80",
+                    CachIn: "landscape",
+                    LaKhachThanThiet: "false",
+                    GiamGiaChuongTrinh: "0",
+                    NgayMua: "" // Để trống để lấy ngày giờ hiện tại khi nhập
+                }
+            ];
+    
+            // Tạo nội dung file CSV
+            let csvContent = headers.join(",") + "\r\n";
+            exampleData.forEach(row => {
+                const values = headers.map(header => row[header]);
+                csvContent += values.join(",") + "\r\n";
+            });
+    
+            // Tạo và tải file
             const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
-            link.setAttribute("download", `don_hang_mau_${importCustomerNameSpan.textContent.replace(/\s/g, '_')}.csv`);
+            const customerName = importCustomerNameSpan.textContent.replace(/\s/g, '_') || 'khach_hang';
+            link.setAttribute("download", `don_hang_mau_${customerName}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
