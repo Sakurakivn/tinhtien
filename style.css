@@ -1333,3 +1333,14 @@ input[type="datetime-local"] {
         justify-content: center;
     }
 }
+/* Thêm vào cuối file style.css */
+.small-action-button.import-customer-btn {
+    background-color: #17a2b8; /* Màu xanh cyan */
+    border-color: #17a2b8;
+    margin-left: 10px; /* Tạo khoảng cách với nút bên cạnh */
+}
+
+.small-action-button.import-customer-btn:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
