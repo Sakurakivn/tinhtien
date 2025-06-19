@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevSlideBtn = document.getElementById('prevSlideBtn');
     const nextSlideBtn = document.getElementById('nextSlideBtn');
     const closeWrappedBtn = document.getElementById('closeWrappedBtn');
+    const backgroundMusic = document.getElementById('background-music');
+    const musicToggleBtn = document.getElementById('music-toggle-btn');
+    const musicIcon = musicToggleBtn ? musicToggleBtn.querySelector('i') : null;
 
     let currentSlideIndex = 0;
     let customerDataGlobal = null;
@@ -190,6 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     populateWrappedData(customerDataGlobal);
                     currentSlideIndex = 0;
                     showSlide(currentSlideIndex);
+                    if (backgroundMusic) {
+                        backgroundMusic.play().catch(error => {
+                            console.log("Trình duyệt chặn tự động phát nhạc, cần người dùng tương tác.");
+                            // Nhạc sẽ không phát cho đến khi người dùng nhấn nút bật/tắt
                 }
             });
         } catch (error) {
@@ -229,5 +236,28 @@ document.addEventListener('DOMContentLoaded', () => {
         anime({ targets: lookupFormContainer, opacity: [0, 1] });
         lookupForm.reset();
         lookupErrorMessage.textContent = '';
+        if (backgroundMusic) {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0; // Tua về đầu
+        }
     });
 });
+
+    if (musicToggleBtn && backgroundMusic && musicIcon) {
+        musicToggleBtn.addEventListener('click', () => {
+            if (backgroundMusic.muted) {
+                backgroundMusic.muted = false;
+                musicIcon.classList.remove('fa-volume-mute');
+                musicIcon.classList.add('fa-volume-up');
+                // Nếu nhạc chưa chạy, thử phát lại
+                if(backgroundMusic.paused) {
+                    backgroundMusic.play();
+                }
+    
+            } else {
+                backgroundMusic.muted = true;
+                musicIcon.classList.remove('fa-volume-up');
+                musicIcon.classList.add('fa-volume-mute');
+            }
+        });
+    }
