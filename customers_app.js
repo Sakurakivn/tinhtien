@@ -206,6 +206,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if(modalCustomerClassDisplay) modalCustomerClassDisplay.style.display = 'inline';
         if(modal) modal.style.display = 'block';
         document.body.classList.add('modal-open');
+    const modalContent = modal.querySelector('.modal-content');
+    modalContent.style.animation = 'none'; 
+    anime({
+        targets: modalContent,
+        translateY: [-30, 0], // Di chuyển từ trên xuống 30px
+        opacity: [0, 1],     // Mờ dần từ 0 đến 1
+        duration: 450,
+        easing: 'easeOutCubic'
+    });
     }
 
     // --- Chức năng Sửa thông tin khách hàng ---
