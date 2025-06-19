@@ -68,8 +68,11 @@
             </div>
             <h4><i class="fas fa-history"></i> Lịch sử mua hàng:</h4>
             <div class="table-actions-header">
-                 <button id="showAddOrderFormBtn" class="small-action-button add-order-btn">
+                <button id="showAddOrderFormBtn" class="small-action-button add-order-btn">
                     <i class="fas fa-plus"></i> Thêm đơn hàng
+                </button>
+                <button id="showImportForCustomerBtn" class="small-action-button import-customer-btn">
+                    <i class="fas fa-file-import"></i> Nhập từ file
                 </button>
             </div>
             <div id="addOrderForm" style="display:none; margin-top:10px; margin-bottom: 15px; padding:15px; background-color:#f0f8ff; border-radius:5px; border: 1px solid #bde0ff;">
@@ -144,7 +147,34 @@
             </div>
         </div>
     </div>
+    <div id="importForCustomerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeImportForCustomerModalBtn">&times;</span>
+            <div id="modalHeader">
+                <h3><i class="fas fa-file-upload"></i> Nhập Đơn Hàng cho <span id="importCustomerName"></span></h3>
+            </div>
+            <div class="import-instructions">
+                <div class="instruction-box">
+                    <p><strong>1. Tải về file mẫu CSV.</strong></p>
+                    <p>
+                        <a id="downloadCustomerTemplateLink" href="#" class="template-link">
+                            <i class="fas fa-download"></i> Tải mẫu CSV
+                        </a>
+                    </p>
+                    <p class="form-note" style="margin-top: 5px;">
+                        <em>File mẫu này không cần cột Tên và Lớp vì bạn đang thêm đơn hàng cho khách hàng hiện tại.</em>
+                    </p>
+                    <p><strong>2. Điền thông tin và tải file CSV của bạn lên.</strong></p>
+                </div>
     
+                <input type="file" id="customerCsvFileInput" accept=".csv" style="display: none;">
+                <label for="customerCsvFileInput" class="action-button upload-csv-label">
+                    <i class="fas fa-upload"></i> Chọn file để Tải Lên
+                </label>
+                <p id="selectedCustomerFileName" class="selected-file-name"></p>
+            </div>
+        </div>
+    </div>
     <script src="customers_app.js"></script>
 </body>
 </html>
