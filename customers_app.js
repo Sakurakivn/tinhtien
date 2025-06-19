@@ -36,8 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const newOrderProgramDiscountInput = document.getElementById('newOrderProgramDiscount');
     const newOrderBasePriceDisplay = document.getElementById('newOrderBasePriceDisplay');
     const newOrderFinalPriceDisplay = document.getElementById('newOrderFinalPriceDisplay');
-    // const newOrderPaidStatusCheckbox = document.getElementById('newOrderPaidStatus'); // BỎ ĐI
-
+    
+    const showImportForCustomerBtn = document.getElementById('showImportForCustomerBtn');
+    const importForCustomerModal = document.getElementById('importForCustomerModal');
+    const closeImportForCustomerModalBtn = document.getElementById('closeImportForCustomerModalBtn');
+    const downloadCustomerTemplateLink = document.getElementById('downloadCustomerTemplateLink');
+    const customerCsvFileInput = document.getElementById('customerCsvFileInput');
+    const importCustomerNameSpan = document.getElementById('importCustomerName');
+    const selectedCustomerFileNameP = document.getElementById('selectedCustomerFileName');
+        
     function ensureDateObject(dateValue) {
         if (!dateValue) return null;
         if (dateValue instanceof Date && !isNaN(dateValue.getTime())) return dateValue;
@@ -449,8 +456,106 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Các trình xử lý sự kiện chung cho modal ---
     if(closeModalButton) closeModalButton.onclick = () => { if(modal) modal.style.display = 'none'; document.body.classList.remove('modal-open'); };
     window.onclick = (event) => { if (event.target === modal) { if(modal) modal.style.display = 'none'; document.body.classList.remove('modal-open'); } };
+
+    if (showImportForCustomerBtn) {
+        showImportForCustomerBtn.onclick = () => {
+            const customer = allCustomersData[currentOpenCustomerId];
+            if (!customer) {
+                alert("Lỗi: Không tìm thấy thông tin khách hàng.");
+                return;
+            }
+            if (importCustomerNameSpan) importCustomerNameSpan.textContent = customer.name;
+            if (importForCustomerModal) importForCustomerModal.style.display = 'block';
+            if (selectedCustomerFileNameP) selectedCustomerFileNameP.textContent = '';
+            if (customerCsvFileInput) customerCsvFileInput.value = '';
+        };
+    }
     
-    // === PHẦN THÊM MỚI CHO XUẤT CSV ===
+    // Đóng modal
+    if (closeImportForCustomerModalBtn) {
+        closeImportForCustomerModalBtn.onclick = () => {
+            if (importForCustomerModal) importForCustomerModal.style.display = 'none';
+        };
+    }
+    
+    // Tải file mẫu (đã được đơn giản hóa)
+    if (downloadCustomerTemplateLink) {
+        downloadCustomerTemplateLink.onclick = (e) => {
+            e.preventDefault();
+            const headers = [
+                "TenFile",
+                "SoTrang", // Bắt buộc
+                "CachIn", // Bắt buộc: 'portrait' hoặc 'landscape'
+                "LaKhachThanThiet", // Bắt buộc: 'true' hoặc 'false'
+                "GiamGiaChuongTrinh", // Bắt buộc: Nhập số (ví dụ: 10 cho 10%)
+                "NgayMua" // Tùy chọn, định dạng: dd/MM/yyyy HH:mm. Nếu trống, lấy ngày giờ hiện tại.
+            ];
+            const csvContent = "Lưu ý: Dòng này sẽ bị bỏ qua khi nhập\r\n" + headers.join(",") + "\r\n";
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `don_hang_mau_${importCustomerNameSpan.textContent.replace(/\s/g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+    
+    // Xử lý khi chọn file và tải lên
+    if (customerCsvFileInput) {
+        customerCsvFileInput.onchange = async (event) => {
+            const file = event.target.files[0];
+            if (!file || !currentOpenCustomerId) return;
+    
+            if (selectedCustomerFileNameP) selectedCustomerFileNameP.textContent = `File đã chọn: ${file.name}`;
+    
+            if (!confirm(`Nhập các đơn hàng từ file "${file.name}" cho khách hàng này?`)) {
+                if (selectedCustomerFileNameP) selectedCustomerFileNameP.textContent = '';
+                if (customerCsvFileInput) customerCsvFileInput.value = '';
+                return;
+            }
+    
+            showLoadingSpinner("Đang xử lý file...");
+            const formData = new FormData();
+            formData.append('ordersFile', file);
+    
+            try {
+                // API mới, chuyên biệt cho việc nhập đơn hàng của 1 khách hàng
+                const response = await fetch(`/api/customers/${currentOpenCustomerId}/orders/import`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                const result = await response.json();
+                hideLoadingSpinner();
+    
+                if (!response.ok) throw new Error(result.message || 'Lỗi không xác định từ server.');
+    
+                alert(`Kết quả nhập file:\n- Thành công: ${result.successfulImports}\n- Thất bại: ${result.failedImports}` +
+                      (result.errors.length > 0 ? `\nChi tiết lỗi:\n- ${result.errors.join('\n- ')}` : ''));
+    
+                // Cập nhật lại thông tin sau khi nhập thành công
+                if (result.customer) {
+                    allCustomersData[currentOpenCustomerId] = result.customer;
+                     if (allCustomersData[currentOpenCustomerId].orders && Array.isArray(allCustomersData[currentOpenCustomerId].orders)) {
+                        allCustomersData[currentOpenCustomerId].orders.forEach(order => {
+                            order.createdAtDate = ensureDateObject(order.createdAt);
+                        });
+                    }
+                    populateOrdersTable(currentOpenCustomerId);
+                    if(modalPurchaseCountSpan) modalPurchaseCountSpan.textContent = result.customer.purchaseCount;
+                    renderCustomerList(); // Cập nhật danh sách chính
+                }
+                if (importForCustomerModal) importForCustomerModal.style.display = 'none';
+    
+            } catch (error) {
+                hideLoadingSpinner();
+                console.error("Lỗi khi nhập file cho khách hàng:", error);
+                alert("Đã xảy ra lỗi: " + error.message);
+            }
+        };
+    }
+
     const exportCsvBtn = document.getElementById('exportCsvBtn');
 
     if (exportCsvBtn) {
