@@ -84,23 +84,45 @@
         }
 
         .wrapped-controls {
-            position: absolute;
-            bottom: 20px; /* Gần hơn ở mobile */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2001; /* Nằm trên các slide */
+            position: fixed; /* Sử dụng 'fixed' để luôn bám vào màn hình */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            
+            padding: 20px 15px; /* Tăng khoảng đệm để dễ nhấn hơn */
+            box-sizing: border-box;
+        
+            display: flex;
+            justify-content: center; /* Căn các nút ra giữa */
+            align-items: center;
+            gap: 15px; /* Tạo khoảng cách đều giữa các nút */
+        
+            /* Thêm một lớp nền mờ để chữ nổi bật hơn trên các slide */
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+        
+            /* Đảm bảo nó luôn nằm trên các lớp khác */
+            z-index: 2002; 
+            
+            /* Cho phép nhấn xuyên qua vùng chứa, chỉ các nút mới có thể tương tác */
+            pointer-events: none; 
         }
+        
+        /* Cho phép các nút bên trong có thể tương tác lại */
         .wrapped-controls button {
+            pointer-events: auto; 
+            /* Giữ nguyên các style cũ của button nếu có */
             background-color: rgba(255, 255, 255, 0.2);
-            border: 1px solid white;
+            border: 1px solid rgba(255, 255, 255, 0.8);
             color: white;
-            padding: 10px 20px; /* Điều chỉnh cho mobile */
-            font-size: 0.9em; /* Điều chỉnh cho mobile */
+            padding: 10px 20px;
+            font-size: 0.9em;
             border-radius: 25px;
             cursor: pointer;
-            margin: 0 8px;
+            margin: 0; /* Bỏ margin cũ */
             transition: background-color 0.3s, transform 0.2s;
         }
+        
         .wrapped-controls button:hover {
             background-color: rgba(255, 255, 255, 0.4);
             transform: scale(1.05);
