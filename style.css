@@ -1,11 +1,10 @@
-/* Cấu trúc chung */
 body {
   font-family: 'Arial', sans-serif;
   margin: 0;
-  padding: 40px 15px; /* Thêm padding trên dưới để có không gian */
-  min-height: 100vh; /* Sử dụng min-height thay vì height để linh hoạt hơn với nội dung */
+  padding: 40px 15px; 
+  min-height: 100vh;
   box-sizing: border-box;
-  width: 100%;
+}
 
   /* THAY ĐỔI GRADIENT */
   /* Ví dụ gradient màu tím/xanh đậm lung linh */
