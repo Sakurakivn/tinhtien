@@ -1637,6 +1637,7 @@ body {
     margin-bottom: 15px;
     color: #333;
     text-align: center;
+    position: relative;
 }
 .chart-card.full-width {
     grid-column: 1 / -1; /* Chiếm toàn bộ chiều rộng grid */
