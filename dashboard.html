@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng điều khiển - Thống kê Tổng quan</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Bảo vệ trang này, chỉ admin mới có thể truy cập
+        protectPage();
+    </script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1><i class="fas fa-chart-line"></i> Bảng điều khiển Thống kê</h1>
+            <p>Tổng quan về hoạt động kinh doanh của bạn.</p>
+            <a href="index.html" class="button-link-back">
+                <i class="fas fa-arrow-left"></i> Quay lại trang chính
+            </a>
+        </header>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <i class="fas fa-users kpi-icon"></i>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="total-customers">0</span>
+                    <span class="kpi-label">Tổng Khách Hàng</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-receipt kpi-icon"></i>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="total-orders">0</span>
+                    <span class="kpi-label">Tổng Đơn Hàng</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-dollar-sign kpi-icon"></i>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="total-revenue">0</span>
+                    <span class="kpi-label">Tổng Doanh Thu (VND)</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-file-alt kpi-icon"></i>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="total-pages">0</span>
+                    <span class="kpi-label">Tổng Số Trang Đã In</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Top 5 Khách Hàng Thân Thiết</h3>
+                <canvas id="top-customers-chart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Tỉ lệ Cách In Phổ Biến</h3>
+                <canvas id="print-type-chart"></canvas>
+            </div>
+            <div class="chart-card full-width">
+                <h3>Thống kê Đơn hàng & Doanh thu theo Tháng</h3>
+                <canvas id="monthly-stats-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="ui_helpers.js"></script>
+    <script src="dashboard_app.js"></script>
+</body>
+</html>
