@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const enterFullscreenBtn = document.getElementById('enter-fullscreen-btn');
     const fullscreenEntryScreen = document.getElementById('fullscreen-entry-screen');
     const mainContentWrapper = document.getElementById('main-content-wrapper');
-
+    const irisWipe = document.getElementById('iris-wipe-effect');
+    
     let currentSlideIndex = 0;
     let customerDataGlobal = null;
 
@@ -150,29 +151,47 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Sự kiện khi nhấn nút "Bắt đầu" */
     if (enterFullscreenBtn) {
         enterFullscreenBtn.addEventListener('click', () => {
-            // 1. Yêu cầu bật fullscreen
-            openFullscreen();
-
-            // 2. Dùng anime.js để làm mờ dần màn hình chờ
-            anime({
-                targets: fullscreenEntryScreen,
-                opacity: 0,
-                duration: 600,
-                easing: 'easeInExpo',
-                complete: () => {
-                    // 3. Sau khi mờ xong, ẩn hoàn toàn và hiện nội dung chính
-                    fullscreenEntryScreen.style.display = 'none';
-                    if (mainContentWrapper) {
-                        mainContentWrapper.style.display = 'block';
-                        // Hiệu ứng hiện ra cho nội dung chính
-                        anime({
-                            targets: mainContentWrapper,
-                            opacity: [0, 1],
-                            duration: 800
-                        });
-                    }
-                }
+            // Yêu cầu bật fullscreen trước
+            openFullscreen(); 
+    
+            // Lấy vị trí của nút bấm để vòng tròn bắt đầu từ đó
+            const rect = enterFullscreenBtn.getBoundingClientRect();
+            const posX = rect.left + (rect.width / 2);
+            const posY = rect.top + (rect.height / 2);
+    
+            // Bắt đầu chuỗi hiệu ứng bằng anime.js timeline
+            const timeline = anime.timeline({
+                easing: 'easeInOutExpo'
             });
+    
+            timeline
+                // 1. Vòng tròn đen MỞ RỘNG ra từ nút bấm để che màn hình
+                .add({
+                    targets: irisWipe,
+                    begin: () => {
+                        // Hiện lớp hiệu ứng và đặt tâm vòng tròn vào nút bấm
+                        irisWipe.style.visibility = 'visible';
+                        irisWipe.style.clipPath = `circle(0% at ${posX}px ${posY}px)`;
+                    },
+                    clipPath: 'circle(150% at center)', // Mở rộng ra hơn 100% để chắc chắn che hết
+                    duration: 800,
+                    // 2. KHI VÒNG TRÒN CHE HẾT, đổi nội dung trang
+                    complete: () => {
+                        if (fullscreenEntryScreen) fullscreenEntryScreen.style.display = 'none';
+                        if (mainContentWrapper) mainContentWrapper.style.display = 'block';
+                    }
+                })
+                // 3. Vòng tròn đen THU LẠI để hiện ra nội dung mới
+                .add({
+                    targets: irisWipe,
+                    clipPath: 'circle(0% at center)',
+                    duration: 800,
+                    delay: 200, // Nghỉ 200ms trước khi mở ra
+                    complete: () => {
+                        // Ẩn lớp hiệu ứng đi sau khi hoàn tất
+                        irisWipe.style.visibility = 'hidden';
+                    }
+                });
         });
     }
     async function startWrappedExperience(name) {
