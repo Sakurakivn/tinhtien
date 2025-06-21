@@ -6,14 +6,16 @@
     <title>Bảng điều khiển - Thống kê Tổng quan</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Nhúng thư viện Chart.js để vẽ biểu đồ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Nhúng script xác thực để bảo vệ trang -->
     <script src="auth.js"></script>
     <script>
-        // Bảo vệ trang này, chỉ admin mới có thể truy cập
+        // Hàm này sẽ chuyển hướng về trang đăng nhập nếu người dùng chưa xác thực
         protectPage();
     </script>
 </head>
-<body>
+<body class="dashboard-page">
     <div class="dashboard-container">
         <header class="dashboard-header">
             <h1><i class="fas fa-chart-line"></i> Bảng điều khiển Thống kê</h1>
@@ -23,6 +25,7 @@
             </a>
         </header>
 
+        <!-- HÀNG 1: CÁC SỐ LIỆU QUAN TRỌNG (KPI) -->
         <div class="kpi-grid">
             <div class="kpi-card">
                 <i class="fas fa-users kpi-icon"></i>
@@ -45,6 +48,13 @@
                     <span class="kpi-label">Tổng Doanh Thu (VND)</span>
                 </div>
             </div>
+             <div class="kpi-card">
+                <i class="fas fa-balance-scale kpi-icon"></i>
+                <div class="kpi-info">
+                    <span class="kpi-value" id="average-order-value">0</span>
+                    <span class="kpi-label">Giá trị Đơn hàng TB (VND)</span>
+                </div>
+            </div>
             <div class="kpi-card">
                 <i class="fas fa-file-alt kpi-icon"></i>
                 <div class="kpi-info">
@@ -54,15 +64,24 @@
             </div>
         </div>
 
+        <!-- HÀNG 2: CÁC BIỂU ĐỒ TRỰC QUAN -->
         <div class="charts-grid">
+            <!-- BIỂU ĐỒ CỘT: TOP KHÁCH HÀNG THEO DOANH THU -->
             <div class="chart-card">
-                <h3>Top 5 Khách Hàng Thân Thiết</h3>
+                <h3>Top 5 Khách Hàng theo Doanh Thu</h3>
                 <canvas id="top-customers-chart"></canvas>
             </div>
+            <!-- BIỂU ĐỒ TRÒN: TỈ LỆ CÁCH IN -->
             <div class="chart-card">
                 <h3>Tỉ lệ Cách In Phổ Biến</h3>
                 <canvas id="print-type-chart"></canvas>
             </div>
+            <!-- BIỂU ĐỒ CỘT: ĐƠN HÀNG THEO NGÀY TRONG TUẦN -->
+             <div class="chart-card">
+                <h3>Lượng Đơn hàng theo Ngày</h3>
+                <canvas id="day-of-week-chart"></canvas>
+            </div>
+            <!-- BIỂU ĐỒ KẾT HỢP: DOANH THU & ĐƠN HÀNG THEO THÁNG -->
             <div class="chart-card full-width">
                 <h3>Thống kê Đơn hàng & Doanh thu theo Tháng</h3>
                 <canvas id="monthly-stats-chart"></canvas>
@@ -70,6 +89,7 @@
         </div>
     </div>
 
+    <!-- Script riêng cho trang dashboard -->
     <script src="ui_helpers.js"></script>
     <script src="dashboard_app.js"></script>
 </body>
