@@ -102,36 +102,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderCustomerList(searchTerm = '') {
-        if(!customerListUl) return;
+    function renderCustomerList(searchTerm = '', page = 1) {
+        currentPage = page; // Cập nhật trang hiện tại
+    
+        if (!customerListUl) return;
         customerListUl.innerHTML = '';
+    
         const lowerSearchTerm = searchTerm.toLowerCase().trim();
-        let customersToDisplay = Object.values(allCustomersData);
+        let filteredCustomers = Object.values(allCustomersData);
+    
         if (lowerSearchTerm) {
-            customersToDisplay = customersToDisplay.filter(customer =>
+            filteredCustomers = filteredCustomers.filter(customer =>
                 customer.name.toLowerCase().includes(lowerSearchTerm) ||
                 (customer.class && customer.class.toLowerCase().includes(lowerSearchTerm))
             );
         }
-        if (customersToDisplay.length === 0) {
+    
+        // Sắp xếp trước khi phân trang
+        filteredCustomers.sort((a, b) => a.name.localeCompare(b.name));
+    
+        // Logic phân trang
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+    
+        if (paginatedCustomers.length === 0) {
             const li = document.createElement('li');
             li.textContent = searchTerm ? 'Không tìm thấy khách hàng.' : 'Chưa có dữ liệu khách hàng.';
-            li.style.textAlign = 'center';
             customerListUl.appendChild(li);
-            return;
+        } else {
+            paginatedCustomers.forEach(customer => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<i class="fas fa-user-circle"></i> <span class="math-inline">\{customer\.name\} <span class\="customer\-meta"\>\(</span>{(customer.class || '').trim() || 'Chưa có lớp'}) - ${customer.purchaseCount || 0} lần mua</span>`;
+                listItem.dataset.customerId = customer._id;
+                listItem.addEventListener('click', () => openModalForCustomer(customer._id));
+                customerListUl.appendChild(listItem);
+            });
         }
-        customersToDisplay.sort((a, b) => a.name.localeCompare(b.name));
-        customersToDisplay.forEach(customer => {
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `<i class="fas fa-user-circle"></i> ${customer.name} <span class="customer-meta">(${(customer.class || '').trim() || 'Chưa có lớp'}) - ${customer.purchaseCount || 0} lần mua</span>`;
-            listItem.dataset.customerId = customer._id;
-            listItem.addEventListener('click', () => openModalForCustomer(customer._id));
-            customerListUl.appendChild(listItem);
-        });
-    }
-
-    if (customerSearchInput) {
-        customerSearchInput.addEventListener('input', () => renderCustomerList(customerSearchInput.value));
+    
+        // Vẽ lại các nút phân trang
+        renderPaginationControls(filteredCustomers.length, currentPage);
     }
 
     function populateOrdersTable(customerId) {
@@ -185,6 +195,29 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.colSpan = 10; // Cập nhật colSpan (9 cột cũ + STT, bỏ cột Thanh toán)
             cell.textContent = 'Không có lịch sử mua hàng cho khách này.';
             cell.style.textAlign = 'center';
+        }
+    }
+
+    function renderPaginationControls(totalItems, currentPage) {
+        const paginationContainer = document.getElementById('pagination-container');
+        if (!paginationContainer) return;
+    
+        paginationContainer.innerHTML = ''; // Xóa các nút cũ
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+        if (totalPages <= 1) return; // Không hiển thị nếu chỉ có 1 trang
+    
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.textContent = i;
+            if (i === currentPage) {
+                pageButton.classList.add('active');
+            }
+            pageButton.addEventListener('click', () => {
+                window.scrollTo(0, 0); // Cuộn lên đầu trang khi chuyển trang
+                renderCustomerList(customerSearchInput.value, i);
+            });
+            paginationContainer.appendChild(pageButton);
         }
     }
     
