@@ -206,7 +206,24 @@
             left: 0;
             z-index: 9999;
         }
-
+        /* ===== CSS CHO HIỆU ỨNG VÒNG TRÒN ĐEN (IRIS WIPE) ===== */
+        #iris-wipe-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #0c0c1e; /* Một màu đen hơi xanh thẫm cho hợp theme */
+        
+            /* Đây là thuộc tính quan trọng nhất */
+            clip-path: circle(0% at center); 
+        
+            z-index: 10001; /* Phải nằm trên tất cả mọi thứ */
+            pointer-events: none; /* Cho phép nhấn xuyên qua */
+        
+            /* Ẩn đi ban đầu */
+            visibility: hidden; 
+        }
         .entry-content {
             max-width: 500px;
             padding: 20px;
@@ -395,7 +412,10 @@
     </style>
 </head>
 <body class=""> 
+    <div id="iris-wipe-effect"></div>
 
+    <div id="fullscreen-entry-screen" class="fullscreen-entry">
+        </div>
     <!-- MÀN HÌNH CHỜ ĐỂ BẬT FULLSCREEN -->
     <div id="fullscreen-entry-screen" class="fullscreen-entry">
         <div class="entry-content">
