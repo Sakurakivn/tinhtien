@@ -3,8 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {More actions
     let currentOpenCustomerOriginalName = null;
     let currentOpenCustomerId = null;
 
-    let currentPage = 1;
-    const itemsPerPage = 5;
     // DOM Elements
     const customerListUl = document.getElementById('customerList');
     const modal = document.getElementById('customerModal');
