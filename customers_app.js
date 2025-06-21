@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {More actions
+document.addEventListener('DOMContentLoaded', ()
     let allCustomersData = {}; 
     let currentOpenCustomerOriginalName = null;
     let currentOpenCustomerId = null;
