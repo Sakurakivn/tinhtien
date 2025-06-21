@@ -1554,3 +1554,96 @@ input[type="datetime-local"] {
     color: #ccc;
     cursor: not-allowed;
 }
+/* ===== CSS CHO TRANG DASHBOARD ===== */
+body {
+    background-color: #f4f7f6; /* Màu nền nhẹ nhàng cho toàn trang */
+}
+.dashboard-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+}
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+.dashboard-header h1 {
+    color: #333;
+    margin-bottom: 5px;
+}
+.dashboard-header p {
+    color: #777;
+    font-size: 1.1em;
+}
+
+/* Lưới cho các số liệu chính (KPI) */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.kpi-card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+}
+.kpi-icon {
+    font-size: 2.5em;
+    margin-right: 20px;
+    color: #4CAF50;
+    width: 60px;
+    height: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e8f5e9;
+    border-radius: 50%;
+}
+.kpi-info {
+    display: flex;
+    flex-direction: column;
+}
+.kpi-value {
+    font-size: 2em;
+    font-weight: 700;
+    color: #333;
+}
+.kpi-label {
+    font-size: 1em;
+    color: #666;
+}
+
+/* Lưới cho các biểu đồ */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.chart-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.chart-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+}
+.chart-card.full-width {
+    grid-column: 1 / -1; /* Chiếm toàn bộ chiều rộng grid */
+}
+
+@media (max-width: 992px) {
+    .charts-grid {
+        grid-template-columns: 1fr; /* 1 cột trên tablet */
+    }
+}
