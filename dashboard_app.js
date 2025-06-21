@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 indexAxis: 'y', // Biểu đồ cột ngang
                 responsive: true,
+                maintainAspectRatio: false, // SỬA LỖI: Thêm dòng này
                 scales: { x: { beginAtZero: true } }
             }
         });
@@ -125,7 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     hoverOffset: 4
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false // Dòng này đã có, không cần sửa
+            }
         });
     }
 
@@ -158,7 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     borderWidth: 1
                 }]
             },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, // SỬA LỖI: Thêm dòng này
+                scales: { y: { beginAtZero: true } } 
+            }
         });
     }
     
@@ -213,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false, // SỬA LỖI: Thêm dòng này
                 interaction: { mode: 'index', intersect: false },
                 scales: {
                     x: { stacked: true },
