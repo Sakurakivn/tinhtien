@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {More actions
         // Thêm BOM cho UTF-8 để Excel (một số phiên bản) đọc tiếng Việt tốt hơn
         const BOM = "\uFEFF"; 
         const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
+        const link = document.createElement("a");More actions
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
         link.setAttribute("download", "danh_sach_khach_hang_va_don_hang.csv");
