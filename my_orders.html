@@ -241,38 +241,50 @@
             .remark-text-style { font-size: 0.9em; }
             .wrapped-slide .icon-large { font-size: 2.5em; }
         }
-            .wrapped-controls {
-                position: fixed; /* Đổi thành fixed để nó luôn ở vị trí cố định trên màn hình */
-                bottom: 0;       /* Đặt ở dưới cùng */
-                left: 0;
-                right: 0;
-                width: 100%;     /* Chiếm toàn bộ chiều rộng */
-                display: flex;
-                justify-content: space-between; /* Đẩy nút Trước và Sau ra hai bên */
-                align-items: center;
-                padding: 15px 10px; /* Padding cho vùng điều khiển */
-                box-sizing: border-box;
-                z-index: 2002; /* Đảm bảo nằm trên các slide */
-                transform: none; /* Bỏ transform translateX(-50%) của desktop nếu có */
-            }
+        .wrapped-controls {
+            position: fixed; /* Sử dụng 'fixed' để luôn bám vào màn hình */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
             
-            .wrapped-controls button {
-                background-color: rgba(0, 0, 0, 0.3); /* Nền tối hơn một chút để nổi bật trên nhiều slide */
-                border: none; /* Bỏ viền mặc định */
-                color: white;
-                padding: 12px 15px; /* Kích thước nút phù hợp cho mobile */
-                font-size: 1em;    /* Kích thước chữ */
-                border-radius: 8px; /* Bo góc vừa phải */
-                cursor: pointer;
-                transition: background-color 0.3s, transform 0.2s;
-                display: inline-flex; /* Căn icon và text */
-                align-items: center;
-                justify-content: center;
-                min-width: 100px; /* Độ rộng tối thiểu */
-            }
-            .wrapped-controls button:hover {
-                background-color: rgba(0, 0, 0, 0.5);
-                transform: scale(1.03);
+            padding: 20px 15px; /* Tăng khoảng đệm để dễ nhấn hơn */
+            box-sizing: border-box;
+        
+            display: flex;
+            justify-content: center; /* Căn các nút ra giữa */
+            align-items: center;
+            gap: 15px; /* Tạo khoảng cách đều giữa các nút */
+        
+            /* Thêm một lớp nền mờ để chữ nổi bật hơn trên các slide */
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+        
+            /* Đảm bảo nó luôn nằm trên các lớp khác */
+            z-index: 2002; 
+            
+            /* Cho phép nhấn xuyên qua vùng chứa, chỉ các nút mới có thể tương tác */
+            pointer-events: none; 
+        }
+        
+        /* Cho phép các nút bên trong có thể tương tác lại */
+        .wrapped-controls button {
+            pointer-events: auto; 
+            /* Giữ nguyên các style cũ của button nếu có */
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: white;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 0; /* Bỏ margin cũ */
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        .wrapped-controls button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
             }
             .wrapped-controls button i {
                 margin-right: 5px; /* Khoảng cách cho icon (nếu nút Next có text "Tiếp theo") */
