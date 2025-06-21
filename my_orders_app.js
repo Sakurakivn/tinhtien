@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const backgroundMusic = document.getElementById('background-music');
     const musicToggleBtn = document.getElementById('music-toggle-btn');
     const musicIcon = musicToggleBtn ? musicToggleBtn.querySelector('i') : null;
+    const enterFullscreenBtn = document.getElementById('enter-fullscreen-btn');
+    const fullscreenEntryScreen = document.getElementById('fullscreen-entry-screen');
+    const mainContentWrapper = document.getElementById('main-content-wrapper');
 
     let currentSlideIndex = 0;
     let customerDataGlobal = null;
@@ -131,7 +134,47 @@ document.addEventListener('DOMContentLoaded', () => {
         nextSlideBtn.style.display = index === slides.length - 1 ? 'none' : 'inline-block';
         closeWrappedBtn.style.display = index === slides.length - 1 ? 'inline-block' : 'none';
     }
+    function openFullscreen() {
+        const elem = document.documentElement; // Lấy toàn bộ trang
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+            elem.msRequestFullscreen();
+        }
+    }
 
+    /* Sự kiện khi nhấn nút "Bắt đầu" */
+    if (enterFullscreenBtn) {
+        enterFullscreenBtn.addEventListener('click', () => {
+            // 1. Yêu cầu bật fullscreen
+            openFullscreen();
+
+            // 2. Dùng anime.js để làm mờ dần màn hình chờ
+            anime({
+                targets: fullscreenEntryScreen,
+                opacity: 0,
+                duration: 600,
+                easing: 'easeInExpo',
+                complete: () => {
+                    // 3. Sau khi mờ xong, ẩn hoàn toàn và hiện nội dung chính
+                    fullscreenEntryScreen.style.display = 'none';
+                    if (mainContentWrapper) {
+                        mainContentWrapper.style.display = 'block';
+                        // Hiệu ứng hiện ra cho nội dung chính
+                        anime({
+                            targets: mainContentWrapper,
+                            opacity: [0, 1],
+                            duration: 800
+                        });
+                    }
+                }
+            });
+        });
+    }
     async function startWrappedExperience(name) {
         lookupErrorMessage.textContent = '';
         const submitButton = lookupForm.querySelector('button[type="submit"]');
