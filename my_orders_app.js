@@ -77,6 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- CÁC HÀM CHÍNH ---
+    function openFullscreen() {
+        const elem = document.documentElement; // Lấy toàn bộ trang (<html>)
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => {
+                console.warn(`Lỗi khi yêu cầu fullscreen: ${err.message} (${err.name})`);
+            });
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+            elem.msRequestFullscreen();
+        }
+    }
     function populateWrappedData(customer) {
         if (!customer) return;
         const customerName = customer.name || "Bạn";
@@ -135,37 +149,25 @@ document.addEventListener('DOMContentLoaded', () => {
         nextSlideBtn.style.display = index === slides.length - 1 ? 'none' : 'inline-block';
         closeWrappedBtn.style.display = index === slides.length - 1 ? 'inline-block' : 'none';
     }
-    function openFullscreen() {
-        const elem = document.documentElement; // Lấy toàn bộ trang
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.mozRequestFullScreen) { /* Firefox */
-            elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-            elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) { /* IE/Edge */
-            elem.msRequestFullscreen();
-        }
-    }
 
     /* Sự kiện khi nhấn nút "Bắt đầu" */
     if (enterFullscreenBtn) {
         enterFullscreenBtn.addEventListener('click', () => {
-            // Yêu cầu bật fullscreen trước
+            // 1. Yêu cầu bật fullscreen trước
             openFullscreen(); 
-    
+            
             // Lấy vị trí của nút bấm để vòng tròn bắt đầu từ đó
             const rect = enterFullscreenBtn.getBoundingClientRect();
             const posX = rect.left + (rect.width / 2);
             const posY = rect.top + (rect.height / 2);
-    
+
             // Bắt đầu chuỗi hiệu ứng bằng anime.js timeline
             const timeline = anime.timeline({
                 easing: 'easeInOutExpo'
             });
-    
+
             timeline
-                // 1. Vòng tròn đen MỞ RỘNG ra từ nút bấm để che màn hình
+                // BƯỚC A: Vòng tròn đen MỞ RỘNG ra từ nút bấm để che màn hình
                 .add({
                     targets: irisWipe,
                     begin: () => {
@@ -175,13 +177,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     clipPath: 'circle(150% at center)', // Mở rộng ra hơn 100% để chắc chắn che hết
                     duration: 800,
-                    // 2. KHI VÒNG TRÒN CHE HẾT, đổi nội dung trang
+                    // BƯỚC B: KHI VÒNG TRÒN CHE HẾT, đổi nội dung trang
                     complete: () => {
                         if (fullscreenEntryScreen) fullscreenEntryScreen.style.display = 'none';
                         if (mainContentWrapper) mainContentWrapper.style.display = 'block';
                     }
                 })
-                // 3. Vòng tròn đen THU LẠI để hiện ra nội dung mới
+                // BƯỚC C: Vòng tròn đen THU LẠI để hiện ra nội dung mới
                 .add({
                     targets: irisWipe,
                     clipPath: 'circle(0% at center)',
