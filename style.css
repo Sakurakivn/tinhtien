@@ -4,16 +4,13 @@ body {
   padding: 40px 15px; 
   min-height: 100vh;
   box-sizing: border-box;
-}
 
-  /* THAY ĐỔI GRADIENT */
-  /* Ví dụ gradient màu tím/xanh đậm lung linh */
   background: linear-gradient(45deg, #23074d, #591869, #00223E, #005A7C, #23074d);
-  background-size: 600% 600%; /* Tăng background-size để chuyển động mượt hơn */
-  animation: gradientAnimation 15s ease infinite; /* Tăng thời gian animation */
+  background-size: 600% 600%;
+  animation: gradientAnimation 15s ease infinite;
 
-  position: relative; /* Cần thiết để định vị các ngôi sao con */
-  overflow: hidden; /* Ngăn các ngôi sao tràn ra ngoài nếu chúng quá lớn hoặc di chuyển ra rìa */
+  position: relative; 
+  overflow: hidden; 
 }
 
 @keyframes gradientAnimation {
