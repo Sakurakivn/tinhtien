@@ -128,31 +128,66 @@
             transform: scale(1.05);
         }
         
-        .lookup-page-container-wrapped { 
-             max-width: 500px; margin: 10vh auto; padding: 25px; /* Điều chỉnh padding */
-             background-color: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1);
-             color: #333; 
+        .lookup-page-container-wrapped {
+            max-width: 500px;
+            width: 90%;
+            margin: 20vh auto; /* Căn giữa và cách top một khoảng */
+            padding: 30px;
+            
+            /* Hiệu ứng kính mờ (Frosted Glass) */
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Hỗ trợ trình duyệt Safari */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        
+            /* Đổi màu chữ thành trắng để dễ đọc trên nền tối */
+            color: #fff;
         }
-         .lookup-page-container-wrapped h1 {
-            text-align: center; color: #007bff; margin-bottom: 20px; font-size: 22px; /* Điều chỉnh cho mobile */
+        
+        /* Định dạng lại các phần tử bên trong form */
+        .lookup-page-container-wrapped h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
         }
-        .lookup-form .form-note { /* CSS cho ghi chú */
-            font-size: 0.8em;
-            color: #555;
-            margin-top: 8px;
-            line-height: 1.4;
+        
+        .lookup-page-container-wrapped label {
+            color: #f0f0f0;
+            font-weight: bold;
         }
-        .lookup-form .form-group input[type="text"]{ /* Đảm bảo input text responsive */
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        
+        .lookup-form .form-note,
+        .lookup-form .form-note em {
+            color: #ddd;
+            font-size: 0.9em;
         }
-         .lookup-form button.action-button { /* Nút Xem Ngay! */
-            width: 100%;
+        
+        .lookup-form .form-group input[type="text"] {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+            font-size: 16px;
+            border-radius: 5px;
             padding: 12px;
-            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .lookup-form .form-group input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .lookup-page-container-wrapped .button-link-back {
+            background-color: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .lookup-page-container-wrapped .button-link-back:hover {
+            background-color: rgba(255,255,255,0.3);
         }
 
 
