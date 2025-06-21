@@ -190,7 +190,53 @@
             background-color: rgba(255,255,255,0.3);
         }
 
+        .fullscreen-entry {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(45deg, #23074d, #591869, #00223E, #005A7C, #23074d);
+            background-size: 600% 600%;
+            animation: gradientAnimation 15s ease infinite;
+            color: white;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+        }
 
+        .entry-content {
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .entry-content h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+        }
+
+        .entry-content p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .entry-content .action-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            background-color: #17a2b8;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .entry-content .action-button:hover {
+            background-color: #138496;
+            transform: scale(1.05);
+        }
         /* Hiệu ứng pháo hoa */
         .firework {
             position: absolute; 
@@ -344,21 +390,34 @@
                 margin-left: auto; /* Đẩy sang phải nếu có prev */
                 margin-right: auto; /* Đẩy sang trái nếu có next - nhưng chỉ hoạt động nếu nó là item duy nhất hoặc có không gian */
             }
-            
+
 
     </style>
 </head>
 <body class=""> 
 
-    <div class="lookup-page-container-wrapped" id="lookupFormContainer">
-        <h1><i class="fas fa-receipt"></i> Xem Lại Hành Trình In Ấn Của Bạn</h1>
-        <form id="customerLookupFormWrapped" class="lookup-form">
+    <!-- MÀN HÌNH CHỜ ĐỂ BẬT FULLSCREEN -->
+    <div id="fullscreen-entry-screen" class="fullscreen-entry">
+        <div class="entry-content">
+            <h1>Nhìn Lại Hành Trình In Ấn</h1>
+            <p>Trải nghiệm tốt nhất ở chế độ toàn màn hình.</p>
+            <button id="enter-fullscreen-btn" class="action-button">
+                <i class="fas fa-expand"></i> Bắt đầu
+            </button>
+        </div>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH, BAN ĐẦU SẼ BỊ ẨN ĐI -->
+    <div id="main-content-wrapper" style="display: none;">
+        <div class="lookup-page-container-wrapped" id="lookupFormContainer">
+            <h1><i class="fas fa-receipt"></i> Xem Lại Hành Trình In Ấn Của Bạn</h1>
+            <form id="customerLookupFormWrapped" class="lookup-form">
             <div class="form-group">
                 <label for="customerNameToLookupWrapped">Nhập tên của bạn:</label>
                 <input type="text" id="customerNameToLookupWrapped" placeholder="Ví dụ: Nguyễn Văn A" required>
                 <p class="form-note">
                     <em>Ghi chú: Bạn có thể nhập tên không cần phân biệt chữ hoa, chữ thường. <br>
-                    Ví dụ: nếu tên của bạn là "Lã Đức An", bạn có thể nhập "lã đức an".</em>
+                    Ví dụ: nếu tên của bạn là "Nguyễn Văn A", bạn có thể nhập "nguyễn văn a".</em>
                 </p>
             </div>
             <button type="submit" class="action-button"><i class="fas fa-paper-plane"></i> Xem Ngay!</button>
