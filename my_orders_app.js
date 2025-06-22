@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerNameInput = document.getElementById('customerNameToLookupWrapped');
     const lookupErrorMessage = document.getElementById('lookupErrorMessageWrapped');
     const wrappedContainer = document.getElementById('wrappedContainer');
-    const slides = document.querySelectorAll('.wrapped-slide');
+    const slides = document.querySelectorAll('.wrapped-slide:not(.not-found-slide)');
+    
     const prevSlideBtn = document.getElementById('prevSlideBtn');
     const nextSlideBtn = document.getElementById('nextSlideBtn');
     const closeWrappedBtn = document.getElementById('closeWrappedBtn');
@@ -124,7 +125,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('remarkText').textContent = generalRemarks[remarkCategory].replace(/\[TEN_KHACH_HANG\]/g, customerName);
         const finalThankYou = getRandomElement(authorThankYouMessages);
         document.getElementById('thankYouName').innerHTML = finalThankYou.message.replace(/\[TEN_KHACH_HANG\]/g, `<strong>${customerName}</strong>`) + `<p class="author-wish" style="margin-top:15px; font-size: 1.2em;">${finalThankYou.wish}</p>`;
+        
+        const totalOrders = customer.orders ? customer.orders.length : 0;
+        const totalSpent = customer.orders ? customer.orders.reduce((sum, order) => sum + (order.finalTotalPrice || 0), 0) : 0;
+        let favPrintType = "Không rõ";
+        const totalPagesPrinted = customer.orders ? customer.orders.reduce((sum, order) => sum + (order.pages || 0), 0) : 0;
+        if (totalOrders > 0) {
+            const printTypes = customer.orders.map(o => o.printType).filter(Boolean);
+            if(printTypes.length > 0) {
+                 const typeCounts = printTypes.reduce((acc, type) => { acc[type] = (acc[type] || 0) + 1; return acc; }, {});
+                 let maxType = Object.keys(typeCounts).reduce((a, b) => typeCounts[a] > typeCounts[b] ? a : b);
+                 favPrintType = maxType === 'portrait' ? 'In Dọc' : 'In Ngang';
+            }
+        }
+
+        document.getElementById('summary-name').textContent = customerName;
+        document.getElementById('summary-total-orders').textContent = totalOrders.toLocaleString('vi-VN');
+        document.getElementById('summary-total-spent').textContent = totalSpent.toLocaleString('vi-VN') + 'đ';
+        document.getElementById('summary-total-pages').textContent = totalPagesPrinted.toLocaleString('vi-VN');
+        document.getElementById('summary-fav-print-type').textContent = favPrintType;
     }
+    
 
     function showSlide(index) {
         slides.forEach((slide, i) => {
@@ -196,6 +217,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
     }
+    function startNotFoundExperience(name) {
+        const notFoundSlides = {
+            confirm: document.getElementById('slide-notfound-confirm'),
+            searching: document.getElementById('slide-notfound-searching'),
+            result: document.getElementById('slide-notfound-result'),
+            back: document.getElementById('slide-notfound-back')
+        };
+        
+        // Điền tên người dùng vào slide đầu tiên
+        document.getElementById('notFoundNameConfirm').textContent = `'${name}'`;
+
+        // Ẩn form tra cứu và hiện container wrapped
+        lookupFormContainer.style.display = 'none';
+        wrappedContainer.classList.add('active');
+        document.body.classList.add('wrapped-active');
+        
+        // Chỉ hiện nút Đóng và Về trước (nếu cần), ẩn nút Tiếp theo
+        prevSlideBtn.style.display = 'none';
+        nextSlideBtn.style.display = 'none';
+        closeWrappedBtn.style.display = 'inline-block';
+
+        let currentNotFoundSlide = 0;
+        const slideSequence = ['confirm', 'searching', 'result', 'back'];
+
+        function showSpecificNotFoundSlide(slideKey) {
+            // Ẩn tất cả các slide (cả chuẩn và not-found)
+            document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
+            // Hiện slide not-found cụ thể
+            if (notFoundSlides[slideKey]) {
+                notFoundSlides[slideKey].classList.add('active-slide');
+            }
+        }
+        
+        // Dùng setTimeout để tạo chuỗi trình chiếu
+        showSpecificNotFoundSlide('confirm'); // Hiện slide 1
+        setTimeout(() => {
+            showSpecificNotFoundSlide('searching'); // Hiện slide 2
+            setTimeout(() => {
+                showSpecificNotFoundSlide('result'); // Hiện slide 3
+                setTimeout(() => {
+                    showSpecificNotFoundSlide('back'); // Hiện slide 4
+                }, 5000); // Thời gian hiển thị slide 3
+            }, 2500); // Thời gian hiển thị slide 2
+        }, 3000); // Thời gian hiển thị slide 1
+    }
+    
     async function startWrappedExperience(name) {
         lookupErrorMessage.textContent = '';
         const submitButton = lookupForm.querySelector('button[type="submit"]');
@@ -203,8 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
         try {
             const response = await fetch(`/api/customers?name=${encodeURIComponent(name)}`);
-            if (!response.ok) throw new Error(response.status === 404 ? `Rất tiếc, không tìm thấy thông tin cho "${name}".` : `Lỗi ${response.status}.`);
-            customerDataGlobal = await response.json();
+            if (!response.ok) {
+                if (response.status === 404) {
+                    startNotFoundExperience(name);
             
             anime({
                 targets: lookupFormContainer, opacity: 0, duration: 500, easing: 'easeOutExpo',
