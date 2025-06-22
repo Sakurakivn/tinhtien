@@ -1083,13 +1083,10 @@ input[type="datetime-local"] {
     align-items: center;
     width: 100vw;
     height: 100vh;
-    position: fixed; /* Nằm trên cùng và chiếm toàn màn hình */
+    position: fixed;
     top: 0;
     left: 0;
-    background: linear-gradient(45deg, #23074d, #591869, #00223E, #005A7C, #23074d); /* Giống nền body wrapped */
-    background-size: 600% 600%;
-    animation: gradientAnimation 15s ease infinite; /* Giữ animation gradient */
-    z-index: 3000; /* Đảm bảo nằm trên mọi thứ khác */
+    z-index: 3000;
 }
 
 .login-box {
@@ -1098,7 +1095,7 @@ input[type="datetime-local"] {
     border-radius: 10px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px; /* Tăng nhẹ độ rộng */
     text-align: center;
     backdrop-filter: blur(5px);
 }
@@ -1110,9 +1107,55 @@ input[type="datetime-local"] {
 }
 .login-box h2 i {
     margin-right: 10px;
-    color: #007bff; /* Màu icon khóa */
+    color: #007bff;
 }
 
+.login-box .login-admin-note {
+    font-size: 0.9em;
+    color: #856404; /* Màu chữ vàng đậm */
+    background-color: #fff3cd; /* Nền vàng nhạt */
+    border: 1px solid #ffeeba;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.login-box .login-admin-note i {
+    margin-right: 8px;
+}
+
+.login-footer {
+    margin-top: 25px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.login-return-note {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.journey-button {
+    display: inline-block;
+    background-color: #6c757d; /* Màu xám trung tính */
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.journey-button:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+.journey-button i {
+    margin-right: 8px;
+}
 .login-box .form-group {
     margin-bottom: 20px;
     text-align: left;
