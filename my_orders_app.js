@@ -210,9 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 showSpecificNotFoundSlide('result');
                 setTimeout(() => {
                     showSpecificNotFoundSlide('back');
-                }, 4000); // Rút ngắn từ 5000ms
-            }, 2000); // Rút ngắn từ 2500ms
-        }, 2500); // Rút ngắn từ 3000ms
+                }, 3000); // Rút ngắn từ 5000ms
+            }, 1000); // Rút ngắn từ 2500ms
+        }, 1500); // Rút ngắn từ 3000ms
     }
     
     async function startWrappedExperience(name) {
