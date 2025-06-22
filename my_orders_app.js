@@ -181,16 +181,16 @@ document.addEventListener('DOMContentLoaded', () => {
         wrappedContainer.classList.add('active');
         document.body.classList.add('wrapped-active');
         
+        // Ẩn các nút điều khiển chính
         prevSlideBtn.style.display = 'none';
         nextSlideBtn.style.display = 'none';
-        closeWrappedBtn.style.display = 'inline-block';
+        closeWrappedBtn.style.display = 'none';
 
         function showSpecificNotFoundSlide(slideKey) {
             document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
             const slideToShow = notFoundSlides[slideKey];
             if (slideToShow) {
                 slideToShow.classList.add('active-slide');
-                // Thêm animation cho các phần tử text
                 const textElements = slideToShow.querySelectorAll('h2, p');
                 wrapLetters(textElements);
                 anime({
@@ -202,17 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // Chỉ hiển thị slide xác nhận ban đầu
         showSpecificNotFoundSlide('confirm');
-        // Rút ngắn thời gian
-        setTimeout(() => {
-            showSpecificNotFoundSlide('searching');
-            setTimeout(() => {
-                showSpecificNotFoundSlide('result');
-                setTimeout(() => {
-                    showSpecificNotFoundSlide('back');
-                }, 4000); // Rút ngắn từ 5000ms
-            }, 2000); // Rút ngắn từ 2500ms
-        }, 2500); // Rút ngắn từ 3000ms
     }
     
     async function startWrappedExperience(name) {
@@ -340,6 +331,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 musicIcon.classList.add('fa-volume-up');
                 if (backgroundMusic.paused) backgroundMusic.play();
             }
+        });
+    }
+    if (notFoundConfirmYes) {
+        notFoundConfirmYes.addEventListener('click', () => {
+            // Ẩn các nút xác nhận đi
+            const confirmButtons = document.querySelector('.confirmation-buttons');
+            if(confirmButtons) confirmButtons.style.display = 'none';
+
+            // Bắt đầu chuỗi animation tự động
+            const notFoundSlides = {
+                searching: document.getElementById('slide-notfound-searching'),
+                result: document.getElementById('slide-notfound-result'),
+                back: document.getElementById('slide-notfound-back')
+            };
+
+            function showSpecificNotFoundSlide(slideKey) {
+                document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
+                const slideToShow = notFoundSlides[slideKey];
+                if (slideToShow) {
+                    slideToShow.classList.add('active-slide');
+                    const textElements = slideToShow.querySelectorAll('h2, p');
+                    wrapLetters(textElements);
+                    anime({
+                        targets: slideToShow.querySelectorAll('.letter'),
+                        translateY: [20, 0],
+                        opacity: [0, 1],
+                        delay: anime.stagger(20)
+                    });
+                }
+            }
+
+            setTimeout(() => {
+                showSpecificNotFoundSlide('searching');
+                setTimeout(() => {
+                    showSpecificNotFoundSlide('result');
+                    setTimeout(() => {
+                        showSpecificNotFoundSlide('back');
+                        closeWrappedBtn.style.display = 'inline-block'; // Hiện nút đóng ở cuối
+                    }, 4000);
+                }, 2000);
+            }, 500); // Bắt đầu ngay sau 0.5s
+        });
+    }
+
+    if (notFoundConfirmNo) {
+        notFoundConfirmNo.addEventListener('click', () => {
+            // Logic này giống hệt nút Đóng (close)
+            wrappedContainer.classList.remove('active');
+            document.body.classList.remove('wrapped-active');
+            lookupFormContainer.style.display = 'block';
+            anime({ targets: lookupFormContainer, opacity: [0, 1] });
+            lookupForm.reset();
+            lookupErrorMessage.textContent = '';
+            document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
         });
     }
 });
