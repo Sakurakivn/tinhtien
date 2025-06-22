@@ -394,7 +394,31 @@
             margin-top: 15px;
             color: rgba(255, 255, 255, 0.9);
         }
+        .confirmation-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
 
+        .confirmation-buttons .action-button {
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 25px;
+            border: 2px solid white;
+            background-color: transparent;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirmation-buttons .action-button.yes:hover {
+            background-color: white;
+            color: #4CAF50; /* Màu xanh lá cây */
+        }
+
+        .confirmation-buttons .action-button.no:hover {
+            background-color: white;
+            color: #f44336; /* Màu đỏ */
         /* CSS cho responsive chung hơn (nếu bạn không đặt trong style.css chính) */
         @media (max-width: 768px) {
             .wrapped-slide h2 { font-size: 1.8em; }
