@@ -229,6 +229,77 @@
             /* Ẩn đi ban đầu */
             visibility: hidden; 
         }
+        .searching-animation .spinner {
+            border: 8px solid rgba(255, 255, 255, 0.2);
+            border-top: 8px solid #ffeb3b; /* Màu vàng nổi bật */
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1.5s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 2. CSS cho Slide Tổng kết để chia sẻ */
+        #slide-summary {
+            background: none; /* Bỏ nền của slide để dùng nền của card */
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #432889, #1f5ca3);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            text-align: center;
+        }
+        .summary-header h3 {
+            font-size: 1.5em;
+            color: #ffeb3b;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .summary-header h2 {
+            font-size: 2.2em;
+            margin: 5px 0 25px 0;
+            color: #fff;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .summary-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+        }
+        .summary-item i {
+            font-size: 2em;
+            color: #ffeb3b;
+            margin-bottom: 10px;
+        }
+        .summary-value {
+            display: block;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+        .summary-label {
+            display: block;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .summary-footer p {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+        }
         .entry-content {
             max-width: 500px;
             padding: 20px;
@@ -500,7 +571,62 @@
             <h2>Xin Chân Thành Cảm Ơn!</h2>
             <p id="thankYouName">Cảm ơn bạn đã luôn tin tưởng và ủng hộ!</p>
             </div>
+        <div class="wrapped-slide" id="slide-summary">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h3>Bảng Vàng In Ấn</h3>
+                    <h2 id="summary-name">...</h2>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <i class="fas fa-receipt"></i>
+                        <span class="summary-value" id="summary-total-orders">0</span>
+                        <span class="summary-label">Đơn Hàng</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-wallet"></i>
+                        <span class="summary-value" id="summary-total-spent">0</span>
+                        <span class="summary-label">Đã Chi Tiêu</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="summary-value" id="summary-total-pages">0</span>
+                        <span class="summary-label">Trang In</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-heart"></i>
+                        <span class="summary-value" id="summary-fav-print-type">...</span>
+                        <span class="summary-label">"Gu" In Ấn</span>
+                    </div>
+                </div>
+                <div class="summary-footer">
+                    <p>Cảm ơn bạn đã là một phần của hành trình này!</p>
+                </div>
+            </div>
+        </div>
 
+
+        <div class="wrapped-slide not-found-slide" id="slide-notfound-confirm">
+            <i class="fas fa-search icon-large"></i>
+            <p style="font-size: 1.5em;">Bạn đang tìm <span id="notFoundNameConfirm" class="highlight">...</span> sao?</p>
+        </div>
+        <div class="wrapped-slide not-found-slide" id="slide-notfound-searching">
+            <div class="searching-animation">
+                <div class="spinner"></div>
+                <p>Đang tìm kiếm trong ký ức...</p>
+            </div>
+        </div>
+        <div class="wrapped-slide not-found-slide" id="slide-notfound-result">
+            <i class="fas fa-sad-tear icon-large"></i>
+            <h2>Oh! Tớ không tìm thấy tên của bạn rồi... :(</h2>
+            <p>Bạn hãy kiểm tra xem bạn đã nhập đúng chưa, hoặc có thể tớ chưa cập nhật thông tin của cậu vào rồi ý! (Vì đây là dữ liệu được cập nhật từ tháng 2!)</p>
+            <p style="font-weight: bold; margin-top: 20px;">Nếu không có, hãy liên hệ với tớ nhé!</p>
+        </div>
+        <div class="wrapped-slide not-found-slide" id="slide-notfound-back">
+            <i class="fas fa-undo icon-large"></i>
+            <p>Hãy thử lại với một tên khác nhé!</p>
+            <p>(Nhấn nút "Đóng" để quay lại)</p>
+        </div>
         <div class="wrapped-controls">
             <button id="prevSlideBtn" style="display: none;"><i class="fas fa-arrow-left"></i> Trước</button>
             <button id="nextSlideBtn">Tiếp theo <i class="fas fa-arrow-right"></i></button>
