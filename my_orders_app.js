@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSlideIndex = index;
     }
 
+    // SỬA LỖI VÀ NÂNG CẤP: Rút ngắn thời gian và thêm animation cho "Not Found"
     function startNotFoundExperience(name) {
         const notFoundSlides = {
             confirm: document.getElementById('slide-notfound-confirm'),
@@ -186,21 +187,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function showSpecificNotFoundSlide(slideKey) {
             document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
-            if (notFoundSlides[slideKey]) {
-                notFoundSlides[slideKey].classList.add('active-slide');
+            const slideToShow = notFoundSlides[slideKey];
+            if (slideToShow) {
+                slideToShow.classList.add('active-slide');
+                // Thêm animation cho các phần tử text
+                const textElements = slideToShow.querySelectorAll('h2, p');
+                wrapLetters(textElements);
+                anime({
+                    targets: slideToShow.querySelectorAll('.letter'),
+                    translateY: [20, 0],
+                    opacity: [0, 1],
+                    delay: anime.stagger(20)
+                });
             }
         }
         
         showSpecificNotFoundSlide('confirm');
+        // Rút ngắn thời gian
         setTimeout(() => {
             showSpecificNotFoundSlide('searching');
             setTimeout(() => {
                 showSpecificNotFoundSlide('result');
                 setTimeout(() => {
                     showSpecificNotFoundSlide('back');
-                }, 5000);
-            }, 2500);
-        }, 3000);
+                }, 4000); // Rút ngắn từ 5000ms
+            }, 2000); // Rút ngắn từ 2500ms
+        }, 2500); // Rút ngắn từ 3000ms
     }
     
     async function startWrappedExperience(name) {
