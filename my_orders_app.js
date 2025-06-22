@@ -166,45 +166,48 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSlideIndex = index;
     }
 
-    // SỬA LỖI VÀ NÂNG CẤP: Rút ngắn thời gian và thêm animation cho "Not Found"
-    function startNotFoundExperience(name) {
+    function showSpecificNotFoundSlide(slideKey) {
         const notFoundSlides = {
             confirm: document.getElementById('slide-notfound-confirm'),
             searching: document.getElementById('slide-notfound-searching'),
             result: document.getElementById('slide-notfound-result'),
             back: document.getElementById('slide-notfound-back')
         };
-        
+
+        document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
+        const slideToShow = notFoundSlides[slideKey];
+
+        if (slideToShow) {
+            slideToShow.classList.add('active-slide');
+            
+            // SỬA LỖI: Tạo một selector string cụ thể để truyền vào hàm wrapLetters
+            const textSelector = `#${slideToShow.id} h2, #${slideToShow.id} p`;
+            wrapLetters(textSelector);
+
+            anime({
+                targets: `#${slideToShow.id} .letter`, // Target đúng các chữ cái trong slide hiện tại
+                translateY: [20, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(20)
+            });
+        }
+    }
+
+    function startNotFoundExperience(name) {
         document.getElementById('notFoundNameConfirm').textContent = `'${name}'`;
         
         lookupFormContainer.style.display = 'none';
         wrappedContainer.classList.add('active');
         document.body.classList.add('wrapped-active');
         
-        // Ẩn các nút điều khiển chính
         prevSlideBtn.style.display = 'none';
         nextSlideBtn.style.display = 'none';
-        closeWrappedBtn.style.display = 'none';
-
-        function showSpecificNotFoundSlide(slideKey) {
-            document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
-            const slideToShow = notFoundSlides[slideKey];
-            if (slideToShow) {
-                slideToShow.classList.add('active-slide');
-                const textElements = slideToShow.querySelectorAll('h2, p');
-                wrapLetters(textElements);
-                anime({
-                    targets: slideToShow.querySelectorAll('.letter'),
-                    translateY: [20, 0],
-                    opacity: [0, 1],
-                    delay: anime.stagger(20)
-                });
-            }
-        }
+        closeWrappedBtn.style.display = 'none'; // Sẽ hiện lại ở cuối
         
         // Chỉ hiển thị slide xác nhận ban đầu
         showSpecificNotFoundSlide('confirm');
     }
+    
     
     async function startWrappedExperience(name) {
         lookupErrorMessage.textContent = '';
@@ -335,33 +338,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (notFoundConfirmYes) {
         notFoundConfirmYes.addEventListener('click', () => {
-            // Ẩn các nút xác nhận đi
             const confirmButtons = document.querySelector('.confirmation-buttons');
             if(confirmButtons) confirmButtons.style.display = 'none';
 
             // Bắt đầu chuỗi animation tự động
-            const notFoundSlides = {
-                searching: document.getElementById('slide-notfound-searching'),
-                result: document.getElementById('slide-notfound-result'),
-                back: document.getElementById('slide-notfound-back')
-            };
-
-            function showSpecificNotFoundSlide(slideKey) {
-                document.querySelectorAll('.wrapped-slide').forEach(s => s.classList.remove('active-slide'));
-                const slideToShow = notFoundSlides[slideKey];
-                if (slideToShow) {
-                    slideToShow.classList.add('active-slide');
-                    const textElements = slideToShow.querySelectorAll('h2, p');
-                    wrapLetters(textElements);
-                    anime({
-                        targets: slideToShow.querySelectorAll('.letter'),
-                        translateY: [20, 0],
-                        opacity: [0, 1],
-                        delay: anime.stagger(20)
-                    });
-                }
-            }
-
             setTimeout(() => {
                 showSpecificNotFoundSlide('searching');
                 setTimeout(() => {
@@ -371,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         closeWrappedBtn.style.display = 'inline-block'; // Hiện nút đóng ở cuối
                     }, 4000);
                 }, 2000);
-            }, 500); // Bắt đầu ngay sau 0.5s
+            }, 500);
         });
     }
 
