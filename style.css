@@ -1851,3 +1851,50 @@ body {
     font-size: 1em;
 }
 
+/* ===== CSS CHO NÚT XUẤT FILE ===== */
+
+/* Định dạng cho phần header của card kết quả để chứa nút */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.card-header h3 {
+    margin: 0; /* Bỏ margin mặc định của h3 */
+}
+
+/* Định dạng riêng cho nút xuất file */
+.action-button.export-btn {
+    background-color: #17a2b8; /* Màu xanh cyan */
+    padding: 8px 15px;
+    font-size: 0.9em;
+    display: inline-flex; /* Để icon và chữ thẳng hàng */
+    align-items: center;
+}
+
+.action-button.export-btn i {
+    margin-right: 6px;
+}
+
+.action-button.export-btn:hover {
+    background-color: #138496;
+}
+/* ===== CSS CHO BỐ CỤC LƯỚI CỦA INPUT ===== */
+.input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Chia làm 2 cột bằng nhau */
+    gap: 20px; /* Khoảng cách giữa 2 cột */
+    margin-bottom: 20px;
+}
+
+/* Trên màn hình nhỏ, chuyển về 1 cột */
+@media (max-width: 600px) {
+    .input-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
