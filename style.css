@@ -1833,4 +1833,21 @@ body {
     background-color: #f9f9f9;
     font-style: italic;
 }
+/* ===== CSS CHO LỰA CHỌN API ===== */
+.api-selection-container {
+    margin-bottom: 20px;
+}
+.api-selection-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.api-selection-container select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 1em;
+}
 
