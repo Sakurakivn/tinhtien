@@ -23,16 +23,27 @@
 
         <!-- KHUNG NHẬP LIỆU -->
         <div class="input-card">
-            <div class="api-selection-container">
-                <label for="api-select">Chọn nguồn tra cứu (Nếu lỗi sẽ tự động chuyển):</label>
-                <select id="api-select">
-                    <option value="dantri" selected>Nguồn 1 (Dân Trí)</option>
-                    <option value="tuoitre">Nguồn 2 (Tuổi Trẻ)</option>
-                    <option value="viettimes">Nguồn 3 (VietTimes)</option>
-                </select>
+            <!-- ▼▼▼ CẬP NHẬT: Bọc các lựa chọn trong một grid ▼▼▼ -->
+            <div class="input-grid">
+                <div class="api-selection-container">
+                    <label for="api-select">Chọn nguồn tra cứu:</label>
+                    <select id="api-select">
+                        <option value="dantri" selected>Nguồn 1 (Dân Trí)</option>
+                        <option value="tuoitre">Nguồn 2 (Tuổi Trẻ)</option>
+                        <option value="viettimes">Nguồn 3 (VietTimes)</option>
+                    </select>
+                </div>
+                <div class="api-selection-container">
+                    <label for="year-select">Chọn năm tra cứu:</label>
+                    <select id="year-select">
+                        <!-- Các năm sẽ được tự động thêm vào bằng JavaScript -->
+                    </select>
+                </div>
             </div>
+
             <label for="sbd-textarea">Nhập SBD (mỗi SBD một dòng):</label>
             <textarea id="sbd-textarea" placeholder="Ví dụ:&#10;02000001&#10;02000002&#10;..."></textarea>
+            
             <button id="lookup-button" class="action-button">
                 <i class="fas fa-rocket"></i> Tra cứu
             </button>
@@ -42,17 +53,14 @@
             </div>
         </div>
 
-        <!-- KHUNG LOG -->
+        <!-- Khung Log và Khung Kết quả giữ nguyên -->
         <div class="log-card">
             <h3><i class="fas fa-history"></i> Nhật ký tra cứu</h3>
             <div id="log-container" class="log-container">
                 <p class="placeholder-text">Nhật ký sẽ xuất hiện ở đây...</p>
             </div>
         </div>
-
-        <!-- KHUNG KẾT QUẢ -->
         <div class="results-card">
-            <!-- ▼▼▼ CẬP NHẬT Ở ĐÂY ▼▼▼ -->
             <div class="card-header">
                 <h3>Kết quả tra cứu</h3>
                 <button id="export-results-btn" class="action-button export-btn" style="display: none;">
