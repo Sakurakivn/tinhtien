@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('results-table-container');
     const logContainer = document.getElementById('log-container');
     const apiSelect = document.getElementById('api-select');
+    const exportButton = document.getElementById('export-results-btn'); // Nút mới
+
+    // Biến để lưu kết quả tra cứu
+    let currentResults = [];
 
     // === EVENT LISTENERS ===
     lookupButton.addEventListener('click', () => {
@@ -18,63 +22,55 @@ document.addEventListener('DOMContentLoaded', () => {
         startLookup(sbdList);
     });
 
-    // === CÁC HÀM XỬ LÝ ===
+    exportButton.addEventListener('click', () => {
+        handleExportToCSV(currentResults);
+    });
 
-    /**
-     * "Chuẩn hóa" dữ liệu từ các API khác nhau về một định dạng chung.
-     */
+    // === CÁC HÀM XỬ LÝ ===
+    function addLogMessage(message, type = 'info') {
+        if (!logContainer) return;
+        if (logContainer.querySelector('.placeholder-text')) {
+            logContainer.innerHTML = '';
+        }
+        const logEntry = document.createElement('p');
+        logEntry.className = `log-message ${type}`;
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
     function normalizeData(source, data) {
         if (!data) return null;
+        const parseScore = (score) => (score !== null && score !== undefined && score >= 0) ? parseFloat(score) : null;
 
         switch (source) {
             case 'dantri':
                 return data;
-            
             case 'tuoitre':
                 const studentTuoitre = data.data?.[0];
                 if (!studentTuoitre) return null;
                 return {
-                    sbd: studentTuoitre.SBD,
-                    toan: studentTuoitre.TOAN,
-                    van: studentTuoitre.VAN,
-                    ngoaiNgu: studentTuoitre.NGOAI_NGU,
-                    vatLy: studentTuoitre.LI,
-                    hoaHoc: studentTuoitre.HOA,
-                    sinhHoc: studentTuoitre.SINH,
-                    lichSu: studentTuoitre.SU,
-                    diaLy: studentTuoitre.DIA,
-                    gdcd: studentTuoitre.GIAO_DUC_CONG_DAN
+                    sbd: studentTuoitre.SBD, toan: parseScore(studentTuoitre.TOAN), van: parseScore(studentTuoitre.VAN),
+                    ngoaiNgu: parseScore(studentTuoitre.NGOAI_NGU), vatLy: parseScore(studentTuoitre.LI),
+                    hoaHoc: parseScore(studentTuoitre.HOA), sinhHoc: parseScore(studentTuoitre.SINH),
+                    lichSu: parseScore(studentTuoitre.SU), diaLy: parseScore(studentTuoitre.DIA),
+                    gdcd: parseScore(studentTuoitre.GIAO_DUC_CONG_DAN)
                 };
-
             case 'viettimes':
                 const studentVietTimes = data.data?.results?.[0];
                 if (!studentVietTimes) return null;
-                // Chuyển đổi điểm từ chuỗi sang số, xử lý trường hợp -1
-                const parseScore = (scoreStr) => {
-                    const score = parseFloat(scoreStr);
-                    return score < 0 ? null : score;
-                };
                 return {
-                    sbd: studentVietTimes.sbd,
-                    toan: parseScore(studentVietTimes.dm01),
-                    van: parseScore(studentVietTimes.dm02),
-                    ngoaiNgu: parseScore(studentVietTimes.dm07),
-                    vatLy: parseScore(studentVietTimes.dm03),
-                    hoaHoc: parseScore(studentVietTimes.dm04),
-                    sinhHoc: parseScore(studentVietTimes.dm05),
-                    lichSu: parseScore(studentVietTimes.dm06),
-                    diaLy: parseScore(studentVietTimes.dm08),
+                    sbd: studentVietTimes.sbd, toan: parseScore(studentVietTimes.dm01), van: parseScore(studentVietTimes.dm02),
+                    ngoaiNgu: parseScore(studentVietTimes.dm07), vatLy: parseScore(studentVietTimes.dm03),
+                    hoaHoc: parseScore(studentVietTimes.dm04), sinhHoc: parseScore(studentVietTimes.dm05),
+                    lichSu: parseScore(studentVietTimes.dm06), diaLy: parseScore(studentVietTimes.dm08),
                     gdcd: parseScore(studentVietTimes.dm09)
                 };
-
             default:
                 return null;
         }
     }
     
-    /**
-     * Tra cứu điểm cho một SBD, có cơ chế thử lại với API khác nếu thất bại.
-     */
     async function fetchScoreWithFallback(sbd, preferredApi) {
         const apiSources = ['dantri', 'tuoitre', 'viettimes'];
         const tryOrder = [preferredApi, ...apiSources.filter(api => api !== preferredApi)];
@@ -87,14 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const result = await response.json();
                     const normalized = normalizeData(result.source, result.data);
                     if (normalized && normalized.sbd) {
-                        addLogMessage(`SBD ${sbd}: Tra cứu thành công từ nguồn ${source}!`, 'success');
+                        addLogMessage(`SBD ${sbd}: Tra cứu thành công từ ${source}!`, 'success');
                         return normalized;
                     }
                 }
-                addLogMessage(`SBD ${sbd}: Nguồn ${source} không có dữ liệu.`, 'error');
+                addLogMessage(`SBD ${sbd}: Nguồn ${source} không có dữ liệu. Đang chuyển nguồn...`, 'error');
             } catch (error) {
                 console.error(`Lỗi với nguồn ${source} cho SBD ${sbd}:`, error);
-                addLogMessage(`SBD ${sbd}: Nguồn ${source} bị lỗi.`, 'error');
+                addLogMessage(`SBD ${sbd}: Nguồn ${source} bị lỗi. Đang chuyển nguồn...`, 'error');
             }
         }
         return { sbd: sbd, notFound: true };
@@ -102,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function startLookup(sbdList) {
         lookupButton.disabled = true;
+        exportButton.style.display = 'none'; // Ẩn nút xuất khi bắt đầu
         lookupButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
         progressBar.value = 0;
         progressText.textContent = '';
@@ -116,46 +113,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const sbd = sbdList[i].trim();
             const result = await fetchScoreWithFallback(sbd, preferredApi);
             processedResults.push(result);
-
             const progressValue = ((i + 1) / totalSBDs) * 100;
             progressBar.value = progressValue;
             progressText.textContent = `Hoàn thành ${i + 1}/${totalSBDs}`;
         }
         
+        currentResults = processedResults; // Lưu kết quả để xuất file
         displayResults(processedResults);
         lookupButton.disabled = false;
         lookupButton.innerHTML = '<i class="fas fa-rocket"></i> Tra cứu';
         addLogMessage('Hoàn tất tra cứu!', 'success');
     }
 
-    // ▼▼▼ SỬA LỖI: CUNG CẤP LẠI ĐẦY ĐỦ NỘI DUNG CHO CÁC HÀM NÀY ▼▼▼
-
-    /**
-     * Thêm một dòng log vào khung nhật ký và tự động cuộn xuống.
-     * @param {string} message - Nội dung log.
-     * @param {'success'|'error'|'info'} type - Loại log.
-     */
-    function addLogMessage(message, type = 'info') {
-        if (!logContainer) return;
-        if (logContainer.querySelector('.placeholder-text')) {
-            logContainer.innerHTML = ''; // Xóa placeholder khi có log đầu tiên
-        }
-        const logEntry = document.createElement('p');
-        logEntry.className = `log-message ${type}`;
-        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-        logContainer.appendChild(logEntry);
-        logContainer.scrollTop = logContainer.scrollHeight;
-    }
-
-    /**
-     * Hiển thị kết quả lên bảng, bao gồm cả các SBD không tìm thấy.
-     * @param {Array} results - Mảng kết quả đã được xử lý.
-     */
     function displayResults(results) {
         if (results.length === 0) {
             resultsContainer.innerHTML = '<p class="placeholder-text">Không có SBD nào được xử lý.</p>';
+            exportButton.style.display = 'none';
             return;
         }
+
+        exportButton.style.display = 'inline-flex'; // Hiện nút xuất khi có kết quả
 
         const allPossibleSubjects = {
             "toan": "Toán", "van": "Văn", "ngoaiNgu": "Ngoại Ngữ",
@@ -164,33 +141,62 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         let tableHTML = '<table class="results-table">';
-        
         tableHTML += '<thead><tr><th>STT</th><th>SBD</th>';
-        for (const subjectName of Object.values(allPossibleSubjects)) {
-            tableHTML += `<th>${subjectName}</th>`;
-        }
-        tableHTML += '</tr></thead>';
+        Object.values(allPossibleSubjects).forEach(name => tableHTML += `<th>${name}</th>`);
+        tableHTML += '</tr></thead><tbody>';
 
-        tableHTML += '<tbody>';
         results.forEach((student, index) => {
             const rowClass = student.notFound ? 'class="not-found-row"' : '';
-            tableHTML += `<tr ${rowClass}>`;
-            tableHTML += `<td>${index + 1}</td>`;
-            tableHTML += `<td>${student.sbd}</td>`;
-            
-            for (const subjectKey of Object.keys(allPossibleSubjects)) {
-                if (student.notFound) {
-                    tableHTML += `<td>Không tìm thấy</td>`;
-                } else {
-                    const score = student[subjectKey];
-                    // Hiển thị 'N/A' nếu điểm là null hoặc undefined
-                    tableHTML += `<td>${score !== null && score !== undefined ? score : 'N/A'}</td>`;
-                }
-            }
+            tableHTML += `<tr ${rowClass}><td>${index + 1}</td><td>${student.sbd}</td>`;
+            Object.keys(allPossibleSubjects).forEach(subjectKey => {
+                const cellValue = student.notFound ? 'Không tìm thấy' : (student[subjectKey] ?? '');
+                tableHTML += `<td>${cellValue}</td>`;
+            });
             tableHTML += '</tr>';
         });
         tableHTML += '</tbody></table>';
-
         resultsContainer.innerHTML = tableHTML;
+    }
+
+    // --- HÀM XUẤT CSV MỚI ---
+    function handleExportToCSV(dataToExport) {
+        if (!dataToExport || dataToExport.length === 0) {
+            showNotification("Không có dữ liệu để xuất.", "error");
+            return;
+        }
+
+        const allPossibleSubjects = {
+            "toan": "Toán", "van": "Văn", "ngoaiNgu": "Ngoại Ngữ",
+            "vatLy": "Lý", "hoaHoc": "Hóa", "sinhHoc": "Sinh",
+            "lichSu": "Sử", "diaLy": "Địa", "gdcd": "GDCD"
+        };
+
+        const headers = ["SBD", ...Object.values(allPossibleSubjects)];
+        
+        const rows = dataToExport.map(student => {
+            const row = [student.sbd];
+            Object.keys(allPossibleSubjects).forEach(subjectKey => {
+                const cellValue = student.notFound ? 'NOT_FOUND' : (student[subjectKey] ?? '');
+                row.push(cellValue);
+            });
+            return row;
+        });
+
+        let csvContent = headers.join(",") + "\r\n";
+        rows.forEach(rowArray => {
+            csvContent += rowArray.join(",") + "\r\n";
+        });
+
+        const BOM = "\uFEFF"; // Để Excel đọc tiếng Việt tốt hơn
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "ket_qua_tra_cuu_diem.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showNotification("Đã xuất file CSV thành công!", "success");
     }
 });
