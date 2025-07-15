@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switch (source) {
             case 'dantri':
-                // Dữ liệu đã khá chuẩn, chỉ cần trả về
                 return data;
             
             case 'tuoitre':
@@ -50,15 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'viettimes':
                 const studentVietTimes = data.data?.results?.[0];
                 if (!studentVietTimes) return null;
+                // Chuyển đổi điểm từ chuỗi sang số, xử lý trường hợp -1
+                const parseScore = (scoreStr) => {
+                    const score = parseFloat(scoreStr);
+                    return score < 0 ? null : score;
+                };
                 return {
                     sbd: studentVietTimes.sbd,
-                    toan: parseFloat(studentVietTimes.dm01),
-                    van: parseFloat(studentVietTimes.dm02),
-                    ngoaiNgu: parseFloat(studentVietTimes.dm07),
-                    vatLy: parseFloat(studentVietTimes.dm03),
-                    hoaHoc: parseFloat(studentVietTimes.dm04),
-                    sinhHoc: parseFloat(studentVietTimes.dm05),
-                    // Các môn khác có thể không có hoặc cần ánh xạ thêm
+                    toan: parseScore(studentVietTimes.dm01),
+                    van: parseScore(studentVietTimes.dm02),
+                    ngoaiNgu: parseScore(studentVietTimes.dm07),
+                    vatLy: parseScore(studentVietTimes.dm03),
+                    hoaHoc: parseScore(studentVietTimes.dm04),
+                    sinhHoc: parseScore(studentVietTimes.dm05),
+                    lichSu: parseScore(studentVietTimes.dm06),
+                    diaLy: parseScore(studentVietTimes.dm08),
+                    gdcd: parseScore(studentVietTimes.dm09)
                 };
 
             default:
@@ -71,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchScoreWithFallback(sbd, preferredApi) {
         const apiSources = ['dantri', 'tuoitre', 'viettimes'];
-        // Tạo một danh sách API để thử, bắt đầu bằng API được người dùng ưu tiên
         const tryOrder = [preferredApi, ...apiSources.filter(api => api !== preferredApi)];
 
         for (const source of tryOrder) {
@@ -86,14 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         return normalized;
                     }
                 }
-                // Nếu không thành công, sẽ tự động chuyển sang vòng lặp tiếp theo
                 addLogMessage(`SBD ${sbd}: Nguồn ${source} không có dữ liệu.`, 'error');
             } catch (error) {
                 console.error(`Lỗi với nguồn ${source} cho SBD ${sbd}:`, error);
                 addLogMessage(`SBD ${sbd}: Nguồn ${source} bị lỗi.`, 'error');
             }
         }
-        // Nếu tất cả các nguồn đều thất bại
         return { sbd: sbd, notFound: true };
     }
 
@@ -102,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lookupButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
         progressBar.value = 0;
         progressText.textContent = '';
-        logContainer.innerHTML = '';
+        logContainer.innerHTML = '<p class="placeholder-text">Bắt đầu quá trình tra cứu...</p>';
         resultsContainer.innerHTML = '<p class="placeholder-text">Đang chuẩn bị kết quả...</p>';
 
         const preferredApi = apiSelect.value;
@@ -125,7 +128,69 @@ document.addEventListener('DOMContentLoaded', () => {
         addLogMessage('Hoàn tất tra cứu!', 'success');
     }
 
-    // Các hàm displayResults, addLogMessage giữ nguyên như phiên bản trước
-    function addLogMessage(message, type = 'info') { /* ... */ }
-    function displayResults(results) { /* ... */ }
+    // ▼▼▼ SỬA LỖI: CUNG CẤP LẠI ĐẦY ĐỦ NỘI DUNG CHO CÁC HÀM NÀY ▼▼▼
+
+    /**
+     * Thêm một dòng log vào khung nhật ký và tự động cuộn xuống.
+     * @param {string} message - Nội dung log.
+     * @param {'success'|'error'|'info'} type - Loại log.
+     */
+    function addLogMessage(message, type = 'info') {
+        if (!logContainer) return;
+        if (logContainer.querySelector('.placeholder-text')) {
+            logContainer.innerHTML = ''; // Xóa placeholder khi có log đầu tiên
+        }
+        const logEntry = document.createElement('p');
+        logEntry.className = `log-message ${type}`;
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    /**
+     * Hiển thị kết quả lên bảng, bao gồm cả các SBD không tìm thấy.
+     * @param {Array} results - Mảng kết quả đã được xử lý.
+     */
+    function displayResults(results) {
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<p class="placeholder-text">Không có SBD nào được xử lý.</p>';
+            return;
+        }
+
+        const allPossibleSubjects = {
+            "toan": "Toán", "van": "Văn", "ngoaiNgu": "Ngoại Ngữ",
+            "vatLy": "Lý", "hoaHoc": "Hóa", "sinhHoc": "Sinh",
+            "lichSu": "Sử", "diaLy": "Địa", "gdcd": "GDCD"
+        };
+        
+        let tableHTML = '<table class="results-table">';
+        
+        tableHTML += '<thead><tr><th>STT</th><th>SBD</th>';
+        for (const subjectName of Object.values(allPossibleSubjects)) {
+            tableHTML += `<th>${subjectName}</th>`;
+        }
+        tableHTML += '</tr></thead>';
+
+        tableHTML += '<tbody>';
+        results.forEach((student, index) => {
+            const rowClass = student.notFound ? 'class="not-found-row"' : '';
+            tableHTML += `<tr ${rowClass}>`;
+            tableHTML += `<td>${index + 1}</td>`;
+            tableHTML += `<td>${student.sbd}</td>`;
+            
+            for (const subjectKey of Object.keys(allPossibleSubjects)) {
+                if (student.notFound) {
+                    tableHTML += `<td>Không tìm thấy</td>`;
+                } else {
+                    const score = student[subjectKey];
+                    // Hiển thị 'N/A' nếu điểm là null hoặc undefined
+                    tableHTML += `<td>${score !== null && score !== undefined ? score : 'N/A'}</td>`;
+                }
+            }
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody></table>';
+
+        resultsContainer.innerHTML = tableHTML;
+    }
 });
