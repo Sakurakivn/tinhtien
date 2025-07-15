@@ -1782,3 +1782,55 @@ body {
 .results-table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
+/* ===== CSS CHO KHUNG LOG ĐỘNG ===== */
+.log-card {
+    background-color: #2e2e33; /* Nền tối cho log */
+    color: #f0f0f0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.log-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    color: #fff;
+}
+
+.log-container {
+    height: 150px; /* Chiều cao cố định */
+    overflow-y: auto; /* Tự động có thanh cuộn */
+    background-color: #1e1e21;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.log-message {
+    margin: 0 0 5px 0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    white-space: pre-wrap; /* Giữ định dạng và xuống dòng */
+}
+
+.log-message.success {
+    color: #a7e9af; /* Màu xanh lá cây nhạt */
+}
+
+.log-message.error {
+    color: #ff8a8a; /* Màu đỏ nhạt */
+    background-color: rgba(255, 138, 138, 0.1);
+}
+
+/* Định dạng cho dòng không tìm thấy trong bảng kết quả */
+.results-table tr.not-found-row {
+    color: #999;
+    background-color: #f9f9f9;
+    font-style: italic;
+}
+
