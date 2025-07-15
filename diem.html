@@ -21,6 +21,7 @@
             </a>
         </header>
 
+        <!-- KHUNG NHẬP LIỆU -->
         <div class="input-card">
             <div class="api-selection-container">
                 <label for="api-select">Chọn nguồn tra cứu (Nếu lỗi sẽ tự động chuyển):</label>
@@ -30,10 +31,8 @@
                     <option value="viettimes">Nguồn 3 (VietTimes)</option>
                 </select>
             </div>
-
             <label for="sbd-textarea">Nhập SBD (mỗi SBD một dòng):</label>
             <textarea id="sbd-textarea" placeholder="Ví dụ:&#10;02000001&#10;02000002&#10;..."></textarea>
-            
             <button id="lookup-button" class="action-button">
                 <i class="fas fa-rocket"></i> Tra cứu
             </button>
@@ -43,6 +42,7 @@
             </div>
         </div>
 
+        <!-- KHUNG LOG -->
         <div class="log-card">
             <h3><i class="fas fa-history"></i> Nhật ký tra cứu</h3>
             <div id="log-container" class="log-container">
@@ -50,8 +50,15 @@
             </div>
         </div>
 
+        <!-- KHUNG KẾT QUẢ -->
         <div class="results-card">
-            <h3>Kết quả tra cứu</h3>
+            <!-- ▼▼▼ CẬP NHẬT Ở ĐÂY ▼▼▼ -->
+            <div class="card-header">
+                <h3>Kết quả tra cứu</h3>
+                <button id="export-results-btn" class="action-button export-btn" style="display: none;">
+                    <i class="fas fa-file-csv"></i> Xuất CSV
+                </button>
+            </div>
             <div class="table-responsive-container" id="results-table-container">
                 <p class="placeholder-text">Bảng kết quả sẽ được hiển thị ở đây sau khi tra cứu...</p>
             </div>
