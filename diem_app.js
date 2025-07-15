@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentResults = [];
 
     // === HÀM KHỞI TẠO ===
+    /**
+     * Tự động tạo danh sách các năm trong menu dropdown, bắt đầu từ năm hiện tại.
+     */
     function populateYearSelect() {
         if (!yearSelect) return;
         const currentYear = new Date().getFullYear();
@@ -27,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === CÁC HÀM XỬ LÝ CHÍNH ===
 
+    /**
+     * Bắt đầu quá trình tra cứu khi nhấn nút.
+     * @param {string[]} sbdList - Danh sách các SBD cần tra cứu.
+     */
     async function startLookup(sbdList) {
         // Vô hiệu hóa các nút và reset giao diện
         lookupButton.disabled = true;
@@ -45,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Lặp qua từng SBD để tra cứu
         for (let i = 0; i < totalSBDs; i++) {
             const sbd = sbdList[i].trim();
-            if (!sbd) continue; // Bỏ qua các dòng trống
             const result = await fetchScoreWithFallback(sbd, preferredApi, selectedYear);
             processedResults.push(result);
 
@@ -64,6 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
         addLogMessage('Hoàn tất tra cứu!', 'success');
     }
 
+    /**
+     * Lấy điểm cho một SBD, có cơ chế tự động thử nguồn API khác nếu thất bại.
+     * @param {string} sbd - Số báo danh.
+     * @param {string} preferredApi - Nguồn API ưu tiên.
+     * @param {string} year - Năm tra cứu.
+     * @returns {object} Dữ liệu điểm đã được chuẩn hóa.
+     */
     async function fetchScoreWithFallback(sbd, preferredApi, year) {
         const apiSources = ['dantri', 'tuoitre', 'viettimes'];
         const tryOrder = [preferredApi, ...apiSources.filter(api => api !== preferredApi)];
@@ -86,9 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 addLogMessage(`SBD ${sbd}: Nguồn ${source} bị lỗi. Đang chuyển...`, 'error');
             }
         }
+        // Trả về đối tượng notFound nếu tất cả các nguồn đều thất bại
         return { sbd: sbd, notFound: true };
     }
 
+    /**
+     * Hiển thị kết quả lên bảng.
+     * @param {Array} results - Mảng kết quả đã được xử lý.
+     */
     function displayResults(results) {
         if (results.length === 0) {
             resultsContainer.innerHTML = '<p class="placeholder-text">Không có SBD nào được xử lý.</p>';
@@ -96,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        exportButton.style.display = 'inline-flex';
+        exportButton.style.display = 'inline-flex'; // Hiện nút xuất khi có kết quả
 
         const allPossibleSubjects = {
             "toan": "Toán", "van": "Văn", "ngoaiNgu": "Ngoại Ngữ",
@@ -106,10 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let tableHTML = '<table class="results-table">';
         
+        // Tạo header cho bảng
         tableHTML += '<thead><tr><th>STT</th><th>SBD</th>';
         Object.values(allPossibleSubjects).forEach(name => tableHTML += `<th>${name}</th>`);
         tableHTML += '</tr></thead><tbody>';
 
+        // Tạo các dòng dữ liệu
         results.forEach((student, index) => {
             const rowClass = student.notFound ? 'class="not-found-row"' : '';
             tableHTML += `<tr ${rowClass}><td>${index + 1}</td><td>${student.sbd}</td>`;
@@ -123,18 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.innerHTML = tableHTML;
     }
 
+    /**
+     * Xử lý việc xuất dữ liệu ra file CSV.
+     * @param {Array} dataToExport - Dữ liệu cần xuất.
+     */
     function handleExportToCSV(dataToExport) {
         if (!dataToExport || dataToExport.length === 0) {
             showNotification("Không có dữ liệu để xuất.", "error");
             return;
         }
-
-        const formatScoreForCSV = (score) => {
-            if (score === null || score === undefined || score === '') {
-                return '';
-            }
-            return String(score).replace('.', ',');
-        };
 
         const allPossibleSubjects = {
             "toan": "Toán", "van": "Văn", "ngoaiNgu": "Ngoại Ngữ",
@@ -143,26 +160,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const headers = ["SBD", ...Object.values(allPossibleSubjects)];
-        const separator = ';';
-        const csvHeader = headers.join(separator);
-
-        const csvRows = dataToExport.map(student => {
+        
+        const rows = dataToExport.map(student => {
             const row = [student.sbd];
             Object.keys(allPossibleSubjects).forEach(subjectKey => {
-                const score = student[subjectKey];
-                const cellValue = student.notFound ? 'NOT_FOUND' : formatScoreForCSV(score);
+                const cellValue = student.notFound ? 'NOT_FOUND' : (student[subjectKey] ?? '');
                 row.push(cellValue);
             });
-            return row.join(separator);
-        }).join('\r\n');
+            return row;
+        });
 
-        const csvContent = `${csvHeader}\r\n${csvRows}`;
+        let csvContent = headers.join(",") + "\r\n";
+        rows.forEach(rowArray => {
+            csvContent += rowArray.join(",") + "\r\n";
+        });
 
-        const BOM = "\uFEFF";
+        const BOM = "\uFEFF"; // Giúp Excel đọc tiếng Việt tốt hơn
         const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
+        link.setAttribute("href", URL.createObjectURL(blob));
         link.setAttribute("download", `ket_qua_tra_cuu_diem_${yearSelect.value}.csv`);
         document.body.appendChild(link);
         link.click();
